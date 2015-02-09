@@ -88,6 +88,15 @@ typedef struct tOSAL_Queue_Handle
   void * pvBuff;
 }tOSAL_Queue_Handle;
 
+typedef struct tOSAL_Task_Parameters
+{
+    void (* pTaskFcn)(void * param);
+    char * pName;
+    uint32_t uiStack_Size;
+    void * pParameters;
+    uint32_t uiTask_Priority;
+}tOSAL_Task_Parameters;
+
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -95,6 +104,9 @@ typedef struct tOSAL_Queue_Handle
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+ERROR_CODE eOSAL_Task_Param_Init     (tOSAL_Task_Parameters *pParam);
+ERROR_CODE eOSAL_Task_Create         (tOSAL_Task_Parameters *pParam);
+ERROR_CODE eOSAL_Task_Delete         (tOSAL_Task_Parameters *pParam);
 ERROR_CODE eOSAL_OS_start            (void);
 ERROR_CODE eOSAL_Is_OS_Running       (void);
 ERROR_CODE eOSAL_delay               (uint32_t uiDelay, uint32_t * puiMS_Delayed);

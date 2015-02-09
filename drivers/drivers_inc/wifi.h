@@ -29,6 +29,7 @@
 typedef enum WIFI_REQUEST_ID
 {
     WIFI_REQUEST_NONE = 0,
+    WIFI_REQUEST_TASK_PARAMETERS,
     WIFI_REQUEST_LIMIT,
 }WIFI_REQUEST_ID;
 
@@ -39,6 +40,7 @@ typedef enum WIFI_REQUEST_ID
 typedef struct tWifi_Request
 {
     WIFI_REQUEST_ID eRequestID;
+    tOSAL_Task_Parameters * pWifi_Task_Param;
 }tWifi_Request;
 
 /******************************************************************************

@@ -14,15 +14,22 @@
 #include <stdbool.h>
 
 #include "utils_inc/error_codes.h"
+#include "utils_inc/osal.h"
+#include "utils_inc/proj_debug.h"
+
 #include "drivers_inc/wifi.h"
 
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+#define TASK_WIFI_PRIORITY  2
+
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+char cWifi_Task_Name[] = "WIFI";
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,16 +58,26 @@ tWifi_Activity_State tWifi_AS;  //short tMy_struct description
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+void vWifi_Driver_Task(void * pvParameters);
+
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
 /******************************************************************************
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: vWifi_Driver_Task
+* description: WIFI driver task function
+* param description: void - pwParameters: pointer to the task parameters
+* return value description: void: should never return
 ******************************************************************************/
+void vWifi_Driver_Task(void * pvParameters)
+{
+  while(1)
+  {
+
+  }
+}
+
 
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,6 +95,7 @@ ERROR_CODE eWifi_Request_Param_Init(tWifi_Request * pParam)
   ERROR_CODE eEC = ER_FAIL;
 
   pParam->eRequestID = WIFI_REQUEST_NONE;
+  pParam->pWifi_Task_Param = NULL;
   return eEC;
 }
 
@@ -94,6 +112,17 @@ ERROR_CODE eWifi_Request(tWifi_Request * pRequest)
 
   switch(pRequest->eRequestID)
   {
+    case WIFI_REQUEST_TASK_PARAMETERS:
+    {
+      pRequest->pWifi_Task_Param->pTaskFcn = &vWifi_Driver_Task;
+      pRequest->pWifi_Task_Param->pName = cWifi_Task_Name;
+      pRequest->pWifi_Task_Param->uiStack_Size = 1024;
+      pRequest->pWifi_Task_Param->pParameters = NULL;
+      pRequest->pWifi_Task_Param->uiTask_Priority = TASK_WIFI_PRIORITY;
+      eEC = ER_OK;
+
+      break;
+    }
     default:
       eEC = ER_FAIL;
   }

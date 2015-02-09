@@ -6,6 +6,8 @@
 // ----------------------------------------------------------------------------
 
 #include "cortexm/ExceptionHandlers.h"
+#include "cmsis_device.h"
+#include "core_cm4.h"
 
 // ----------------------------------------------------------------------------
 
@@ -56,9 +58,9 @@ NMI_Handler(void)
 void __attribute__ ((section(".after_vectors"),weak))
 HardFault_Handler(void)
 {
-  while (1)
-    {
-    }
+//  __ASM volatile("BKPT #01");
+  __ASM volatile("BKPT 0x00A8");
+  while (1){}
 }
 
 #if defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__)

@@ -15,38 +15,10 @@
 #include "utils_inc/osal.h"
 #include "utils_inc/proj_debug.h"
 
-#include "Timer.h"
-#include "BlinkLed.h"
+#include "board.h"
+
 #include "drivers_inc/camera.h"
-
-// ----------------------------------------------------------------------------
-//
-// STM32F4 led blink sample (trace via ITM).
-//
-// In debug configurations, demonstrate how to print a greeting message
-// on the trace device. In release configurations the message is
-// simply discarded.
-//
-// To demonstrate POSIX retargetting, reroute the STDOUT and STDERR to the
-// trace device and display messages on both of them.
-//
-// Then demonstrates how to blink a led with 1Hz, using a
-// continuous loop and SysTick delays.
-//
-// On DEBUG, the uptime in seconds is also displayed on the trace device.
-//
-// Trace support is enabled by adding the TRACE macro definition.
-// By default the trace messages are forwarded to the ITM output,
-// but can be rerouted to any device or completely suppressed, by
-// changing the definitions required in system/src/diag/trace_impl.c
-// (currently OS_USE_TRACE_ITM, OS_USE_TRACE_SEMIHOSTING_DEBUG/_STDOUT).
-//
-
-// ----- Timing definitions -------------------------------------------------
-
-// Keep the LED on for 2/3 of a second.
-#define BLINK_ON_TICKS  (TIMER_FREQUENCY_HZ * 2 / 3)
-#define BLINK_OFF_TICKS (TIMER_FREQUENCY_HZ - BLINK_ON_TICKS)
+#include "drivers_inc/wifi.h"
 
 // ----- main() ---------------------------------------------------------------
 
@@ -56,6 +28,13 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wmissing-declarations"
 #pragma GCC diagnostic ignored "-Wreturn-type"
+
+#ifndef __WIFI_H__
+  #define tWifi_Request void *
+  #define vWifi_Driver_Task(p)
+  #define eWifi_Request_Param_Init(p)
+  #define eWifi_Request(p)
+#endif
 
 void vApplicationTickHook( void )
 {
@@ -105,17 +84,39 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
   for( ;; );
 }
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
-  uint32_t tick = 0;
+  ERROR_CODE eEC = ER_FAIL;
+  tOSAL_Task_Parameters tOSAL_Task_Param;
+  tWifi_Request tWifi_Req;
 
-  vDEBUG_init();
+  eEC = eBSP_Board_Init();
 
-  eOSAL_OS_start();
+  if(eEC == ER_OK)
+  {
+    vDEBUG_init();
+    vDEBUG("Hello world");
+    eEC = ER_OK;
+  }
 
-  // Infinite loop
-  while (1){};
+  if(eEC == ER_OK)
+  {
+    eWifi_Request_Param_Init(&tWifi_Req);
+    eOSAL_Task_Param_Init(&tOSAL_Task_Param);
+    tWifi_Req.eRequestID = WIFI_REQUEST_TASK_PARAMETERS;
+    tWifi_Req.pWifi_Task_Param = &tOSAL_Task_Param;
+    eEC = eWifi_Request(&tWifi_Req);
+
+    if(eEC == ER_OK)
+    {
+      eEC = eOSAL_Task_Create(&tOSAL_Task_Param);
+    }
+  }
+
+  if(eEC == ER_OK)
+  {
+    eOSAL_OS_start();
+  }
 
   return -1;
 }

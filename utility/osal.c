@@ -248,13 +248,21 @@ ERROR_CODE eOSAL_Queue_Get_msg   (tOSAL_Queue_Handle * ptQueue_handle)
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+#define TASK_HANDLE              TaskHandle_t
+#define TASK_MAX_NUM             configMAX_PRIORITIES
+#define TASK_MAX_PRIORITY        1
+#define TASK_MIN_PRIORITY        configMAX_PRIORITIES
+#define TASK_DEFAULT_STACK_SIZE  configMINIMAL_STACK_SIZE
+
 #define OSAL_MAILBOX_DEFAULT_WAIT_FOREVER 0xFFFFFFFF
 #define OSAL_MAILBOX_DEFAULT_BUFF_SIZE    256
 #define OSAL_MAILBOX_DEFAULT_MAX_MESSAGES 3
+
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-bool bIs_OS_running = false;
+
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -267,6 +275,27 @@ bool bIs_OS_running = false;
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+typedef struct tOSAL_Activity_State
+{
+  bool bIs_Task_Desc_Init;
+  bool bIs_OS_running;
+}tOSAL_Activity_State;
+
+tOSAL_Activity_State tOSAL_AS =
+{
+  false,  //bool bIs_Task_Desc_Init;
+
+  false, //bool bIs_OS_running;
+};
+
+typedef struct tOSAL_Task_Descriptor
+{
+  tOSAL_Task_Parameters tTask_Param;
+  TASK_HANDLE tTask_Handle;
+}tOSAL_Task_Descriptor;
+
+tOSAL_Task_Descriptor tOSAL_Task_Desc[TASK_MAX_NUM];
+
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -275,13 +304,129 @@ bool bIs_OS_running = false;
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+ERROR_CODE eOSAL_Register_Task(tOSAL_Task_Parameters *pParam, tOSAL_Task_Descriptor ** pOSAL_Reg_Desciptor);
+ERROR_CODE eOSAL_Unregister_Task(tOSAL_Task_Descriptor * pOSAL_Reg_Desciptor);
+
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+ERROR_CODE eOSAL_Register_Task(tOSAL_Task_Parameters *pParam, tOSAL_Task_Descriptor ** pOSAL_Reg_Desciptor)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  int i = 0;
+
+  if(tOSAL_AS.bIs_Task_Desc_Init == false)
+  {
+    for(i = 0; i < TASK_MAX_NUM; i++)
+    {
+      tOSAL_Task_Desc[i].tTask_Param.pTaskFcn = NULL;
+      tOSAL_Task_Desc[i].tTask_Param.pName = NULL;
+      tOSAL_Task_Desc[i].tTask_Param.uiStack_Size = TASK_DEFAULT_STACK_SIZE;
+      tOSAL_Task_Desc[i].tTask_Param.pParameters = NULL;
+      tOSAL_Task_Desc[i].tTask_Param.uiTask_Priority = TASK_MIN_PRIORITY;
+      tOSAL_Task_Desc[i].tTask_Handle = NULL;
+    }
+    tOSAL_AS.bIs_Task_Desc_Init = true;
+  }
+
+  for(i = 0; i < TASK_MAX_NUM; i++)
+  {
+    if(tOSAL_Task_Desc[i].tTask_Param.pTaskFcn == NULL)
+    {
+      tOSAL_Task_Desc[i].tTask_Param.pTaskFcn = pParam->pTaskFcn;
+      tOSAL_Task_Desc[i].tTask_Param.pName = pParam->pName;
+      tOSAL_Task_Desc[i].tTask_Param.uiStack_Size = pParam->uiStack_Size;
+      tOSAL_Task_Desc[i].tTask_Param.pParameters = pParam->pParameters;
+      tOSAL_Task_Desc[i].tTask_Param.uiTask_Priority = pParam->uiTask_Priority;
+      tOSAL_Task_Desc[i].tTask_Handle = NULL;
+      *pOSAL_Reg_Desciptor = &tOSAL_Task_Desc[i];
+      eEC = ER_OK;
+      break;
+    }
+    else
+    {
+      eEC = ER_FULL;
+    }
+  }
+
+  return eEC;
+}
+
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+/******************************************************************************
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Task_Param_Init(tOSAL_Task_Parameters *pParam)
+{
+  ERROR_CODE eEC = ER_OK;
+
+  pParam->pTaskFcn = NULL;
+  pParam->pName = NULL;
+  pParam->uiStack_Size = 0;
+  pParam->pParameters = NULL;
+  pParam->uiTask_Priority = 0;
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Task_Create(tOSAL_Task_Parameters *pParam)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  uint32_t uiRC = 0;
+  tOSAL_Task_Descriptor * pTask_Desciptor = NULL;
+
+  eEC = eOSAL_Register_Task(pParam, &pTask_Desciptor);
+
+//  pTask_Desciptor = &tOSAL_Task_Desc[0];
+
+  if(eEC == ER_OK)
+  {
+    uiRC = xTaskCreate(
+                       pTask_Desciptor->tTask_Param.pTaskFcn,        //TaskFunction_t pvTaskCode,
+                       pTask_Desciptor->tTask_Param.pName,           //const char * const pcName,
+                       pTask_Desciptor->tTask_Param.uiStack_Size,    //unsigned short usStackDepth,
+                       pTask_Desciptor->tTask_Param.pParameters,     //void *pvParameters,
+                       pTask_Desciptor->tTask_Param.uiTask_Priority, //UBaseType_t uxPriority,
+                       pTask_Desciptor->tTask_Handle                 //TaskHandle_t *pvCreatedTask
+                       );
+
+    if(uiRC == pdPASS)
+    {
+      eEC = ER_OK;
+    }
+  }
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Task_Delete(tOSAL_Task_Parameters *pParam)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  return eEC;
+}
 
 /******************************************************************************
 * name: eOSAL_OS_start
@@ -297,7 +442,7 @@ ERROR_CODE eOSAL_OS_start(void)
 {
   ERROR_CODE eEC = ER_OK;
 
-  bIs_OS_running = true;
+  tOSAL_AS.bIs_OS_running = true;
 
   //Start the FREE-RTOS, will not return
   //
@@ -312,7 +457,7 @@ ERROR_CODE eOSAL_Is_OS_Running(void)
 {
   ERROR_CODE eEC = ER_FALSE;
 
-  if(bIs_OS_running == true)
+  if(tOSAL_AS.bIs_OS_running == true)
   {
     eEC = ER_TRUE;
   }
@@ -339,7 +484,7 @@ ERROR_CODE eOSAL_delay(uint32_t uiDelay, uint32_t * puiMS_Delayed)
   uint32_t i = 0;
   ERROR_CODE eEC = ER_FAIL;
 
-  if(bIs_OS_running == true)
+  if(tOSAL_AS.bIs_OS_running == true)
   {
     //todo: OS_delay
     i = uiDelay;
