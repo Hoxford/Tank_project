@@ -26,6 +26,9 @@
 
 #include "stm32f4xx.h"
 
+#include "cmsis_device.h"
+#include "core_cm4.h"
+
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -119,29 +122,32 @@ void vDEBUG_ASSERT(char * cMsg,int iAssert)
 
   if(iAssert)
   {
-    return;
+    //todo detct debugger eEC = eBSP_debugger_detect();
+//    if(eEC == ER_OK)
+//    {
+//      vDEBUG(SYS_HALT_MSG);
+//      vDEBUG(cMsg);
+//
+//      //todo: disable interrupts
+//      //todo: system halt
+//      while(1){};
+//    }
+//    else
+//    {
+//      vDEBUG(SYS_HALT_MSG);
+//      vDEBUG(cMsg);
+//
+//      //todo: disable interrupts
+//      //todo: system reset
+//      while(1){};
+//    }
+
+    __ASM volatile("BKPT 0x00A8");
+    while (1){}
   }
   else
   {
-    //todo detct debugger eEC = eBSP_debugger_detect();
-    if(eEC == ER_OK)
-    {
-      vDEBUG(SYS_HALT_MSG);
-      vDEBUG(cMsg);
-
-      //todo: disable interrupts
-      //todo: system halt
-      while(1){};
-    }
-    else
-    {
-      vDEBUG(SYS_HALT_MSG);
-      vDEBUG(cMsg);
-
-      //todo: disable interrupts
-      //todo: system reset
-      while(1){};
-    }
+    return;
   }
 }
 

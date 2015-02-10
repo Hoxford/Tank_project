@@ -244,6 +244,7 @@ ERROR_CODE eOSAL_Queue_Get_msg   (tOSAL_Queue_Handle * ptQueue_handle)
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "queue.h"
 
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -254,6 +255,10 @@ ERROR_CODE eOSAL_Queue_Get_msg   (tOSAL_Queue_Handle * ptQueue_handle)
 #define TASK_MAX_PRIORITY        1
 #define TASK_MIN_PRIORITY        configMAX_PRIORITIES
 #define TASK_DEFAULT_STACK_SIZE  configMINIMAL_STACK_SIZE
+
+#define QUEUE_HANDLE             QueueHandle_t
+#define QUEUE_MAX_NUM            configQUEUE_REGISTRY_SIZE
+#define QUEUE_WAIT_FOREVER       portMAX_DELAY
 
 #define OSAL_MAILBOX_DEFAULT_WAIT_FOREVER 0xFFFFFFFF
 #define OSAL_MAILBOX_DEFAULT_BUFF_SIZE    256
@@ -278,14 +283,15 @@ ERROR_CODE eOSAL_Queue_Get_msg   (tOSAL_Queue_Handle * ptQueue_handle)
 typedef struct tOSAL_Activity_State
 {
   bool bIs_Task_Desc_Init;
+  bool bIs_Queue_Desc_Init;
   bool bIs_OS_running;
 }tOSAL_Activity_State;
 
 tOSAL_Activity_State tOSAL_AS =
 {
   false,  //bool bIs_Task_Desc_Init;
-
-  false, //bool bIs_OS_running;
+  false,  //bool bIs_Queue_Desc_Init;
+  false,  //bool bIs_OS_running;
 };
 
 typedef struct tOSAL_Task_Descriptor
@@ -296,6 +302,13 @@ typedef struct tOSAL_Task_Descriptor
 
 tOSAL_Task_Descriptor tOSAL_Task_Desc[TASK_MAX_NUM];
 
+typedef struct tOSAL_Queue_Descriptor
+{
+  tOSAL_Queue_Parameters  tQueue_Param;
+  tOSAL_Queue_Handle      tQueue_Handle;
+}tOSAL_Queue_Descriptor;
+
+tOSAL_Queue_Descriptor tOSAL_Queue_Desc[QUEUE_MAX_NUM];
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -304,13 +317,23 @@ tOSAL_Task_Descriptor tOSAL_Task_Desc[TASK_MAX_NUM];
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eOSAL_Register_Task(tOSAL_Task_Parameters *pParam, tOSAL_Task_Descriptor ** pOSAL_Reg_Desciptor);
+ERROR_CODE eOSAL_Register_Task(tOSAL_Task_Parameters * pParam, tOSAL_Task_Descriptor ** pOSAL_Reg_Desciptor);
 ERROR_CODE eOSAL_Unregister_Task(tOSAL_Task_Descriptor * pOSAL_Reg_Desciptor);
+
+ERROR_CODE eOSAL_Register_Queue(tOSAL_Queue_Parameters * pParam, tOSAL_Queue_Descriptor ** pQueue_Desc);
+ERROR_CODE eOSAL_Unregister_Queue(tOSAL_Queue_Descriptor * pQueue_Descriptor);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+/******************************************************************************
+* name: eOSAL_Register_Task
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eOSAL_Register_Task(tOSAL_Task_Parameters *pParam, tOSAL_Task_Descriptor ** pOSAL_Reg_Desciptor)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -349,6 +372,94 @@ ERROR_CODE eOSAL_Register_Task(tOSAL_Task_Parameters *pParam, tOSAL_Task_Descrip
       eEC = ER_FULL;
     }
   }
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Unregister_Task
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Unregister_Task(tOSAL_Task_Descriptor * pOSAL_Reg_Desciptor)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  if(pOSAL_Reg_Desciptor == NULL)
+  {
+    eEC = ER_PARAM;
+  }
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Register_Queue
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Register_Queue(tOSAL_Queue_Parameters * pParam, tOSAL_Queue_Descriptor ** pQueue_Desc)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  int i = 0;
+
+  if(tOSAL_AS.bIs_Queue_Desc_Init == false)
+  {
+    for(i = 0; i < QUEUE_MAX_NUM; i++)
+    {
+      tOSAL_Queue_Desc[i].tQueue_Handle.pHandle = NULL;
+      tOSAL_Queue_Desc[i].tQueue_Param.uiNum_Of_Queue_Elements = 0;
+      tOSAL_Queue_Desc[i].tQueue_Param.uiSize_Of_Queue_Element = 0;
+      tOSAL_Queue_Desc[i].tQueue_Param.pMsgBuff = NULL;
+      tOSAL_Queue_Desc[i].tQueue_Param.iTimeout = 0;
+    }
+
+    tOSAL_AS.bIs_Queue_Desc_Init = true;
+  }
+
+  for(i = 0; i < QUEUE_MAX_NUM; i++)
+  {
+    if(tOSAL_Queue_Desc[i].tQueue_Handle.pHandle == NULL)
+    {
+      tOSAL_Queue_Desc[i].tQueue_Param.uiNum_Of_Queue_Elements = pParam->uiNum_Of_Queue_Elements;
+      tOSAL_Queue_Desc[i].tQueue_Param.uiSize_Of_Queue_Element = pParam->uiSize_Of_Queue_Element;
+      tOSAL_Queue_Desc[i].tQueue_Param.pMsgBuff = pParam->pMsgBuff;
+      if(pParam->iTimeout == OSAL_QUEUE_TIMEOUT_WAITFOREVER)
+      {
+        tOSAL_Queue_Desc[i].tQueue_Param.iTimeout = QUEUE_WAIT_FOREVER;
+      }
+      else
+      {
+        tOSAL_Queue_Desc[i].tQueue_Param.iTimeout = pParam->iTimeout;
+      }
+      tOSAL_Queue_Desc[i].tQueue_Handle.uiHandle_Index = i;
+      *pQueue_Desc = &tOSAL_Queue_Desc[i];
+
+      eEC = ER_OK;
+      break;
+    }
+    else
+    {
+      eEC = ER_FULL;
+    }
+  }
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Unregister_Queue
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Unregister_Queue(tOSAL_Queue_Descriptor * pQueue_Descriptor)
+{
+  ERROR_CODE eEC = ER_FAIL;
 
   return eEC;
 }
@@ -573,18 +684,92 @@ ERROR_CODE eOSAL_Mailbox_Get_msg (tOSAL_Mailbox_Handle * ptMailbox_handle)
 }
 
 /******************************************************************************
-* name: Filename_or_abreviation_funciton
+* name: eOSAL_Queue_Params_Init
 * description:
 * param description: type - value: value description (in order from left to right)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eOSAL_Queue_Get_msg   (tOSAL_Queue_Handle * ptQueue_handle)
+ERROR_CODE eOSAL_Queue_Params_Init(tOSAL_Queue_Parameters * ptQueue_param)
+{
+  ERROR_CODE eEC = ER_OK;
+
+  ptQueue_param->uiNum_Of_Queue_Elements = 0;
+  ptQueue_param->uiSize_Of_Queue_Element = 0;
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Queue_Create
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Queue_Create(tOSAL_Queue_Parameters * ptQueue_param, tOSAL_Queue_Handle ** pQueue_Handle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  tOSAL_Queue_Descriptor * pQueue_Desc;
+
+  eEC = eOSAL_Register_Queue(ptQueue_param, &pQueue_Desc);
+
+  if(eEC == ER_OK)
+  {
+    pQueue_Desc->tQueue_Handle.pHandle = xQueueCreate(
+                                                      ptQueue_param->uiNum_Of_Queue_Elements,
+                                                      ptQueue_param->uiSize_Of_Queue_Element
+                                                      );
+
+    if(pQueue_Desc->tQueue_Handle.pHandle != NULL)
+    {
+      *pQueue_Handle = &pQueue_Desc->tQueue_Handle;
+      eEC = ER_OK;
+    }
+  }
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Queue_Get_msg
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Queue_Get_msg(tOSAL_Queue_Handle * ptQueue_handle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  uint32_t uiRC = 0;
+
+  uiRC = xQueueReceive(
+                       ptQueue_handle->pHandle,
+                       tOSAL_Queue_Desc[ptQueue_handle->uiHandle_Index].tQueue_Param.pMsgBuff,
+                       tOSAL_Queue_Desc[ptQueue_handle->uiHandle_Index].tQueue_Param.iTimeout
+                       );
+  if(uiRC == pdPASS)
+  {
+    eEC = ER_OK;
+  }
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Queue_Post_msg
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Queue_Post_msg      (tOSAL_Queue_Handle * ptQueue_handle)
 {
   ERROR_CODE eEC = ER_FAIL;
 
   return eEC;
 }
+
 #elif defined(SOME_OTHER_RTOS)
 
 #endif

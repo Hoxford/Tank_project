@@ -39,6 +39,12 @@ char cWifi_Task_Name[] = "WIFI";
 * enums ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+typedef enum
+{
+  WIFI_MSG_NONE,
+  WIFI_MSG_LIMIT,
+}WIFI_MSG_ID;
+
 /******************************************************************************
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -49,6 +55,11 @@ typedef struct tWifi_Activity_State
 }tWifi_Activity_State;
 
 tWifi_Activity_State tWifi_AS;  //short tMy_struct description
+
+typedef struct tWifi_Message_Struct
+{
+    WIFI_MSG_ID eMSG;
+}tWifi_Message_Struct;
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,9 +83,26 @@ void vWifi_Driver_Task(void * pvParameters);
 ******************************************************************************/
 void vWifi_Driver_Task(void * pvParameters)
 {
+  ERROR_CODE eEC = ER_FAIL;
+  tOSAL_Queue_Parameters tWifi_Queue_Param;
+  tOSAL_Queue_Handle * pWifi_Queue_Handle;
+  tWifi_Message_Struct tMsg;
+
+  eOSAL_Queue_Params_Init(&tWifi_Queue_Param);
+  tWifi_Queue_Param.uiNum_Of_Queue_Elements = 5;
+  tWifi_Queue_Param.uiSize_Of_Queue_Element = sizeof(tWifi_Message_Struct);
+  tWifi_Queue_Param.pMsgBuff = &tMsg;
+  tWifi_Queue_Param.iTimeout = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
+
+  eEC = eOSAL_Queue_Create(&tWifi_Queue_Param, &pWifi_Queue_Handle);
+  vDEBUG_ASSERT("vWifi_Driver_Task queue create fail", eEC != ER_OK);
+
   while(1)
   {
+    if(eOSAL_Queue_Get_msg(pWifi_Queue_Handle) == ER_OK)
+    {
 
+    }
   }
 }
 
