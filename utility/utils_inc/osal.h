@@ -128,6 +128,6 @@ ERROR_CODE eOSAL_Mailbox_Get_msg     (tOSAL_Mailbox_Handle * ptMailbox_handle);
 ERROR_CODE eOSAL_Mailbox_Post_msg    (tOSAL_Mailbox_Handle * ptMailbox_handle);
 ERROR_CODE eOSAL_Queue_Params_Init   (tOSAL_Queue_Parameters * ptQueue_param);
 ERROR_CODE eOSAL_Queue_Create        (tOSAL_Queue_Parameters * ptQueue_param, tOSAL_Queue_Handle ** pQueue_Handle);
-ERROR_CODE eOSAL_Queue_Get_msg       (tOSAL_Queue_Handle * ptQueue_handle);
-ERROR_CODE eOSAL_Queue_Post_msg      (tOSAL_Queue_Handle * ptQueue_handle);
+ERROR_CODE eOSAL_Queue_Get_msg       (tOSAL_Queue_Handle * ptQueue_handle, void * pMsg);
+ERROR_CODE eOSAL_Queue_Post_msg      (tOSAL_Queue_Handle * ptQueue_handle, void * pMsg);
 #endif //__FILE_NAME_H__

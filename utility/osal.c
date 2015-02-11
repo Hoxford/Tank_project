@@ -738,14 +738,14 @@ ERROR_CODE eOSAL_Queue_Create(tOSAL_Queue_Parameters * ptQueue_param, tOSAL_Queu
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eOSAL_Queue_Get_msg(tOSAL_Queue_Handle * ptQueue_handle)
+ERROR_CODE eOSAL_Queue_Get_msg(tOSAL_Queue_Handle * ptQueue_handle, void * pMsg)
 {
   ERROR_CODE eEC = ER_FAIL;
   uint32_t uiRC = 0;
 
   uiRC = xQueueReceive(
                        ptQueue_handle->pHandle,
-                       tOSAL_Queue_Desc[ptQueue_handle->uiHandle_Index].tQueue_Param.pMsgBuff,
+                       pMsg,
                        tOSAL_Queue_Desc[ptQueue_handle->uiHandle_Index].tQueue_Param.iTimeout
                        );
   if(uiRC == pdPASS)
@@ -763,9 +763,21 @@ ERROR_CODE eOSAL_Queue_Get_msg(tOSAL_Queue_Handle * ptQueue_handle)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eOSAL_Queue_Post_msg      (tOSAL_Queue_Handle * ptQueue_handle)
+ERROR_CODE eOSAL_Queue_Post_msg(tOSAL_Queue_Handle * ptQueue_handle, void * pMsg)
 {
   ERROR_CODE eEC = ER_FAIL;
+  uint32_t uiRC = 0;
+
+  uiRC = xQueueSendToFront(
+                           ptQueue_handle->pHandle,
+                           pMsg,
+                           tOSAL_Queue_Desc[ptQueue_handle->uiHandle_Index].tQueue_Param.iTimeout
+                           );
+
+  if(uiRC == pdPASS)
+  {
+    eEC = ER_OK;
+  }
 
   return eEC;
 }

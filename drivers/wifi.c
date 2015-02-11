@@ -11,13 +11,17 @@
 ******************************************************************************/
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "utils_inc/error_codes.h"
 #include "utils_inc/osal.h"
 #include "utils_inc/proj_debug.h"
 
 #include "drivers_inc/wifi.h"
+#include "board.h"
 
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,9 +43,10 @@ char cWifi_Task_Name[] = "WIFI";
 * enums ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-typedef enum
+typedef enum WIFI_MSG_ID
 {
   WIFI_MSG_NONE,
+  WIFI_MSG_TEST,
   WIFI_MSG_LIMIT,
 }WIFI_MSG_ID;
 
@@ -97,11 +102,26 @@ void vWifi_Driver_Task(void * pvParameters)
   eEC = eOSAL_Queue_Create(&tWifi_Queue_Param, &pWifi_Queue_Handle);
   vDEBUG_ASSERT("vWifi_Driver_Task queue create fail", eEC != ER_OK);
 
+  tMsg.eMSG = WIFI_MSG_TEST;
+  eEC = eOSAL_Queue_Post_msg(pWifi_Queue_Handle, &tMsg);
+  vDEBUG_ASSERT("vWifi_Driver_Task msg post fail", eEC != ER_OK);
+
+  memset(&tMsg, 0x00, sizeof(tWifi_Message_Struct));
+
   while(1)
   {
-    if(eOSAL_Queue_Get_msg(pWifi_Queue_Handle) == ER_OK)
+    if(eOSAL_Queue_Get_msg(pWifi_Queue_Handle, &tMsg) == ER_OK)
     {
-
+      switch(tMsg.eMSG)
+      {
+        case WIFI_MSG_TEST:
+        {
+          eBSP_Wifi_Transmit(NULL);
+          break;
+        }
+        default:
+          vDEBUG_ASSERT("vWifi_Driver_Task invalid msg ID", tMsg.eMSG >= WIFI_MSG_LIMIT);
+      }
     }
   }
 }
