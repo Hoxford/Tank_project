@@ -74,11 +74,19 @@ typedef struct tWifi_Message_Struct
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+ERROR_CODE eWifi_Setup(void);
 void vWifi_Driver_Task(void * pvParameters);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+ERROR_CODE eWifi_Setup(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  return eEC;
+}
 
 /******************************************************************************
 * name: vWifi_Driver_Task
@@ -102,6 +110,9 @@ void vWifi_Driver_Task(void * pvParameters)
   eEC = eOSAL_Queue_Create(&tWifi_Queue_Param, &pWifi_Queue_Handle);
   vDEBUG_ASSERT("vWifi_Driver_Task queue create fail", eEC != ER_OK);
 
+  eEC = eWifi_Setup();
+  vDEBUG_ASSERT("vWifi_Driver_Task driver setup fail", eEC != ER_OK);
+
   tMsg.eMSG = WIFI_MSG_TEST;
   eEC = eOSAL_Queue_Post_msg(pWifi_Queue_Handle, &tMsg);
   vDEBUG_ASSERT("vWifi_Driver_Task msg post fail", eEC != ER_OK);
@@ -116,7 +127,7 @@ void vWifi_Driver_Task(void * pvParameters)
       {
         case WIFI_MSG_TEST:
         {
-          eBSP_Wifi_Transmit(NULL);
+          eBSP_Wifi_Intf_Send(NULL);
           break;
         }
         default:

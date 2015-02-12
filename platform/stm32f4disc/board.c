@@ -178,7 +178,14 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void)
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eBSP_Wifi_Transmit(tWifi_Transmit * pParam)
+ERROR_CODE eBSP_Wifi_Intf_Send(tWifi_Transmit * pParam)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  return eEC;
+}
+
+ERROR_CODE eBSP_Wifi_Intf_Receive(tWifi_Receive * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
 

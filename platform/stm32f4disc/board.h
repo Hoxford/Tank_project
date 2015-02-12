@@ -50,8 +50,8 @@ typedef struct tWifi_Receive
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eBSP_Wifi_Transmit(tWifi_Transmit * pParam);
-ERROR_CODE eBSP_Wifi_Receive(tWifi_Receive * pParam);
+ERROR_CODE eBSP_Wifi_Intf_Send(tWifi_Transmit * pParam);
+ERROR_CODE eBSP_Wifi_Intf_Receive(tWifi_Receive * pParam);
 ERROR_CODE eBSP_Board_Init(void);
 
 #endif //__FILE_NAME_H__
