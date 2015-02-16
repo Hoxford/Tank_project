@@ -21,6 +21,7 @@
 #include "utils_inc/proj_debug.h"
 
 #include "drivers_inc/wifi.h"
+#include "drivers_inc/AT_commands.h"
 #include "board.h"
 
 /******************************************************************************
@@ -28,6 +29,8 @@
 ******************************************************************************/
 
 #define TASK_WIFI_PRIORITY  2
+
+#define WIFI_SEND_BUF_LEN    256
 
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +60,7 @@ typedef enum WIFI_MSG_ID
 typedef struct tWifi_Activity_State
 {
   bool bIs_Wifi_Ready;
+  uint8_t uiBuff[WIFI_SEND_BUF_LEN];
 }tWifi_Activity_State;
 
 tWifi_Activity_State tWifi_AS;  //short tMy_struct description
@@ -84,6 +88,15 @@ void vWifi_Driver_Task(void * pvParameters);
 ERROR_CODE eWifi_Setup(void)
 {
   ERROR_CODE eEC = ER_FAIL;
+  tWifi_Transmit tSend;
+
+  tSend.uiBuff_Len = strlen(AT_CMD_TEST);
+  memset(tWifi_AS.uiBuff, 0x00, WIFI_SEND_BUF_LEN);
+  memcpy(tWifi_AS.uiBuff, AT_CMD_TEST, strlen(AT_CMD_TEST));
+  tSend.pBuff = tWifi_AS.uiBuff;
+
+  eBSP_Wifi_Intf_Send(&tSend);
+
 
   return eEC;
 }

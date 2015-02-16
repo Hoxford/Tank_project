@@ -181,6 +181,13 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void)
 ERROR_CODE eBSP_Wifi_Intf_Send(tWifi_Transmit * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+
+  eHAL_Status = HAL_USART_Transmit(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 3000);
+  if(eHAL_Status == HAL_OK)
+  {
+    eEC = ER_OK;
+  }
 
   return eEC;
 }

@@ -73,12 +73,12 @@
 		<link>
 			<name>src/utility/osal.c</name>
 			<type>1</type>
-			<location>D:/DDocuments/Workspace/Mini_Panzer_00/utility/osal.c</location>
+			<locationURI>PARENT-2-PROJECT_LOC/utility/osal.c</locationURI>
 		</link>
 		<link>
 			<name>src/utility/proj_debug.c</name>
 			<type>1</type>
-			<location>D:/DDocuments/Workspace/Mini_Panzer_00/utility/proj_debug.c</location>
+			<locationURI>PARENT-2-PROJECT_LOC/utility/proj_debug.c</locationURI>
 		</link>
 		<link>
 			<name>src/ThirdParty/FreeRTOSV8.2.0/FreeRTOS</name>
