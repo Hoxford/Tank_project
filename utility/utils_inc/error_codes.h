@@ -87,7 +87,9 @@ typedef enum
     ER_UNKNOWN_VALUE,
     ER_READY,
     ER_NOT_READY,
-    ER_NONE
+    ER_NONE,
+    ER_FOUND,
+    ER_NOT_FOUND
 }ERROR_CODE;
 
 //*****************************************************************************

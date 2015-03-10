@@ -15,8 +15,10 @@
 #include "utils_inc/error_codes.h"
 #include "utils_inc/osal.h"
 #include "utils_inc/proj_debug.h"
-
+#include "utils_inc/clock.h"
 #include "board.h"
+
+#include "BlinkLed.h"
 
 #include "drivers_inc/camera.h"
 #include "drivers_inc/wifi.h"
@@ -38,9 +40,27 @@
 #endif
 
 extern void HardFault_Handler();
+extern void timer_tick();
+extern void HAL_IncTick(void);
 
 void vApplicationTickHook( void )
 {
+
+  eClock_process_init();
+//  /* Fill the FPU registers with 0. */
+//  vRegTestClearFlopRegistersToParameterValue( 0UL );
+//
+//  /* Trigger a timer 2 interrupt, which will fill the registers with a
+//  different value and itself trigger a timer 3 interrupt.  Note that the
+//  timers are not actually used.  The timer 2 and 3 interrupt vectors are
+//  just used for convenience. */
+//  NVIC_SetPendingIRQ( TIM2_IRQn );
+//
+//  /* Ensure that, after returning from the nested interrupts, all the FPU
+//  registers contain the value to which they were set by the tick hook
+//  function. */
+//  configASSERT( ulRegTestCheckFlopRegistersContainParameterValue( 0UL ) );
+
   return;
 }
 
@@ -64,6 +84,29 @@ void vApplicationMallocFailedHook( void )
 
 void vApplicationIdleHook( void )
 {
+
+  static uint32_t uiLED_Tick;
+  static bool bLED_On;
+  uint32_t uiCurrent_Tick = HAL_GetTick();
+
+
+  if((uiCurrent_Tick - uiLED_Tick) > 1000)
+  {
+    uiLED_Tick = HAL_GetTick();
+    if(bLED_On == true)
+    {
+      bLED_On = false;
+      blink_led_off();
+    }
+    else
+    {
+      bLED_On = true;
+      blink_led_on();
+    }
+
+  }
+
+
   /* vApplicationIdleHook() will only be called if configUSE_IDLE_HOOK is set
   to 1 in FreeRTOSConfig.h.  It will be called on each iteration of the idle
   task.  It is essential that code added to this hook function never attempts
@@ -73,6 +116,8 @@ void vApplicationIdleHook( void )
   important that vApplicationIdleHook() is permitted to return to its calling
   function, because it is the responsibility of the idle task to clean up
   memory allocated by the kernel to any task that has since been deleted. */
+
+  return;
 }
 /*-----------------------------------------------------------*/
 
@@ -89,6 +134,15 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
   for( ;; );
 }
 
+//void vPortSetupTimerInterrupt( void )
+//{
+//  static int x;
+//
+//    x++;
+//
+//  return;
+//}
+
 int main(int argc, char* argv[])
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -103,6 +157,8 @@ int main(int argc, char* argv[])
     vDEBUG("Hello world");
     eEC = ER_OK;
   }
+
+  blink_led_init();
 
   if(eEC == ER_OK)
   {

@@ -94,9 +94,10 @@ UsageFault_Handler(void)
 void __attribute__ ((section(".after_vectors"),weak))
 SVC_Handler(void)
 {
-  while (1)
-    {
-    }
+//  while (1)
+//    {
+//    }
+  __ASM volatile("BKPT 0x00A8");
 }
 
 #if defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__)

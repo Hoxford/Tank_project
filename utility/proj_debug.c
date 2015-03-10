@@ -95,23 +95,26 @@ void vDEBUG(char * cMsg, ...)
   uint16_t uiLen = 0;
   uiLen = strlen(cMsg);
 
-  if((uiLen + 1) < DBG_STR_LEN)
+  if(tDebug_AS.bIs_Debug_UART_Setup == true)
   {
-    memset(cDBG_String, 0x00, (uiLen + 1));
-    memcpy(cDBG_String, cMsg, uiLen);
-
-//    eHAL_Status = HAL_USART_Transmit(ptDebug_UART_Handle, (uint8_t *)cDBG_String, uiLen, 3000);
-    eHAL_Status = HAL_USART_Transmit(&tDebug_UART_Handle, (uint8_t *)cDBG_String, uiLen, 3000);
-
-    memset(cDBG_String, 0x00, (DBG_CRNL_LEN + 1));
-    memcpy(cDBG_String, DBG_CRNL, DBG_CRNL_LEN);
-    eHAL_Status = HAL_USART_Transmit(&tDebug_UART_Handle, (uint8_t *)cDBG_String, DBG_CRNL_LEN, 3000);
-
-    if(eHAL_Status != HAL_OK)
+    if((uiLen + 1) < DBG_STR_LEN)
     {
-      while(1){};
-    }
+      memset(cDBG_String, 0x00, (uiLen + 1));
+      memcpy(cDBG_String, cMsg, uiLen);
 
+  //    eHAL_Status = HAL_USART_Transmit(ptDebug_UART_Handle, (uint8_t *)cDBG_String, uiLen, 3000);
+      eHAL_Status = HAL_USART_Transmit(&tDebug_UART_Handle, (uint8_t *)cDBG_String, uiLen, 3000);
+
+      memset(cDBG_String, 0x00, (DBG_CRNL_LEN + 1));
+      memcpy(cDBG_String, DBG_CRNL, DBG_CRNL_LEN);
+      eHAL_Status = HAL_USART_Transmit(&tDebug_UART_Handle, (uint8_t *)cDBG_String, DBG_CRNL_LEN, 3000);
+
+      if(eHAL_Status != HAL_OK)
+      {
+        while(1){};
+      }
+
+    }
   }
   return;
 }
@@ -251,7 +254,7 @@ void vDEBUG_init(void)
     tDebug_UART_Handle.Init.CLKPhase = USART_PHASE_1EDGE;
     tDebug_UART_Handle.Init.CLKLastBit = USART_LASTBIT_DISABLE;
     tDebug_UART_Handle.Instance = USART6;
-    tDebug_UART_Handle.pTxBuffPtr = (uint8_t *)cDBG_String;
+//    tDebug_UART_Handle.pTxBuffPtr = (uint8_t *)cDBG_String;
 
     eHAL_Status = HAL_USART_Init(&tDebug_UART_Handle);
     if(eHAL_Status == HAL_OK)

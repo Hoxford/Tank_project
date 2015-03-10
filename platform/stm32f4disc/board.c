@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "utils_inc/error_codes.h"
 #include "utils_inc/osal.h"
@@ -22,9 +23,9 @@
 #include "board.h"
 
 //STM32F4 specific includes
-
 #include "stm32f4xx.h"
-//#include "stm32f4xx_hal.h"
+#include "core_cm4.h"
+
 
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,11 +68,14 @@ tBSP_Activity_State tBSP_AS =
   false,  //bool bIs_Wifi_Intf_Init;
 };
 
-USART_HandleTypeDef tWifi_UART_Handle;
+//USART_HandleTypeDef tWifi_UART_Handle;
+UART_HandleTypeDef  tWifi_UART_Handle;
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+//extern void NVIC_PriorityGroupConfig(uint32_t NVIC_PriorityGroup);
 
 /******************************************************************************
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,26 +140,36 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void)
 
   if(tBSP_AS.bIs_Wifi_Intf_Init == false)
   {
-    tWifi_GPIO_Init.Pin       = GPIO_PIN_10 | GPIO_PIN_9;
-    tWifi_GPIO_Init.Mode      = GPIO_MODE_OUTPUT_PP;
-    tWifi_GPIO_Init.Pull      = GPIO_NOPULL;
+//    tWifi_GPIO_Init.Pin       = GPIO_PIN_10 | GPIO_PIN_9;
+    tWifi_GPIO_Init.Pin       = GPIO_PIN_2 | GPIO_PIN_3;
+    tWifi_GPIO_Init.Mode      = GPIO_MODE_AF_PP;//GPIO_MODE_AF_OD;//
+    tWifi_GPIO_Init.Pull      = GPIO_NOPULL;//GPIO_PULLDOWN;//GPIO_PULLUP;//
     tWifi_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-    tWifi_GPIO_Init.Alternate = GPIO_AF7_USART1;
+//    tWifi_GPIO_Init.Alternate = GPIO_AF7_USART1;
+    tWifi_GPIO_Init.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(GPIOA,&tWifi_GPIO_Init);
 
-    tWifi_UART_Handle.Init.BaudRate = 115200;
-    tWifi_UART_Handle.Init.WordLength = USART_WORDLENGTH_8B;
-    tWifi_UART_Handle.Init.StopBits = USART_STOPBITS_1;
-    tWifi_UART_Handle.Init.Parity = USART_PARITY_NONE;
-    tWifi_UART_Handle.Init.Mode = USART_MODE_TX;
-    tWifi_UART_Handle.Init.CLKPolarity = USART_POLARITY_LOW;
-    tWifi_UART_Handle.Init.CLKPhase = USART_PHASE_1EDGE;
-    tWifi_UART_Handle.Init.CLKLastBit = USART_LASTBIT_DISABLE;
-    tWifi_UART_Handle.Instance = USART1;
-    tWifi_UART_Handle.pTxBuffPtr = uiWifi_TX_Buff;
-    tWifi_UART_Handle.pRxBuffPtr = uiWifi_RX_Buff;
+//    tWifi_UART_Handle.Init.BaudRate    = 115200;//57600;
+//    tWifi_UART_Handle.Init.WordLength  = USART_WORDLENGTH_8B;
+//    tWifi_UART_Handle.Init.StopBits    = USART_STOPBITS_1;
+//    tWifi_UART_Handle.Init.Parity      = USART_PARITY_NONE;
+//    tWifi_UART_Handle.Init.Mode        = USART_MODE_TX_RX;
+//    tWifi_UART_Handle.Init.CLKPolarity = USART_POLARITY_LOW;//USART_POLARITY_HIGH;//
+//    tWifi_UART_Handle.Init.CLKPhase    = USART_PHASE_1EDGE;//USART_PHASE_2EDGE;//
+//    tWifi_UART_Handle.Init.CLKLastBit  = USART_LASTBIT_DISABLE;//USART_LASTBIT_ENABLE;//
+//    tWifi_UART_Handle.Instance         = USART2;
+//    eHAL_Status = HAL_USART_Init(&tWifi_UART_Handle);
 
-    eHAL_Status = HAL_USART_Init(&tWifi_UART_Handle);
+    tWifi_UART_Handle.Init.BaudRate     = 115200;//57600;
+    tWifi_UART_Handle.Init.WordLength   = UART_WORDLENGTH_8B;
+    tWifi_UART_Handle.Init.StopBits     = UART_STOPBITS_1;
+    tWifi_UART_Handle.Init.Parity       = UART_PARITY_NONE;
+    tWifi_UART_Handle.Init.Mode         = UART_MODE_TX_RX;
+    tWifi_UART_Handle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    tWifi_UART_Handle.Init.OverSampling = UART_OVERSAMPLING_8;
+    tWifi_UART_Handle.Instance          = USART2;
+    eHAL_Status = HAL_UART_Init(&tWifi_UART_Handle);
+
     if(eHAL_Status == HAL_OK)
     {
       eEC = ER_OK;
@@ -166,6 +180,13 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void)
       eEC = ER_FAIL;
       tBSP_AS.bIs_Wifi_Intf_Init = false;
     }
+
+    tWifi_GPIO_Init.Pin    = GPIO_PIN_0;
+    tWifi_GPIO_Init.Mode   = GPIO_MODE_OUTPUT_PP;
+    tWifi_GPIO_Init.Pull   = GPIO_NOPULL;
+    tWifi_GPIO_Init.Speed  = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(GPIOA,&tWifi_GPIO_Init);
+
   }
   else
   {
@@ -178,12 +199,66 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void)
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eBSP_Wifi_Intf_Send(tWifi_Transmit * pParam)
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_Wifi_Rst_Clr(void)
+{
+  ERROR_CODE eEC = ER_OK;
+
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+
+  return eEC;
+}
+
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_Wifi_Rst_Set(void)
+{
+  ERROR_CODE eEC = ER_OK;
+
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+
+  return eEC;
+}
+
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_Wifi_Rst(void)
+{
+  ERROR_CODE eEC = ER_OK;
+
+  eBSP_Wifi_Rst_Set();
+
+  eBSP_Wifi_Rst_Clr();
+
+  return eEC;
+}
+
+ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
   HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
 
-  eHAL_Status = HAL_USART_Transmit(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 3000);
+//  eHAL_Status = HAL_USART_Transmit(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 3000);
+  eHAL_Status = HAL_UART_Transmit(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 3000);
+
+//  vDEBUG((char *)pParam->pBuff);
+
   if(eHAL_Status == HAL_OK)
   {
     eEC = ER_OK;
@@ -192,9 +267,40 @@ ERROR_CODE eBSP_Wifi_Intf_Send(tWifi_Transmit * pParam)
   return eEC;
 }
 
-ERROR_CODE eBSP_Wifi_Intf_Receive(tWifi_Receive * pParam)
+ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+
+//  eHAL_Status = HAL_USART_Receive(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 3000);
+  eHAL_Status = HAL_UART_Receive(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 100);
+  if(eHAL_Status == HAL_OK)
+  {
+    eEC = ER_OK;
+  }
+  else if(eHAL_Status == HAL_TIMEOUT)
+  {
+    eEC = ER_TIMEOUT;
+  }
+
+
+  return eEC;
+}
+
+ERROR_CODE eBSP_Inc_ms_count(void)
+{
+  ERROR_CODE eEC = ER_OK;
+
+
+
+  return eEC;
+}
+
+ERROR_CODE eBSP_Get_Current_ms_count(uint32_t * uiSystem_total_ms_count)
+{
+  ERROR_CODE eEC = ER_OK;
+
+  *uiSystem_total_ms_count = HAL_GetTick();
 
   return eEC;
 }
@@ -210,9 +316,14 @@ ERROR_CODE eBSP_Board_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
 
+
+  SystemCoreClock = HAL_RCC_GetHCLKFreq();
+
+  SysTick_Config (SystemCoreClock / 1000);
+
   __GPIOA_CLK_ENABLE();
   __GPIOB_CLK_ENABLE();
-  __USART1_CLK_ENABLE();
+  __USART2_CLK_ENABLE();
   __I2C1_CLK_ENABLE();
   __TIM4_CLK_ENABLE();
 

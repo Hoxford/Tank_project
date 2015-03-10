@@ -71,6 +71,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>src/utility/clock.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/utility/clock.c</locationURI>
+		</link>
+		<link>
 			<name>src/utility/osal.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/utility/osal.c</locationURI>

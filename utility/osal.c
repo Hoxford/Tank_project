@@ -503,8 +503,6 @@ ERROR_CODE eOSAL_Task_Create(tOSAL_Task_Parameters *pParam)
 
   eEC = eOSAL_Register_Task(pParam, &pTask_Desciptor);
 
-//  pTask_Desciptor = &tOSAL_Task_Desc[0];
-
   if(eEC == ER_OK)
   {
     uiRC = xTaskCreate(
@@ -513,12 +511,16 @@ ERROR_CODE eOSAL_Task_Create(tOSAL_Task_Parameters *pParam)
                        pTask_Desciptor->tTask_Param.uiStack_Size,    //unsigned short usStackDepth,
                        pTask_Desciptor->tTask_Param.pParameters,     //void *pvParameters,
                        pTask_Desciptor->tTask_Param.uiTask_Priority, //UBaseType_t uxPriority,
-                       pTask_Desciptor->tTask_Handle                 //TaskHandle_t *pvCreatedTask
+                       &pTask_Desciptor->tTask_Handle                 //TaskHandle_t *pvCreatedTask
                        );
 
     if(uiRC == pdPASS)
     {
       eEC = ER_OK;
+    }
+    else
+    {
+      eEC = ER_FAIL;
     }
   }
 
@@ -597,7 +599,7 @@ ERROR_CODE eOSAL_delay(uint32_t uiDelay, uint32_t * puiMS_Delayed)
 
   if(tOSAL_AS.bIs_OS_running == true)
   {
-    //todo: OS_delay
+    vTaskDelay(uiDelay);
     i = uiDelay;
   }
   else

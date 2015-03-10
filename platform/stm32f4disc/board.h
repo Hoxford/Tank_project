@@ -30,17 +30,17 @@
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-typedef struct tWifi_Transmit
+typedef struct tBSP_tWifi_Transmit
 {
   uint8_t * pBuff;
   uint32_t uiBuff_Len;
-}tWifi_Transmit;
+}tBSP_tWifi_Transmit;
 
-typedef struct tWifi_Receive
+typedef struct tBSP_Wifi_Receive
 {
   uint8_t * pBuff;
   uint32_t uiBuff_Len;
-}tWifi_Receive;
+}tBSP_Wifi_Receive;
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,8 +50,12 @@ typedef struct tWifi_Receive
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eBSP_Wifi_Intf_Send(tWifi_Transmit * pParam);
-ERROR_CODE eBSP_Wifi_Intf_Receive(tWifi_Receive * pParam);
+ERROR_CODE eBSP_Wifi_Rst_Clr(void);
+ERROR_CODE eBSP_Wifi_Rst_Set(void);
+ERROR_CODE eBSP_Wifi_Rst(void);
+ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam);
+ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam);
+ERROR_CODE eBSP_Get_Current_ms_count(uint32_t *uiSystem_total_ms_count);
 ERROR_CODE eBSP_Board_Init(void);
 
 #endif //__FILE_NAME_H__

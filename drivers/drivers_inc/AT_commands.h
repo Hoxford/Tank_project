@@ -15,28 +15,29 @@
 ******************************************************************************/
 
 //general test; basic
-#define AT_CMD_TEST         "AT"
+#define AT_CMD_TEST         "AT\r\n"
 
 //restart the module; basic
-#define AT_CMD_RESET        "AT+RST"
+#define AT_CMD_RESET        "AT+RST\r\n"
 
 //check firmware version; basic
 #define AT_CMD_FW_VER       "AT+GMR"
 
 //wifi mode
-#define AT_CMD_SET_WIFI_MODE    "AT+CWMODE=%n"
+#define AT_CMD_SET_WIFI_MODE    "AT+CWMODE=%d\r\n"
 #define AT_CMD_INQ_WIFI_MODE    "AT+CWMODE?"
 #define AT_CMD_TST_WIFI_MODE    "AT+CWMODE=?"
-  #define AT_CMD_WIFI_MODE_STA         1  //Sta is the default mode of router, 
-  #define AT_CMD_WIFI_MODE_AP          2  //AP is a normal mode for devices
-  #define AT_CMD_WIFI_MODE_STA_AND_AP  3
+    #define AT_CMD_WIFI_MODE_STA         1  //Sta is the default mode of router,
+    #define AT_CMD_WIFI_MODE_AP          2  //AP is a normal mode for devices
+    #define AT_CMD_WIFI_MODE_STA_AND_AP  3
+  #define AT_CMD_WIFI_MODE  AT_CMD_WIFI_MODE_STA
 	
 //join the AP;
-#define AT_CMD_JOIN_AP      "AT+CWJAP=%s,%s" //join the AP;wifi; AT+ CWJAP =<ssid>,< pwd >;AT+ CWJAP?;ssid = ssid, pwd = wifi password
-#define AT_CMD_INQ_AP       "AT+CWJAP?"
+#define AT_CMD_JOIN_AP      "AT+CWJAP=\"%s\",\"%s\"\r\n" //join the AP;wifi; AT+ CWJAP =<ssid>,< pwd >;AT+ CWJAP?;ssid = ssid, pwd = wifi password
+#define AT_CMD_INQ_AP       "AT+CWJAP?\r\n"
 
 //list the AP;wifi;AT+CWLAP
-#define AT_CMD_LST_AP       "AT+CWLAP"
+#define AT_CMD_LST_AP       "AT+CWLAP\r\n"
 
 //quit the AP;wifi; AT+CWQAP;AT+CWQAP=?;
 #define AT_CMD_QUIT_AP      "AT+CWQAP"
@@ -89,8 +90,8 @@
 #define AT_CMD_TST_CLOSE_PCONN  "AT+CIPCLOSE=?"
 
 //Get IP address;TCP/IP; AT+CIFSR; AT+ CIFSR=?
-#define AT_CMD_GET_IP_ADD   "AT+CIFSR"
-#define AT_CMD_TST_IP_ADD   "AT+CIFSR=?"
+#define AT_CMD_GET_IP_ADD   "AT+CIFSR\r\n"
+#define AT_CMD_TST_IP_ADD   "AT+CIFSR=?\r\n"
 
 //set mutiple connection;TCP/IP; AT+ CIPMUX=<mode>; AT+ CIPMUX?;0 for single connection 1 for multiple connection
 #define AT_CMD_SET_MCONN    "AT+CIPMUX=%s"
@@ -109,6 +110,26 @@
 
 //received data;For Single Connection mode(CIPMUX=0): + IPD, <len>:;For Multi Connection mode(CIPMUX=1): + IPD, <id>, <len>: <data>
 #define RCV_DATA "+IPD"
+
+//change baud
+#define AT_CMD_SET_BAUD  "AT+CIOBAUD=%s\r\n"
+    #define AT_CMD_BAUD115200  "115200"
+    #define AT_CMD_BAUD57600   "57600"
+    #define AT_CMD_BAUD9600    "9600"
+  #define AT_CMD_BAUD  AT_CMD_BAUD115200
+
+//set echo
+#define AT_ECHO_OFF       "ATE0\r\n"
+#define AT_ECHO_ON     "ATE1\r\n"
+
+//set factory defaults
+#define AT_FACTORY_DEFAULT  "AT&F0\r\n"
+
+//OK response
+#define AT_OK    "\r\nOK\r\n"
+
+//ERROR response
+#define AT_ERROR "ERROR\r\n"
 /******************************************************************************
 *public variables /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/

@@ -6,11 +6,15 @@
 // ----------------------------------------------------------------------------
 
 #include "cortexm/ExceptionHandlers.h"
+#include "utils_inc/error_codes.h"
+#include "utils_inc/osal.h"
 
 // ----------------------------------------------------------------------------
 
 void __attribute__((weak))
 Default_Handler(void);
+
+void SysTick_Handler (void);
 
 // Forward declaration of the specific IRQ handlers. These are aliased
 // to the Default_Handler, which is a 'forever' loop. When the application
@@ -236,6 +240,9 @@ DMA2D_IRQHandler(void);
 // ----------------------------------------------------------------------------
 
 extern unsigned int _estack;
+
+extern void xPortSysTickHandler( void );
+extern void HAL_IncTick(void);
 
 typedef void
 (* const pHandler)(void);
@@ -1037,6 +1044,20 @@ Default_Handler(void)
   while (1)
     {
     }
+}
+
+void SysTick_Handler (void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+//  timer_tick ();
+
+  eEC = eOSAL_Is_OS_Running();
+  if(eEC == ER_TRUE)
+  {
+    xPortSysTickHandler();
+  }
+
+  HAL_IncTick();
 }
 
 // ----------------------------------------------------------------------------

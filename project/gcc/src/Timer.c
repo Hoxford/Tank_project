@@ -48,10 +48,10 @@ timer_tick (void)
 
 // ----- SysTick_Handler() ----------------------------------------------------
 
-void
-SysTick_Handler (void)
-{
-  timer_tick ();
-}
+//void
+//SysTick_Handler (void)
+//{
+//  timer_tick ();
+//}
 
 // ----------------------------------------------------------------------------
