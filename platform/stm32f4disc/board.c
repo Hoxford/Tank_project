@@ -88,6 +88,13 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void);
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eBSP_Camera_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -132,6 +139,13 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
   return eEC;
 }
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eBSP_Wifi_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -249,6 +263,13 @@ ERROR_CODE eBSP_Wifi_Rst(void)
   return eEC;
 }
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -267,6 +288,13 @@ ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam)
   return eEC;
 }
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -287,6 +315,13 @@ ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam)
   return eEC;
 }
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eBSP_Inc_ms_count(void)
 {
   ERROR_CODE eEC = ER_OK;
@@ -296,6 +331,13 @@ ERROR_CODE eBSP_Inc_ms_count(void)
   return eEC;
 }
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eBSP_Get_Current_ms_count(uint32_t * uiSystem_total_ms_count)
 {
   ERROR_CODE eEC = ER_OK;
