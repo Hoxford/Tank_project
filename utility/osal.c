@@ -11,9 +11,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "utils_inc/error_codes.h"
 #include "utils_inc/osal.h"
+#include "utils_inc/proj_debug.h"
 
 #if defined(USING_TIRTOS)
 /******************************************************************************
@@ -500,17 +502,26 @@ ERROR_CODE eOSAL_Task_Create(tOSAL_Task_Parameters *pParam)
   ERROR_CODE eEC = ER_FAIL;
   uint32_t uiRC = 0;
   tOSAL_Task_Descriptor * pTask_Desciptor = NULL;
+  tOSAL_Task_Parameters tParam;
 
   eEC = eOSAL_Register_Task(pParam, &pTask_Desciptor);
+
+  memcpy(&tParam, &pTask_Desciptor->tTask_Param, sizeof(tOSAL_Task_Parameters));
 
   if(eEC == ER_OK)
   {
     uiRC = xTaskCreate(
-                       pTask_Desciptor->tTask_Param.pTaskFcn,        //TaskFunction_t pvTaskCode,
-                       pTask_Desciptor->tTask_Param.pName,           //const char * const pcName,
-                       pTask_Desciptor->tTask_Param.uiStack_Size,    //unsigned short usStackDepth,
-                       pTask_Desciptor->tTask_Param.pParameters,     //void *pvParameters,
-                       pTask_Desciptor->tTask_Param.uiTask_Priority, //UBaseType_t uxPriority,
+//                       pTask_Desciptor->tTask_Param.pTaskFcn,        //TaskFunction_t pvTaskCode,
+//                       pTask_Desciptor->tTask_Param.pName,           //const char * const pcName,
+//                       pTask_Desciptor->tTask_Param.uiStack_Size,    //unsigned short usStackDepth,
+//                       pTask_Desciptor->tTask_Param.pParameters,     //void *pvParameters,
+//                       pTask_Desciptor->tTask_Param.uiTask_Priority, //UBaseType_t uxPriority,
+//                       &pTask_Desciptor->tTask_Handle                 //TaskHandle_t *pvCreatedTask
+                       tParam.pTaskFcn,        //TaskFunction_t pvTaskCode,
+                       tParam.pName,           //const char * const pcName,
+                       tParam.uiStack_Size,    //unsigned short usStackDepth,
+                       tParam.pParameters,     //void *pvParameters,
+                       tParam.uiTask_Priority, //UBaseType_t uxPriority,
                        &pTask_Desciptor->tTask_Handle                 //TaskHandle_t *pvCreatedTask
                        );
 
@@ -713,15 +724,19 @@ ERROR_CODE eOSAL_Queue_Create(tOSAL_Queue_Parameters * ptQueue_param, tOSAL_Queu
 {
   ERROR_CODE eEC = ER_FAIL;
   tOSAL_Queue_Descriptor * pQueue_Desc;
+  void * pHandle;
 
   eEC = eOSAL_Register_Queue(ptQueue_param, &pQueue_Desc);
 
   if(eEC == ER_OK)
   {
-    pQueue_Desc->tQueue_Handle.pHandle = xQueueCreate(
+    pHandle = xQueueCreate(
                                                       ptQueue_param->uiNum_Of_Queue_Elements,
                                                       ptQueue_param->uiSize_Of_Queue_Element
                                                       );
+    vDEBUG_ASSERT("eOSAL_Queue_Create queue handle NULL", pHandle == NULL);
+
+    pQueue_Desc->tQueue_Handle.pHandle = pHandle;
 
     if(pQueue_Desc->tQueue_Handle.pHandle != NULL)
     {
@@ -744,15 +759,32 @@ ERROR_CODE eOSAL_Queue_Get_msg(tOSAL_Queue_Handle * ptQueue_handle, void * pMsg)
 {
   ERROR_CODE eEC = ER_FAIL;
   uint32_t uiRC = 0;
+  int32_t iTimeout = tOSAL_Queue_Desc[ptQueue_handle->uiHandle_Index].tQueue_Param.iTimeout;
+
+  if((iTimeout != OSAL_QUEUE_TIMEOUT_WAITFOREVER) |
+     (iTimeout != OSAL_QUEUE_TIMEOUT_NO_WAIT))
+  {
+    //todo: get tick
+  }
 
   uiRC = xQueueReceive(
                        ptQueue_handle->pHandle,
                        pMsg,
-                       tOSAL_Queue_Desc[ptQueue_handle->uiHandle_Index].tQueue_Param.iTimeout
+                       iTimeout
                        );
-  if(uiRC == pdPASS)
+  if(uiRC == pdTRUE)
   {
     eEC = ER_OK;
+  }
+  else
+  {
+    if((iTimeout != OSAL_QUEUE_TIMEOUT_WAITFOREVER) |
+         (iTimeout != OSAL_QUEUE_TIMEOUT_NO_WAIT))
+    {
+      //todo: get current tick
+
+      //todo: compare tick
+    }
   }
 
   return eEC;

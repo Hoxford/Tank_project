@@ -29,6 +29,7 @@
 ******************************************************************************/
 
 #define TASK_WIFI_PRIORITY  2
+#define TASK_WIFI_STACK_SIZE  4096
 
 #define WIFI_SEND_BUF_LEN    256
 #define WIFI_RCV_BUF_LEN    256
@@ -117,6 +118,13 @@ void       vWifi_Driver_Task(void * pvParameters);
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_Setup(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -305,6 +313,13 @@ ERROR_CODE eWifi_get_ready(void)
   return eEC;
 }
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_clear_intf(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -328,6 +343,13 @@ ERROR_CODE eWifi_clear_intf(void)
   return eEC;
 }
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_disable_echo(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -426,6 +448,13 @@ ERROR_CODE eWifi_disable_echo(void)
   return eEC;
 }
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_rcv_OK(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -463,6 +492,13 @@ ERROR_CODE eWifi_rcv_OK(void)
   return eEC;
 }
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_send(tWifi_Send * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -475,6 +511,13 @@ ERROR_CODE eWifi_send(tWifi_Send * pParam)
   return eEC;
 }
 
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_rcv(tWifi_Receive * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -619,7 +662,7 @@ ERROR_CODE eWifi_Request(tWifi_Request * pRequest)
     {
       pRequest->pWifi_Task_Param->pTaskFcn = &vWifi_Driver_Task;
       pRequest->pWifi_Task_Param->pName = cWifi_Task_Name;
-      pRequest->pWifi_Task_Param->uiStack_Size = 4096;
+      pRequest->pWifi_Task_Param->uiStack_Size = TASK_WIFI_STACK_SIZE;
       pRequest->pWifi_Task_Param->pParameters = NULL;
       pRequest->pWifi_Task_Param->uiTask_Priority = TASK_WIFI_PRIORITY;
       eEC = ER_OK;

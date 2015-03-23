@@ -11,18 +11,30 @@
 ******************************************************************************/
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "utils_inc/error_codes.h"
+#include "utils_inc/osal.h"
+#include "utils_inc/proj_debug.h"
+
 #include "drivers_inc/camera.h"
+#include "board.h"
 
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+#define TASK_CAMERA_PRIORITY  3
+#define TASK_CAMERA_STACK_SIZE  4096
+
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+char cCamera_Task_Name[] = "Camera";
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,6 +43,13 @@
 /******************************************************************************
 * enums ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+typedef enum CAMERA_MSG_ID
+{
+  CAMERA_MSG_NONE,
+  CAMERA_MSG_TEST,
+  CAMERA_MSG_LIMIT,
+}CAMERA_MSG_ID;
 
 /******************************************************************************
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +63,11 @@ typedef struct tCamera_Activity_State
 
 tCamera_Activity_State tCamera_AS;  //short tMy_struct description
 
+typedef struct tCamera_Message_Struct
+{
+    CAMERA_MSG_ID eMSG;
+}tCamera_Message_Struct;
+
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -52,9 +76,28 @@ tCamera_Activity_State tCamera_AS;  //short tMy_struct description
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+ERROR_CODE eCamera_Setup(void);
+void vCamera_Driver_Task(void * pvParameters);
+
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+/******************************************************************************
+* todo: function comment
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eCamera_Setup(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  return eEC;
+}
+
 /******************************************************************************
 * name:
 * description:
@@ -62,6 +105,39 @@ tCamera_Activity_State tCamera_AS;  //short tMy_struct description
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
+void vCamera_Driver_Task(void * pvParameters)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  tOSAL_Queue_Parameters tCamera_Queue_Param;
+  tOSAL_Queue_Handle * pCamera_Queue_Handle;
+  tCamera_Message_Struct tMsg;
+
+  eOSAL_Queue_Params_Init(&tCamera_Queue_Param);
+  tCamera_Queue_Param.uiNum_Of_Queue_Elements = 5;
+  tCamera_Queue_Param.uiSize_Of_Queue_Element = sizeof(tCamera_Message_Struct);
+  tCamera_Queue_Param.pMsgBuff = &tMsg;
+  tCamera_Queue_Param.iTimeout = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
+
+  eEC = eOSAL_Queue_Create(&tCamera_Queue_Param, &pCamera_Queue_Handle);
+  vDEBUG_ASSERT("vCamera_Driver_Task queue create fail", eEC != ER_OK);
+
+  eEC = eCamera_Setup();
+  vDEBUG_ASSERT("vCamera_Driver_Task driver setup fail", eEC != ER_OK);
+
+  while(1)
+  {
+    if(eOSAL_Queue_Get_msg(pCamera_Queue_Handle, &tMsg) == ER_OK)
+    {
+
+    }
+    else
+    {
+      vDEBUG_ASSERT("vCamera_Driver_Task queue get fail", eEC != ER_OK);
+    }
+  }
+
+  return;
+}
 
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,10 +168,21 @@ ERROR_CODE eCamera_Request_Param_Init(tCamera_Request * pParam)
 ******************************************************************************/
 ERROR_CODE eCamera_Request(tCamera_Request * pRequest)
 {
-  ERROR_CODE eEC = ER_OK;
+  ERROR_CODE eEC = ER_FAIL;
 
     switch(pRequest->eRequestID)
     {
+      case CAMERA_REQUEST_TASK_PARAMETERS:
+      {
+        pRequest->pCamera_Task_Param->pTaskFcn = &vCamera_Driver_Task;
+        pRequest->pCamera_Task_Param->pName = cCamera_Task_Name;
+        pRequest->pCamera_Task_Param->uiStack_Size = TASK_CAMERA_STACK_SIZE;
+        pRequest->pCamera_Task_Param->pParameters = NULL;
+        pRequest->pCamera_Task_Param->uiTask_Priority = TASK_CAMERA_PRIORITY;
+        eEC = ER_OK;
+        break;
+      }
+      case CAMERA_REQUEST_TAKE_PICTURE:
       default:
         eEC = ER_FAIL;
     }
