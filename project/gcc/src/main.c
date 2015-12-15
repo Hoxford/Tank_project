@@ -22,6 +22,7 @@
 
 #include "drivers_inc/camera.h"
 #include "drivers_inc/wifi.h"
+#include "app_inc/commander.h"
 
 // ----- main() ---------------------------------------------------------------
 
@@ -148,6 +149,7 @@ int main(int argc, char* argv[])
   ERROR_CODE eEC = ER_FAIL;
   tOSAL_Task_Parameters tOSAL_Task_Param;
   tWifi_Request tWifi_Req;
+  tCommand_Request tCmnd_Req;
 
   eEC = eBSP_Board_Init();
 
@@ -159,6 +161,20 @@ int main(int argc, char* argv[])
   }
 
   blink_led_init();
+
+  if(eEC == ER_OK)
+  {
+    eCommand_Param_Init(&tCmnd_Req);
+    eOSAL_Task_Param_Init(&tOSAL_Task_Param);
+    tCmnd_Req.eRequestID = CMND_REQUEST_TASK_PARAMETERS;
+    tCmnd_Req.pCommander_Task_Param = &tOSAL_Task_Param;
+    eEC = eCommand_Request(&tCmnd_Req);
+
+    if(eEC == ER_OK)
+    {
+      eEC = eOSAL_Task_Create(&tOSAL_Task_Param);
+    }
+  }
 
   if(eEC == ER_OK)
   {

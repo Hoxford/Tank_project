@@ -18,6 +18,7 @@
 #define __error__(a, b)
 //#define vDEBUG(a, __VA_ARGS__)
 #define vDEBUG(a, ...)
+void vDEBUG_ASSERT(a, ...);
 #define vDEBUG_GPIO_SET_1()
 #define vDEBUG_GPIO_CLR_1()
 #define vDEBUG_GPIO_TOGGLE_1()

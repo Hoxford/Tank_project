@@ -262,6 +262,9 @@ static void prvTaskExitError( void )
 
 void vPortSVCHandler( void )
 {
+  int x;
+  x = 1;
+
 	__asm volatile (
 					"	ldr	r3, pxCurrentTCBConst2		\n" /* Restore the context. */
 					"	ldr r1, [r3]					\n" /* Use pxCurrentTCBConst to get the pxCurrentTCB address. */
