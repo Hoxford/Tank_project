@@ -66,11 +66,6 @@
 			<locationURI>PARENT-2-PROJECT_LOC/drivers/camera.c</locationURI>
 		</link>
 		<link>
-			<name>src/drivers/nvram.c</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Mini_Panzer_01/drivers/nvram.c</locationURI>
-		</link>
-		<link>
 			<name>src/drivers/wifi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/drivers/wifi.c</locationURI>
