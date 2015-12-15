@@ -88,18 +88,10 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void);
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-/******************************************************************************
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
-******************************************************************************/
 ERROR_CODE eBSP_Camera_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
   GPIO_InitTypeDef      tCamera_GPIO_Init;
-  RCC_ClkInitTypeDef    tCamera_RCC_Init;
 
   if(tBSP_AS.bIs_Camera_Intf_Init == false)
   {
@@ -113,54 +105,20 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
     HAL_GPIO_Init(GPIOB,&tCamera_GPIO_Init);
 
     //config camera control interface pins to I2C
-//    tCamera_GPIO_Init.Pin       = GPIO_PIN_6 | GPIO_PIN_7;
-//    tCamera_GPIO_Init.Mode      = GPIO_MODE_AF_PP;
-//    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
-//    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-//    tCamera_GPIO_Init.Alternate = GPIO_AF4_I2C1;
-//    HAL_GPIO_Init(GPIOB,&tCamera_GPIO_Init);
-    tCamera_GPIO_Init.Pin       = GPIO_PIN_10 | GPIO_PIN_11;
+    tCamera_GPIO_Init.Pin       = GPIO_PIN_6 | GPIO_PIN_7;
     tCamera_GPIO_Init.Mode      = GPIO_MODE_AF_PP;
     tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
     tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-    tCamera_GPIO_Init.Alternate = GPIO_AF4_I2C2;
+    tCamera_GPIO_Init.Alternate = GPIO_AF4_I2C1;
     HAL_GPIO_Init(GPIOB,&tCamera_GPIO_Init);
 
     //config camera pixel(PCLK) and system (XCLK) pins to output timers
-//    tCamera_GPIO_Init.Pin       = GPIO_PIN_8 | GPIO_PIN_9;
-//    tCamera_GPIO_Init.Mode      = GPIO_MODE_AF_PP;
-//    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
-//    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-//    tCamera_GPIO_Init.Alternate = GPIO_AF2_TIM4;
-//    HAL_GPIO_Init(GPIOB,&tCamera_GPIO_Init);
-    tCamera_GPIO_Init.Pin       = GPIO_PIN_14 | GPIO_PIN_15;
+    tCamera_GPIO_Init.Pin       = GPIO_PIN_8 | GPIO_PIN_9;
     tCamera_GPIO_Init.Mode      = GPIO_MODE_AF_PP;
     tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
     tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
     tCamera_GPIO_Init.Alternate = GPIO_AF2_TIM4;
-    HAL_GPIO_Init(GPIOD,&tCamera_GPIO_Init);
-
-    //config camera DCMI pins
-    tCamera_GPIO_Init.Pin       = GPIO_PIN_6 | GPIO_PIN_8;
-    tCamera_GPIO_Init.Mode      = GPIO_MODE_AF_PP;
-    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
-    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-    tCamera_GPIO_Init.Alternate = GPIO_AF13_DCMI;
     HAL_GPIO_Init(GPIOB,&tCamera_GPIO_Init);
-
-    tCamera_GPIO_Init.Pin       = GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9;
-    tCamera_GPIO_Init.Mode      = GPIO_MODE_AF_PP;
-    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
-    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-    tCamera_GPIO_Init.Alternate = GPIO_AF13_DCMI;
-    HAL_GPIO_Init(GPIOC,&tCamera_GPIO_Init);
-
-    tCamera_GPIO_Init.Pin       = GPIO_PIN_4 | GPIO_PIN_6;
-    tCamera_GPIO_Init.Mode      = GPIO_MODE_AF_PP;
-    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
-    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-    tCamera_GPIO_Init.Alternate = GPIO_AF13_DCMI;
-    HAL_GPIO_Init(GPIOE,&tCamera_GPIO_Init);
 
     eEC = ER_OK;
 
@@ -174,13 +132,6 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
   return eEC;
 }
 
-/******************************************************************************
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
-******************************************************************************/
 ERROR_CODE eBSP_Wifi_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -298,13 +249,6 @@ ERROR_CODE eBSP_Wifi_Rst(void)
   return eEC;
 }
 
-/******************************************************************************
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
-******************************************************************************/
 ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -323,13 +267,6 @@ ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam)
   return eEC;
 }
 
-/******************************************************************************
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
-******************************************************************************/
 ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -350,13 +287,6 @@ ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam)
   return eEC;
 }
 
-/******************************************************************************
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
-******************************************************************************/
 ERROR_CODE eBSP_Inc_ms_count(void)
 {
   ERROR_CODE eEC = ER_OK;
@@ -366,13 +296,6 @@ ERROR_CODE eBSP_Inc_ms_count(void)
   return eEC;
 }
 
-/******************************************************************************
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
-******************************************************************************/
 ERROR_CODE eBSP_Get_Current_ms_count(uint32_t * uiSystem_total_ms_count)
 {
   ERROR_CODE eEC = ER_OK;
@@ -400,10 +323,8 @@ ERROR_CODE eBSP_Board_Init(void)
 
   __GPIOA_CLK_ENABLE();
   __GPIOB_CLK_ENABLE();
-  __GPIOC_CLK_ENABLE();
-  __GPIOD_CLK_ENABLE();
   __USART2_CLK_ENABLE();
-  __I2C2_CLK_ENABLE();
+  __I2C1_CLK_ENABLE();
   __TIM4_CLK_ENABLE();
 
   eEC = eBSP_Camera_Intf_Init();

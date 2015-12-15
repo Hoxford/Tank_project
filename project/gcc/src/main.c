@@ -22,6 +22,7 @@
 
 #include "drivers_inc/camera.h"
 #include "drivers_inc/wifi.h"
+#include "app_inc/commander.h"
 
 // ----- main() ---------------------------------------------------------------
 
@@ -32,7 +33,12 @@
 #pragma GCC diagnostic ignored "-Wmissing-declarations"
 #pragma GCC diagnostic ignored "-Wreturn-type"
 
-
+#ifndef __WIFI_H__
+  #define tWifi_Request void *
+  #define vWifi_Driver_Task(p)
+  #define eWifi_Request_Param_Init(p)
+  #define eWifi_Request(p)
+#endif
 
 extern void HardFault_Handler();
 extern void timer_tick();
@@ -87,7 +93,7 @@ void vApplicationIdleHook( void )
 
   if((uiCurrent_Tick - uiLED_Tick) > 1000)
   {
-    uiLED_Tick = uiCurrent_Tick;
+    uiLED_Tick = HAL_GetTick();
     if(bLED_On == true)
     {
       bLED_On = false;
@@ -143,7 +149,7 @@ int main(int argc, char* argv[])
   ERROR_CODE eEC = ER_FAIL;
   tOSAL_Task_Parameters tOSAL_Task_Param;
   tWifi_Request tWifi_Req;
-  tCamera_Request tCamera_Req;
+  tCommand_Request tCmnd_Req;
 
   eEC = eBSP_Board_Init();
 
@@ -156,7 +162,20 @@ int main(int argc, char* argv[])
 
   blink_led_init();
 
-#ifdef USE_WIFI_TASK
+  if(eEC == ER_OK)
+  {
+    eCommand_Param_Init(&tCmnd_Req);
+    eOSAL_Task_Param_Init(&tOSAL_Task_Param);
+    tCmnd_Req.eRequestID = CMND_REQUEST_TASK_PARAMETERS;
+    tCmnd_Req.pCommander_Task_Param = &tOSAL_Task_Param;
+    eEC = eCommand_Request(&tCmnd_Req);
+
+    if(eEC == ER_OK)
+    {
+      eEC = eOSAL_Task_Create(&tOSAL_Task_Param);
+    }
+  }
+
   if(eEC == ER_OK)
   {
     eWifi_Request_Param_Init(&tWifi_Req);
@@ -164,23 +183,6 @@ int main(int argc, char* argv[])
     tWifi_Req.eRequestID = WIFI_REQUEST_TASK_PARAMETERS;
     tWifi_Req.pWifi_Task_Param = &tOSAL_Task_Param;
     eEC = eWifi_Request(&tWifi_Req);
-
-    if(eEC == ER_OK)
-    {
-      eEC = eOSAL_Task_Create(&tOSAL_Task_Param);
-    }
-  }
-#else
-  eEC = ER_OK;
-#endif
-
-  if(eEC == ER_OK)
-  {
-    eCamera_Request_Param_Init(&tCamera_Req);
-    eOSAL_Task_Param_Init(&tOSAL_Task_Param);
-    tCamera_Req.eRequestID = CAMERA_REQUEST_TASK_PARAMETERS;
-    tCamera_Req.pCamera_Task_Param = &tOSAL_Task_Param;
-    eEC = eCamera_Request(&tCamera_Req);
 
     if(eEC == ER_OK)
     {

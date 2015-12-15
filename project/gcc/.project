@@ -56,6 +56,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>src/application/commander.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/application/commander.c</locationURI>
+		</link>
+		<link>
 			<name>src/drivers/camera.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/drivers/camera.c</locationURI>

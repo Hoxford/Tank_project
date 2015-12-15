@@ -7,6 +7,8 @@
 
 #include <stdlib.h>
 #include "diag/Trace.h"
+#include "cmsis_device.h"
+#include "core_cm4.h"
 
 // ----------------------------------------------------------------------------
 
@@ -39,6 +41,7 @@ _exit(int code __attribute__((unused)))
 #endif
 
   // TODO: write on trace
+  __ASM volatile("BKPT 0x00A8");
   while (1)
     ;
 }

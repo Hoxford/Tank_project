@@ -25,12 +25,13 @@
 /******************************************************************************
 *public enums /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-//eExample_enum description
+//WIFI request ID's
 typedef enum WIFI_REQUEST_ID
 {
-    WIFI_REQUEST_NONE = 0,
-    WIFI_REQUEST_TASK_PARAMETERS,
-    WIFI_REQUEST_LIMIT,
+  WIFI_REQUEST_NONE = 0,
+  WIFI_REQUEST_TASK_PARAMETERS,
+  WIFI_REQUEST_CONNECT,
+  WIFI_REQUEST_LIMIT,
 }WIFI_REQUEST_ID;
 
 /******************************************************************************
@@ -39,8 +40,10 @@ typedef enum WIFI_REQUEST_ID
 //tExample_struct description
 typedef struct tWifi_Request
 {
-    WIFI_REQUEST_ID eRequestID;
-    tOSAL_Task_Parameters * pWifi_Task_Param;
+  WIFI_REQUEST_ID eRequestID;
+  tOSAL_Task_Parameters * pWifi_Task_Param;
+  char * cAP_ID;
+  char * cAP_PW;
 }tWifi_Request;
 
 /******************************************************************************
@@ -51,6 +54,6 @@ typedef struct tWifi_Request
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eWifi_Request_Param_Init(tWifi_Request * pParam);
+ERROR_CODE eWifi_Request_Param_Init(tWifi_Request * pRequest);
 ERROR_CODE eWifi_Request(tWifi_Request * pRequest);
 #endif //__FILE_NAME_H__
