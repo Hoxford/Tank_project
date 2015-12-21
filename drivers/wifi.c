@@ -33,7 +33,7 @@
 #define WIFI_SEND_BUF_LEN    256
 #define WIFI_RCV_BUF_LEN    256
 
-#define WIFI_SEND_ASSERT()  vDEBUG_ASSERT("Wifi send fail", eEC != ER_OK)
+#define WIFI_SEND_ASSERT()  vDEBUG_ASSERT("Wifi send fail", eEC == ER_OK)
 
 #define WIFI_XMIT_1S_TIMEOUT  10
 
@@ -69,7 +69,7 @@ typedef enum WIFI_MSG_ID
 //tWifi activity state for command, control and status of the task
 typedef struct tWifi_Activity_State
 {
-  bool bIs_Wifi_Ready;
+  bool    bIs_Wifi_Ready;
   uint8_t uiSendBuff[WIFI_SEND_BUF_LEN];
   uint8_t uiRcvBuff[WIFI_RCV_BUF_LEN];
   uint8_t uiIP_Address[4];
@@ -350,7 +350,7 @@ ERROR_CODE eWifi_rcv_OK(void)
       eEC = eWifi_rcv(&tRcv);
       if(strstr((char *)tRcv.tBSP_Receive.pBuff, AT_ERROR) == NULL)
       {
-        vDEBUG_ASSERT("eWifi_rcv_OK non OK ERROR resp", 1);
+        vDEBUG_ASSERT("eWifi_rcv_OK non OK ERROR resp", 0);
       }
       else
       {
@@ -451,10 +451,10 @@ void vWifi_Driver_Task(void * pvParameters)
   tWifi_Queue_Param.iTimeout = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
 
   eEC = eOSAL_Queue_Create(&tWifi_Queue_Param, &pWifi_Queue_Handle);
-  vDEBUG_ASSERT("vWifi_Driver_Task queue create fail", eEC != ER_OK);
+  vDEBUG_ASSERT("vWifi_Driver_Task queue create fail", eEC == ER_OK);
 
   eEC = eWifi_Setup();
-  vDEBUG_ASSERT("vWifi_Driver_Task driver setup fail", eEC != ER_OK);
+  vDEBUG_ASSERT("vWifi_Driver_Task driver setup fail", eEC == ER_OK);
 
 
 //  tMsg.eMSG = WIFI_MSG_TEST;
@@ -580,7 +580,7 @@ void vWifi_Driver_Task(void * pvParameters)
           break;
         }
         default:
-          vDEBUG_ASSERT("vWifi_Driver_Task invalid msg ID", tMsg.eMSG >= WIFI_MSG_LIMIT);
+          vDEBUG_ASSERT("vWifi_Driver_Task invalid msg ID", tMsg.eMSG < WIFI_MSG_LIMIT);
       }
     }
   }

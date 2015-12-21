@@ -110,21 +110,21 @@ void vCommander_Task(void * pvParameters)
   tWifi_Request tWifiReq;
 
   eEC = eOSAL_Queue_Params_Init(&tCommander_Queue_Param);
-  vDEBUG_ASSERT("Commander Queue params init fail", eEC != ER_OK);
+  vDEBUG_ASSERT("Commander Queue params init fail", eEC == ER_OK);
   tCommander_Queue_Param.uiNum_Of_Queue_Elements = 3;
   tCommander_Queue_Param.uiSize_Of_Queue_Element = sizeof(tCommander_Message_Struct);
   tCommander_Queue_Param.pMsgBuff = &tMsg;
   tCommander_Queue_Param.iTimeout = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
 
   eEC = eOSAL_Queue_Create(&tCommander_Queue_Param, &pCommander_Queue_Handle);
-  vDEBUG_ASSERT("vCommander_Task queue create fail", eEC != ER_OK);
+  vDEBUG_ASSERT("vCommander_Task queue create fail", eEC == ER_OK);
 
   //todo: get nv settings for auto interface connect
   if(tCommand_AS.bAuto_Interface_Connect == true)
   {
     tMsg.eMSG = COMMAND_MSG_INTERFACE_CONNECT;
     eEC = eOSAL_Queue_Post_msg(pCommander_Queue_Handle, &tMsg);
-    vDEBUG_ASSERT("vCommander_Task msg post fail", eEC != ER_OK);
+    vDEBUG_ASSERT("vCommander_Task msg post fail", eEC == ER_OK);
   }
 
   tCommand_AS.bIs_Command_Task_Ready = true;

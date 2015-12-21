@@ -121,9 +121,13 @@ void vDEBUG(char * cMsg, ...)
 
 void vDEBUG_ASSERT(char * cMsg,int iAssert)
 {
-  ERROR_CODE eEC = ER_FAIL;
+//  ERROR_CODE eEC = ER_FAIL;
 
   if(iAssert)
+  {
+    return;
+  }
+  else
   {
     //todo detct debugger eEC = eBSP_debugger_detect();
 //    if(eEC == ER_OK)
@@ -144,13 +148,8 @@ void vDEBUG_ASSERT(char * cMsg,int iAssert)
 //      //todo: system reset
 //      while(1){};
 //    }
-
     __ASM volatile("BKPT 0x00A8");
-    while (1){}
-  }
-  else
-  {
-    return;
+    while (1){}0
   }
 }
 
