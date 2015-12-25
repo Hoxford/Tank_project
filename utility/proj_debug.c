@@ -149,7 +149,7 @@ void vDEBUG_ASSERT(char * cMsg,int iAssert)
 //      while(1){};
 //    }
     __ASM volatile("BKPT 0x00A8");
-    while (1){}0
+    while (1){}
   }
 }
 
