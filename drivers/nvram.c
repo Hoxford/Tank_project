@@ -60,13 +60,13 @@ tNvram_Activity_State tNvram_AS; //nvram activity state
 
 typedef struct tNvram_Write
 {
-  uin32_t   uiSize;
+  uint32_t   uiSize;
   uint8_t * pBuff;
 }tNvram_Write;
 
 typedef struct tNvram_Read
 {
-  uin32_t   uiSize;
+  uint32_t   uiSize;
   uint8_t * pBuff;
 }tNvram_Read;
 
@@ -78,7 +78,7 @@ typedef struct tNvram_Read
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 ERROR_CODE eNvram_Write(tNvram_Write * pWrite);
-ERROR_CODE eNvram_Write(tNvram_Read * pRead);
+ERROR_CODE eNvram_Read(tNvram_Read * pRead);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@ ERROR_CODE eNvram_Write(tNvram_Write * pWrite)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eNvram_Write(tNvram_Read * pRead)
+ERROR_CODE eNvram_Read(tNvram_Read * pRead)
 {
   ERROR_CODE eEC = ER_FAIL;
   return eEC;
