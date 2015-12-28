@@ -20,6 +20,7 @@
 #include "utils_inc/proj_debug.h"
 
 #include "drivers_inc/wifi.h"
+#include "drivers_inc/nvram.h"
 #include "app_inc/commander.h"
 
 /******************************************************************************
@@ -28,6 +29,10 @@
 // TASK mappings
   #define TASK_COMMANDER_PRIORITY  6
 //End TASK mappings
+
+//module persistent settings
+  #define CMNDR_PERSISTANT_SETTINGS_ID  0x122D2C15
+//End module persistent settings
 
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,9 +50,9 @@ char cCommand_Task_Name[] = "COMMAND";
 //Commander message ID's
 typedef enum COMMAND_MSG_ID
 {
-    COMMAND_MSG_NONE,
-    COMMAND_MSG_INTERFACE_CONNECT,
-    COMMAND_MSG_LIMIT,
+  COMMAND_MSG_NONE,
+  COMMAND_MSG_INTERFACE_CONNECT,
+  COMMAND_MSG_LIMIT,
 }COMMAND_MSG_ID;
 
 /******************************************************************************
@@ -60,6 +65,7 @@ typedef struct tCommand_Activity_State
   bool bAuto_Interface_Connect;
   char cAP_ID[128];
   char cAP_PW[64];
+  uint32_t uiCommaner_NVID;
 }tCommand_Activity_State;
 
 tCommand_Activity_State tCommand_AS =
@@ -78,7 +84,8 @@ tCommand_Activity_State tCommand_AS =
   {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-  }
+  },
+  CMNDR_PERSISTANT_SETTINGS_ID,//uint32_t uiCommaner_NVID;
 };
 
 typedef struct tCommander_Message_Struct
@@ -121,6 +128,7 @@ void vCommander_Task(void * pvParameters)
   tOSAL_Queue_Handle * pCommander_Queue_Handle;
   tCommander_Message_Struct tMsg;
   tWifi_Request tWifiReq;
+  tNvram_Request tNVReq;
 
   eEC = eOSAL_Queue_Params_Init(&tCommander_Queue_Param);
   vDEBUG_ASSERT("Commander Queue params init fail", eEC == ER_OK);
@@ -132,7 +140,14 @@ void vCommander_Task(void * pvParameters)
   eEC = eOSAL_Queue_Create(&tCommander_Queue_Param, &pCommander_Queue_Handle);
   vDEBUG_ASSERT("vCommander_Task queue create fail", eEC == ER_OK);
 
-  //todo: get nv settings for auto interface connect
+  eEC = eNvram_Request_Param_Init(&tNVReq);
+  vDEBUG_ASSERT("eNvram_Request_Param_Init fail", eEC == ER_OK);
+  tNVReq.eRequestID = NVRAM_REQUEST_REGISTER_ID;
+  tNVReq.pBuff = (uint8_t)&tCommand_AS;
+  tNVReq.uiSize = sizeof(tCommand_Activity_State);
+  //eNvram_Request
+
+
   if(tCommand_AS.bAuto_Interface_Connect == true)
   {
     tMsg.eMSG = COMMAND_MSG_INTERFACE_CONNECT;

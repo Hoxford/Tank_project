@@ -42,6 +42,18 @@ typedef struct tBSP_Wifi_Receive
   uint32_t uiBuff_Len;
 }tBSP_Wifi_Receive;
 
+typedef struct tBSP_Flash_Read
+{
+  uint8_t * pBuff;
+  uint32_t uiBuff_Len;
+}tBSP_Flash_Read;
+
+typedef struct tBSP_Flash_Write
+{
+  uint8_t * pBuff;
+  uint32_t uiBuff_Len;
+}tBSP_Flash_Write;
+
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -55,6 +67,8 @@ ERROR_CODE eBSP_Wifi_Rst_Set(void);
 ERROR_CODE eBSP_Wifi_Rst(void);
 ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam);
 ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam);
+ERROR_CODE eBSP_FLASH_READ(tBSP_Flash_Read * pParam);
+ERROR_CODE eBSP_FLASH_WRITE(tBSP_Flash_Write * pParam);
 ERROR_CODE eBSP_Get_Current_ms_count(uint32_t *uiSystem_total_ms_count);
 ERROR_CODE eBSP_Board_Init(void);
 

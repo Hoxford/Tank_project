@@ -56,7 +56,10 @@ typedef struct tNvram_Activity_State
   bool bIs_Nvram_Ready;
 }tNvram_Activity_State;
 
-tNvram_Activity_State tNvram_AS; //nvram activity state
+tNvram_Activity_State tNvram_AS = //nvram activity state
+{
+  false, //bool bIs_Nvram_Ready;
+};
 
 typedef struct tNvram_Write
 {
@@ -93,6 +96,13 @@ ERROR_CODE eNvram_Read(tNvram_Read * pRead);
 ERROR_CODE eNvram_Write(tNvram_Write * pWrite)
 {
   ERROR_CODE eEC = ER_FAIL;
+  tBSP_Flash_Write tParam;
+
+  tParam.pBuff = pWrite->pBuff;
+  tParam.uiBuff_Len = pWrite->uiSize;
+
+  eBSP_FLASH_WRITE(&tParam);
+
   return eEC;
 }
 
@@ -106,12 +116,26 @@ ERROR_CODE eNvram_Write(tNvram_Write * pWrite)
 ERROR_CODE eNvram_Read(tNvram_Read * pRead)
 {
   ERROR_CODE eEC = ER_FAIL;
+  tBSP_Flash_Read tParam;
+
+  tParam.pBuff = pRead->pBuff;
+  tParam.uiBuff_Len = pRead->uiSize;
+
+  eBSP_FLASH_READ(&tParam);
+
   return eEC;
 }
 
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+ERROR_CODE eNvram_Request_Param_Init(tNvram_Request * pRequest)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  return eEC;
+}
 
 /******************************************************************************
 * name: Filename_or_abreviation_funciton
@@ -120,8 +144,19 @@ ERROR_CODE eNvram_Read(tNvram_Read * pRead)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-int iFilename_or_abreviation_funciton(param_1, param_2)
+ERROR_CODE eNvram_Request(tNvram_Request * pRequest)
 {
+  ERROR_CODE eEC = ER_FAIL;
+
+  switch(pRequest->eRequestID)
+  {
+    case NVRAM_REQUEST_READ:
+    case NVRAM_REQUEST_WRITE:
+    case NVRAM_REQUEST_REGISTER_ID:
+    default:
+      break;
+  }
+  return eEC;
 }
 
 #endif //__NVRAM_C__

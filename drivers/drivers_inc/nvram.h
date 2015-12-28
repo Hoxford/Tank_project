@@ -31,6 +31,7 @@ typedef enum NVRAM_REQUEST_ID
   NVRAM_REQUEST_NONE = 0,
   NVRAM_REQUEST_READ,
   NVRAM_REQUEST_WRITE,
+  NVRAM_REQUEST_REGISTER_ID,
   NVRAM_REQUEST_LIMIT,
 }NVRAM_REQUEST_ID;
 
@@ -41,6 +42,7 @@ typedef enum NVRAM_REQUEST_ID
 typedef struct tNvram_Request
 {
     NVRAM_REQUEST_ID eRequestID;
+    uint32_t uiSettings_ID;
     uint32_t uiSize;
     uint8_t * pBuff;
 }tNvram_Request;
