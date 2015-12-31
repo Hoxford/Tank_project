@@ -330,12 +330,7 @@ ERROR_CODE eBSP_FLASH_READ(tBSP_Flash_Read * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
 
-  /* Unlock the Flash to enable the flash control register access *************/
-  FLASH_Unlock();
 
-  /* Lock the Flash to disable the flash control register access (recommended
-     to protect the FLASH memory against possible unwanted operation) *********/
-  FLASH_Lock();
 
   return eEC;
 }

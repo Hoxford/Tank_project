@@ -27,14 +27,9 @@
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-// Define group ID mappings IE:
-// NVRAM interface mappings////////////////////////////////
-//  #def RADIO_EXAMPLE_DEF  value  //def description
-
-// RADIO sub group mappings
-//  #def RADIO_EXAMPLE_DEF_AGAIN value //def description
-
-// END NVRAM interface mappings////////////////////////////
+// NVRAM index mappings////////////////////////////////
+  #define NVRAM_TABLE_INDEX_MEMBERS  8  //max number of modules that can register with NVram
+// END NVRAM index mappings////////////////////////////
 
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,14 +46,34 @@
 /******************************************************************************
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+typedef struct tNvram_Index
+{
+  uint32_t uiID;
+  uint32_t uiStartAddress;
+  uint32_t uiEndAddress;
+  uint32_t uiSize;
+}tNvram_Index;
+
 typedef struct tNvram_Activity_State
 {
   bool bIs_Nvram_Ready;
+  tNvram_Index tNvram_Table_Index[NVRAM_TABLE_INDEX_MEMBERS];
 }tNvram_Activity_State;
 
 tNvram_Activity_State tNvram_AS = //nvram activity state
 {
   false, //bool bIs_Nvram_Ready;
+  //tNvram_Index tNvram_Table_Index[NVRAM_TABLE_INDEX_MEMBERS];
+  {
+    {0,0,0,0},
+    {0,0,0,0},
+    {0,0,0,0},
+    {0,0,0,0},
+    {0,0,0,0},
+    {0,0,0,0},
+    {0,0,0,0},
+    {0,0,0,0},
+  },
 };
 
 typedef struct tNvram_Write
@@ -80,12 +95,32 @@ typedef struct tNvram_Read
 /******************************************************************************
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+ERROR_CODE eNvram_Init(void);
 ERROR_CODE eNvram_Write(tNvram_Write * pWrite);
 ERROR_CODE eNvram_Read(tNvram_Read * pRead);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+/******************************************************************************
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eNvram_Init(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  tBSP_Flash_Read tRead;
+
+  tRead.pBuff = (uint8_t)&tNvram_AS.tNvram_Table_Index[0];
+  tRead.uiBuff_Len = sizeof(tNvram_AS.tNvram_Table_Index);
+  tRead.uiStart_Addr = 0;
+
+  return eEC;
+}
+
 /******************************************************************************
 * name:
 * description:
@@ -150,6 +185,12 @@ ERROR_CODE eNvram_Request(tNvram_Request * pRequest)
 
   switch(pRequest->eRequestID)
   {
+    case NVRAM_INIT:
+      if(tNvram_AS.bIs_Nvram_Ready == false)
+      {
+        eNvram_Init();
+      }
+      break;
     case NVRAM_REQUEST_READ:
     case NVRAM_REQUEST_WRITE:
     case NVRAM_REQUEST_REGISTER_ID:

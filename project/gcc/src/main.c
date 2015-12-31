@@ -22,6 +22,7 @@
 
 #include "drivers_inc/camera.h"
 #include "drivers_inc/wifi.h"
+#include "drivers_inc/nvram.h"
 #include "app_inc/commander.h"
 
 // ----- main() ---------------------------------------------------------------
@@ -150,6 +151,7 @@ int main(int argc, char* argv[])
   tOSAL_Task_Parameters tOSAL_Task_Param;
   tWifi_Request tWifi_Req;
   tCommand_Request tCmnd_Req;
+  tNvram_Request tNVReq;
 
   eEC = eBSP_Board_Init();
 
@@ -161,6 +163,13 @@ int main(int argc, char* argv[])
   }
 
   blink_led_init();
+
+  if(eEC == ER_OK)
+  {
+    eNvram_Request_Param_Init(&tNVReq);
+    tNVReq.eRequestID = NVRAM_INIT;
+    eNvram_Request(&tNVReq);
+  }
 
   if(eEC == ER_OK)
   {

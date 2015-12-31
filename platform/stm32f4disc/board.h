@@ -46,6 +46,8 @@ typedef struct tBSP_Flash_Read
 {
   uint8_t * pBuff;
   uint32_t uiBuff_Len;
+  uint32_t uiStart_Addr;
+  uint32_t uiEnd_Addr;
 }tBSP_Flash_Read;
 
 typedef struct tBSP_Flash_Write
