@@ -28,7 +28,9 @@
 ******************************************************************************/
 
 // NVRAM index mappings////////////////////////////////
-  #define NVRAM_TABLE_INDEX_MEMBERS  8  //max number of modules that can register with NVram
+  #define NVRAM_TABLE_INDEX_MEMBERS  8 //max number of modules that can register with NVram
+  #define NVRAM_DEFAULT_INDEX        0 //Default index to determine if NVram has been pre-set
+  #define NVRAM_DEFAULT_ID           0x49BBD06A
 // END NVRAM index mappings////////////////////////////
 
 /******************************************************************************
@@ -79,13 +81,13 @@ tNvram_Activity_State tNvram_AS = //nvram activity state
 typedef struct tNvram_Write
 {
   uint32_t   uiSize;
-  uint8_t * pBuff;
+  uint8_t *  pBuff;
 }tNvram_Write;
 
 typedef struct tNvram_Read
 {
   uint32_t   uiSize;
-  uint8_t * pBuff;
+  uint8_t *  pBuff;
 }tNvram_Read;
 
 /******************************************************************************
@@ -113,10 +115,30 @@ ERROR_CODE eNvram_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
   tBSP_Flash_Read tRead;
+  tBSP_Flash_Write tWrite;
 
-  tRead.pBuff = (uint8_t)&tNvram_AS.tNvram_Table_Index[0];
+  tRead.pBuff = (uint8_t *)tNvram_AS.tNvram_Table_Index;
   tRead.uiBuff_Len = sizeof(tNvram_AS.tNvram_Table_Index);
-  tRead.uiStart_Addr = 0;
+  tRead.uiStart_Addr = FLASH_SETTINGS_INDEX;
+  eBSP_FLASH_READ(&tRead);
+
+  //determine if persistent settings index is present
+  if(tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX].uiID == NVRAM_DEFAULT_ID)
+  {
+    tNvram_AS.bIs_Nvram_Ready = true;
+  }
+  else
+  {
+    tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX].uiID = NVRAM_DEFAULT_ID;
+    tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX].uiSize = sizeof(tNvram_Index);
+//    tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX].uiStartAddress
+//    tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX].uiEndAddress
+
+    tWrite.pBuff = (uint8_t *)&tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX];
+    tWrite.uiBuff_Len = sizeof(tNvram_Index);
+
+    eBSP_FLASH_WRITE(&tWrite);
+  }
 
   return eEC;
 }

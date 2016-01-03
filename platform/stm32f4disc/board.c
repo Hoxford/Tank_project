@@ -329,8 +329,15 @@ ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam)
 ERROR_CODE eBSP_FLASH_READ(tBSP_Flash_Read * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
+  uint32_t uiReadAddress = pParam->uiStart_Addr;
+  uint32_t uiIndex = 0;
 
+  while(uiIndex < pParam->uiBuff_Len)
+  {
+    pParam->pBuff[uiIndex++] = *(__IO uint32_t*)uiReadAddress++;//FLASH_SETTINGS_INDEX;//pParam->uiStart_Addr[uiIndex];
+  }
 
+  eEC = ER_OK;
 
   return eEC;
 }
@@ -345,13 +352,44 @@ ERROR_CODE eBSP_FLASH_READ(tBSP_Flash_Read * pParam)
 ERROR_CODE eBSP_FLASH_WRITE(tBSP_Flash_Write * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_EC = HAL_ERROR;
+  uint32_t uiStartSector;
+  uint32_t uiEndSector;
+  uint32_t uiSectorIndex;
+  uint8_t  uiByteOffset = 0;
 
-  /* Unlock the Flash to enable the flash control register access *************/
-  FLASH_Unlock();
+  /* Clear pending flags (if any) */
+//  HAL_FLASH_ClearFlag(FLASH_FLAG_EOP    | FLASH_FLAG_OPERR  | FLASH_FLAG_WRPERR |
+//                      FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
 
-  /* Lock the Flash to disable the flash control register access (recommended
-     to protect the FLASH memory against possible unwanted operation) *********/
-  FLASH_Lock();
+  uiStartSector = ADDR_FLASH_SECTOR_11;
+
+  if(pParam->uiBuff_Len | 0x00000003)
+  {
+    uiByteOffset = pParam->uiBuff_Len & 0x00000003;
+  }
+
+  uiSectorIndex = (pParam->uiBuff_Len)/4;
+
+  uiEndSector = uiStartSector + uiSectorIndex;
+  if(uiByteOffset > 0)
+  {
+    uiEndSector += 1;
+  }
+
+  uiSectorIndex = uiStartSector;
+  while(uiSectorIndex < uiEndSector)
+  {
+    eHAL_EC = HAL_FLASH_Program(TYPEPROGRAM_WORD, uiStartSector, *pParam->pBuff);
+    if(eHAL_EC != HAL_OK)
+    {
+      break;
+    }
+//    FLASH_Program_Word(uiSectorIndex, pParam->pBuff);
+    pParam->pBuff += 4;
+    uiSectorIndex += 1;
+  }
+//  FLASH_Program_Byte(ADDR_FLASH_SECTOR_11, uint32_t Data);
 
   return eEC;
 }
