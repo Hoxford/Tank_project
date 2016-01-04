@@ -218,6 +218,7 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void)
 ******************************************************************************/
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -234,6 +235,7 @@ ERROR_CODE eBSP_Wifi_Rst_Clr(void)
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -250,6 +252,7 @@ ERROR_CODE eBSP_Wifi_Rst_Set(void)
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -268,6 +271,7 @@ ERROR_CODE eBSP_Wifi_Rst(void)
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -293,6 +297,7 @@ ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam)
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -320,6 +325,7 @@ ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam)
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -343,6 +349,7 @@ ERROR_CODE eBSP_FLASH_READ(tBSP_Flash_Read * pParam)
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -357,6 +364,7 @@ ERROR_CODE eBSP_FLASH_WRITE(tBSP_Flash_Write * pParam)
   uint32_t uiEndSector;
   uint32_t uiSectorIndex;
   uint8_t  uiByteOffset = 0;
+  uint32_t uiData;
 
   /* Clear pending flags (if any) */
 //  HAL_FLASH_ClearFlag(FLASH_FLAG_EOP    | FLASH_FLAG_OPERR  | FLASH_FLAG_WRPERR |
@@ -364,7 +372,7 @@ ERROR_CODE eBSP_FLASH_WRITE(tBSP_Flash_Write * pParam)
 
   uiStartSector = ADDR_FLASH_SECTOR_11;
 
-  if(pParam->uiBuff_Len | 0x00000003)
+  if((pParam->uiBuff_Len & 0x00000003) > 0)
   {
     uiByteOffset = pParam->uiBuff_Len & 0x00000003;
   }
@@ -377,24 +385,52 @@ ERROR_CODE eBSP_FLASH_WRITE(tBSP_Flash_Write * pParam)
     uiEndSector += 1;
   }
 
+  FLASH_EraseInitTypeDef er
+  = {
+      .TypeErase = TYPEERASE_SECTORS,
+      .Sector = FLASH_SECTOR_11,
+      .NbSectors = 1,
+      .VoltageRange = VOLTAGE_RANGE_3
+  };
+  uint32_t fault_sec = 0;
+  HAL_FLASH_Unlock();
+  eHAL_EC = HAL_FLASHEx_Erase(&er, &fault_sec);
+  vDEBUG_ASSERT("HAL_FLASHEx_Erase fail", eHAL_EC == HAL_OK);
+  HAL_FLASH_Lock();
+
+  eHAL_EC = HAL_FLASH_Unlock();
+  vDEBUG_ASSERT("eBSP_FLASH_WRITE unlock fail", eHAL_EC == HAL_OK);
+
+  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
   uiSectorIndex = uiStartSector;
+
   while(uiSectorIndex < uiEndSector)
   {
-    eHAL_EC = HAL_FLASH_Program(TYPEPROGRAM_WORD, uiStartSector, *pParam->pBuff);
+    uiData = 0;
+    uiData |= (uint32_t)pParam->pBuff[0];
+    uiData <<= 8;
+    uiData |= (uint32_t)pParam->pBuff[1];
+    uiData <<= 8;
+    uiData |= (uint32_t)pParam->pBuff[2];
+    uiData <<= 8;
+    uiData |= (uint32_t)pParam->pBuff[3];
+    eHAL_EC = HAL_FLASH_Program(TYPEPROGRAM_WORD, uiStartSector, uiData);
+//  eHAL_EC = HAL_FLASH_Program(TYPEPROGRAM_BYTE, uiStartSector, 0xAA);
     if(eHAL_EC != HAL_OK)
     {
       break;
     }
-//    FLASH_Program_Word(uiSectorIndex, pParam->pBuff);
     pParam->pBuff += 4;
-    uiSectorIndex += 1;
+    uiSectorIndex += 4;
   }
-//  FLASH_Program_Byte(ADDR_FLASH_SECTOR_11, uint32_t Data);
+  eHAL_EC = HAL_FLASH_Lock();
+  vDEBUG_ASSERT("eBSP_FLASH_WRITE lock fail", eHAL_EC == HAL_OK);
 
   return eEC;
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -410,6 +446,14 @@ ERROR_CODE eBSP_Inc_ms_count(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eBSP_Get_Current_ms_count(uint32_t * uiSystem_total_ms_count)
 {
   ERROR_CODE eEC = ER_OK;
@@ -420,6 +464,7 @@ ERROR_CODE eBSP_Get_Current_ms_count(uint32_t * uiSystem_total_ms_count)
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name: eBSP_Board_Init
 * description:
 * param description: void

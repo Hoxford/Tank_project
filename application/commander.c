@@ -182,6 +182,7 @@ void vCommander_Task(void * pvParameters)
 ******************************************************************************/
 
 /******************************************************************************
+* todo: DESCRIPTION, PARAM, RETURN
 * name: eCommand_Param_Init
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -211,6 +212,7 @@ ERROR_CODE eCommand_Param_Init(tCommand_Request * pRequest)
 }
 
 /******************************************************************************
+* todo: DESCRIPTION, PARAM, RETURN
 * name: eCommand_Request
 * description:
 * param description: type - value: value description (in order from left to right)

@@ -105,6 +105,7 @@ ERROR_CODE eNvram_Read(tNvram_Read * pRead);
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -144,6 +145,7 @@ ERROR_CODE eNvram_Init(void)
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -164,6 +166,7 @@ ERROR_CODE eNvram_Write(tNvram_Write * pWrite)
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -195,6 +198,7 @@ ERROR_CODE eNvram_Request_Param_Init(tNvram_Request * pRequest)
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name: Filename_or_abreviation_funciton
 * description:
 * param description: type - value: value description (in order from left to right)
