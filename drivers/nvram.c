@@ -28,9 +28,10 @@
 ******************************************************************************/
 
 // NVRAM index mappings////////////////////////////////
-  #define NVRAM_TABLE_INDEX_MEMBERS  8 //max number of modules that can register with NVram
+  #define NVRAM_TABLE_INDEX_MEMBERS  16 //max number of modules that can register with NVram including the NVram module
+  #define NVRAM_TABLE_INDEX_MEMBER_SIZE 0x2000 //max size in bytes of each table member
   #define NVRAM_DEFAULT_INDEX        0 //Default index to determine if NVram has been pre-set
-  #define NVRAM_DEFAULT_ID           0x49BBD06A
+  #define NVRAM_DEFAULT_ID           0x49BBD06A //NV ram ID
 // END NVRAM index mappings////////////////////////////
 
 /******************************************************************************
@@ -48,33 +49,43 @@
 /******************************************************************************
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-typedef struct tNvram_Index
+typedef struct tNvram_Table_ID
 {
   uint32_t uiID;
   uint32_t uiStartAddress;
   uint32_t uiEndAddress;
   uint32_t uiSize;
-}tNvram_Index;
+  uint32_t uiChecksum;
+  uint32_t uiID2;
+}tNvram_Table_ID;
 
 typedef struct tNvram_Activity_State
 {
   bool bIs_Nvram_Ready;
-  tNvram_Index tNvram_Table_Index[NVRAM_TABLE_INDEX_MEMBERS];
+  tNvram_Table_ID tNvram_Table_ID_Index[NVRAM_TABLE_INDEX_MEMBERS];
 }tNvram_Activity_State;
 
 tNvram_Activity_State tNvram_AS = //nvram activity state
 {
   false, //bool bIs_Nvram_Ready;
-  //tNvram_Index tNvram_Table_Index[NVRAM_TABLE_INDEX_MEMBERS];
+  //tNvram_Table_ID tNvram_Table_ID_Index[NVRAM_TABLE_INDEX_MEMBERS];
   {
-    {0,0,0,0},
-    {0,0,0,0},
-    {0,0,0,0},
-    {0,0,0,0},
-    {0,0,0,0},
-    {0,0,0,0},
-    {0,0,0,0},
-    {0,0,0,0},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
+    {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF},
   },
 };
 
@@ -117,28 +128,74 @@ ERROR_CODE eNvram_Init(void)
   ERROR_CODE eEC = ER_FAIL;
   tBSP_Flash_Read tRead;
   tBSP_Flash_Write tWrite;
+  tNvram_Table_ID tDefaultID;
+  uint32_t uiStartAddr = 0;
 
-  tRead.pBuff = (uint8_t *)tNvram_AS.tNvram_Table_Index;
-  tRead.uiBuff_Len = sizeof(tNvram_AS.tNvram_Table_Index);
-  tRead.uiStart_Addr = FLASH_SETTINGS_INDEX;
-  eBSP_FLASH_READ(&tRead);
-
-  //determine if persistent settings index is present
-  if(tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX].uiID == NVRAM_DEFAULT_ID)
+  if(tNvram_AS.bIs_Nvram_Ready == false)
   {
-    tNvram_AS.bIs_Nvram_Ready = true;
+    tRead.pBuff = (uint8_t *)&tDefaultID;
+    tRead.uiBuff_Len = sizeof(tNvram_Table_ID);
+    tRead.uiStart_Addr = FLASH_SETTINGS_INDEX;
+    eBSP_FLASH_READ(&tRead);
+
+    //determine if persistent settings default index is present
+    if((tDefaultID.uiID == NVRAM_DEFAULT_ID) &
+       (tDefaultID.uiID2 == NVRAM_DEFAULT_ID))
+    {
+      //validate checksum
+      //todo: validate check sum
+      if(1)
+      {
+        tRead.pBuff = (uint8_t *)tNvram_AS.tNvram_Table_ID_Index;
+        tRead.uiBuff_Len = sizeof(tNvram_AS.tNvram_Table_ID_Index);
+        tRead.uiStart_Addr = FLASH_SETTINGS_INDEX;
+        eBSP_FLASH_READ(&tRead);
+        tNvram_AS.bIs_Nvram_Ready = true;
+      }
+      else
+      {
+        tNvram_AS.bIs_Nvram_Ready = false;
+      }
+    }
+    else
+    {
+      tNvram_AS.bIs_Nvram_Ready = false;
+    }
+
+    if(tNvram_AS.bIs_Nvram_Ready == false)
+    {
+      eBSP_FLASH_ERASE();
+
+      eBSP_FLASH_GET_START_ADDR(&uiStartAddr);
+
+      tNvram_AS.tNvram_Table_ID_Index[NVRAM_DEFAULT_INDEX].uiID = NVRAM_DEFAULT_ID;
+      tNvram_AS.tNvram_Table_ID_Index[NVRAM_DEFAULT_INDEX].uiStartAddress = uiStartAddr;
+      tNvram_AS.tNvram_Table_ID_Index[NVRAM_DEFAULT_INDEX].uiEndAddress = uiStartAddr + sizeof(tNvram_AS.tNvram_Table_ID_Index);
+      tNvram_AS.tNvram_Table_ID_Index[NVRAM_DEFAULT_INDEX].uiSize = sizeof(tNvram_AS.tNvram_Table_ID_Index);
+      tNvram_AS.tNvram_Table_ID_Index[NVRAM_DEFAULT_INDEX].uiChecksum = 0;
+      tNvram_AS.tNvram_Table_ID_Index[NVRAM_DEFAULT_INDEX].uiID2 = NVRAM_DEFAULT_ID;
+
+      tWrite.pBuff = (uint8_t *)tNvram_AS.tNvram_Table_ID_Index;
+      tWrite.uiBuff_Len = sizeof(tNvram_AS.tNvram_Table_ID_Index);
+
+      eBSP_FLASH_WRITE(&tWrite);
+
+      //todo: read back flash and verify default was set
+      if(1)
+      {
+        tNvram_AS.bIs_Nvram_Ready = true;
+      }
+      else
+      {
+        tNvram_AS.bIs_Nvram_Ready = false;
+        eEC = ER_NOT_SET;
+      }
+    }
   }
-  else
+
+  if(tNvram_AS.bIs_Nvram_Ready == true)
   {
-    tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX].uiID = NVRAM_DEFAULT_ID;
-    tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX].uiSize = sizeof(tNvram_Index);
-//    tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX].uiStartAddress
-//    tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX].uiEndAddress
-
-    tWrite.pBuff = (uint8_t *)&tNvram_AS.tNvram_Table_Index[NVRAM_DEFAULT_INDEX];
-    tWrite.uiBuff_Len = sizeof(tNvram_Index);
-
-    eBSP_FLASH_WRITE(&tWrite);
+    eEC = ER_OK;
   }
 
   return eEC;
@@ -211,10 +268,14 @@ ERROR_CODE eNvram_Request(tNvram_Request * pRequest)
 
   switch(pRequest->eRequestID)
   {
-    case NVRAM_INIT:
+    case NVRAM_REQUEST_INIT:
       if(tNvram_AS.bIs_Nvram_Ready == false)
       {
-        eNvram_Init();
+        eEC = eNvram_Init();
+      }
+      else
+      {
+        eEC = ER_OK;
       }
       break;
     case NVRAM_REQUEST_READ:

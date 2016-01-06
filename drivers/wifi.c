@@ -119,6 +119,14 @@ void       vWifi_Driver_Task(void * pvParameters);
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_Setup(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -149,7 +157,8 @@ ERROR_CODE eWifi_Setup(void)
 }
 
 /******************************************************************************
-* name:
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: Filename_or_abreviation_funciton
 * description:
 * param description: type - value: value description (in order from left to right)
 *                    bool - true: do action when set to true
@@ -208,6 +217,14 @@ ERROR_CODE eWifi_get_ready(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_clear_intf(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -231,6 +248,14 @@ ERROR_CODE eWifi_clear_intf(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_disable_echo(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -329,6 +354,14 @@ ERROR_CODE eWifi_disable_echo(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_rcv_OK(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -366,6 +399,14 @@ ERROR_CODE eWifi_rcv_OK(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_send(tWifi_Send * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -378,6 +419,14 @@ ERROR_CODE eWifi_send(tWifi_Send * pParam)
   return eEC;
 }
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eWifi_rcv(tWifi_Receive * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -591,6 +640,7 @@ void vWifi_Driver_Task(void * pvParameters)
 ******************************************************************************/
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name: Filename_or_abreviation_funciton
 * description:
 * param description: type - value: value description (in order from left to right)
@@ -620,6 +670,7 @@ ERROR_CODE eWifi_Request_Param_Init(tWifi_Request * pRequest)
 }
 
 /******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name: Filename_or_abreviation_funciton
 * description:
 * param description: type - value: value description (in order from left to right)

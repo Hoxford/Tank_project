@@ -72,6 +72,8 @@ ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam);
 ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam);
 ERROR_CODE eBSP_FLASH_READ(tBSP_Flash_Read * pParam);
 ERROR_CODE eBSP_FLASH_WRITE(tBSP_Flash_Write * pParam);
+ERROR_CODE eBSP_FLASH_GET_START_ADDR(uint32_t * pStartAddr);
+ERROR_CODE eBSP_FLASH_ERASE(void);
 ERROR_CODE eBSP_Get_Current_ms_count(uint32_t *uiSystem_total_ms_count);
 ERROR_CODE eBSP_Board_Init(void);
 

@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
   if(eEC == ER_OK)
   {
     eNvram_Request_Param_Init(&tNVReq);
-    tNVReq.eRequestID = NVRAM_INIT;
+    tNVReq.eRequestID = NVRAM_REQUEST_INIT;
     eNvram_Request(&tNVReq);
   }
 

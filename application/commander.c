@@ -129,6 +129,7 @@ void vCommander_Task(void * pvParameters)
   tCommander_Message_Struct tMsg;
   tWifi_Request tWifiReq;
   tNvram_Request tNVReq;
+  tCommand_Activity_State * pActivity_State;
 
   eEC = eOSAL_Queue_Params_Init(&tCommander_Queue_Param);
   vDEBUG_ASSERT("Commander Queue params init fail", eEC == ER_OK);
@@ -142,11 +143,21 @@ void vCommander_Task(void * pvParameters)
 
   eEC = eNvram_Request_Param_Init(&tNVReq);
   vDEBUG_ASSERT("eNvram_Request_Param_Init fail", eEC == ER_OK);
-  tNVReq.eRequestID = NVRAM_REQUEST_REGISTER_ID;
-  tNVReq.pBuff = (uint8_t)&tCommand_AS;
-  tNVReq.uiSize = sizeof(tCommand_Activity_State);
-  //eNvram_Request
-
+  tNVReq.eRequestID = NVRAM_REQUEST_IS_ID_REGISTERED;
+  tNVReq.uiSettings_ID = tCommand_AS.uiCommaner_NVID;
+  eEC = eNvram_Request(&tNVReq);
+  if(eEC == ER_OK)
+  {
+    pActivity_State = calloc(sizeof(tCommand_Activity_State), sizeof(uint8_t));
+    eNvram_Request_Param_Init(&tNVReq);
+    tNVReq.eRequestID = NVRAM_REQUEST_READ;
+    tNVReq.uiSettings_ID = tCommand_AS.uiCommaner_NVID;
+    tNVReq.pBuff = (uint8_t *)pActivity_State;
+    tNVReq.uiSize = sizeof(tCommand_Activity_State);
+    eNvram_Request(&tNVReq);
+    memcpy(&tCommand_AS.bAuto_Interface_Connect, &pActivity_State->bAuto_Interface_Connect, (sizeof(tCommand_AS.bAuto_Interface_Connect) + sizeof(tCommand_AS.cAP_ID) + sizeof(tCommand_AS.cAP_PW)));
+    free(pActivity_State);
+  }
 
   if(tCommand_AS.bAuto_Interface_Connect == true)
   {
@@ -169,6 +180,7 @@ void vCommander_Task(void * pvParameters)
           tWifiReq.eRequestID = WIFI_REQUEST_CONNECT;
           tWifiReq.cAP_ID = &tCommand_AS.cAP_ID;
           tWifiReq.cAP_PW = &tCommand_AS.cAP_PW;
+          eWifi_Request(&tWifiReq);
           break;
         default:
           break;

@@ -106,6 +106,14 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void);
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eBSP_Camera_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -150,6 +158,14 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 ERROR_CODE eBSP_Wifi_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -366,24 +382,84 @@ ERROR_CODE eBSP_FLASH_WRITE(tBSP_Flash_Write * pParam)
   uint8_t  uiByteOffset = 0;
   uint32_t uiData;
 
-  /* Clear pending flags (if any) */
-//  HAL_FLASH_ClearFlag(FLASH_FLAG_EOP    | FLASH_FLAG_OPERR  | FLASH_FLAG_WRPERR |
-//                      FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-
   uiStartSector = ADDR_FLASH_SECTOR_11;
+  uiSectorIndex = uiStartSector;
+  uiEndSector = uiStartSector + pParam->uiBuff_Len;
 
-  if((pParam->uiBuff_Len & 0x00000003) > 0)
+  eHAL_EC = HAL_FLASH_Unlock();
+  vDEBUG_ASSERT("eBSP_FLASH_WRITE unlock fail", eHAL_EC == HAL_OK);
+
+  //todo: disable interrupts
+
+  /* Clear pending flags (if any) */
+  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+
+  while(uiSectorIndex < uiEndSector)
   {
-    uiByteOffset = pParam->uiBuff_Len & 0x00000003;
+    uiData = 0;
+    uiData |= (uint32_t)pParam->pBuff[3];
+    uiData <<= 8;
+    uiData |= (uint32_t)pParam->pBuff[2];
+    uiData <<= 8;
+    uiData |= (uint32_t)pParam->pBuff[1];
+    uiData <<= 8;
+    uiData |= (uint32_t)pParam->pBuff[0];
+    eHAL_EC = HAL_FLASH_Program(TYPEPROGRAM_WORD, uiSectorIndex, uiData);
+    if(eHAL_EC != HAL_OK)
+    {
+      break;
+    }
+    pParam->pBuff += 4;
+    uiSectorIndex += 4;
+  }
+  //todo: enable interrupts
+  vDEBUG_ASSERT("eBSP_FLASH_WRITE program fail", eHAL_EC == HAL_OK);
+
+  eHAL_EC = HAL_FLASH_Lock();
+  vDEBUG_ASSERT("eBSP_FLASH_WRITE lock fail", eHAL_EC == HAL_OK);
+
+  if(eHAL_EC == HAL_OK)
+  {
+    eEC = ER_OK;
   }
 
-  uiSectorIndex = (pParam->uiBuff_Len)/4;
+  return eEC;
+}
 
-  uiEndSector = uiStartSector + uiSectorIndex;
-  if(uiByteOffset > 0)
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_FLASH_GET_START_ADDR(uint32_t * pStartAddr)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  if(pStartAddr != NULL)
   {
-    uiEndSector += 1;
+    *pStartAddr = FLASH_USER_START_ADDR;
+    eEC = ER_OK;
   }
+
+  return eEC;
+}
+
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_FLASH_ERASE(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  uint32_t fault_sec = 0;
+  HAL_StatusTypeDef eHAL_EC = HAL_ERROR;
 
   FLASH_EraseInitTypeDef er
   = {
@@ -392,39 +468,16 @@ ERROR_CODE eBSP_FLASH_WRITE(tBSP_Flash_Write * pParam)
       .NbSectors = 1,
       .VoltageRange = VOLTAGE_RANGE_3
   };
-  uint32_t fault_sec = 0;
+
   HAL_FLASH_Unlock();
   eHAL_EC = HAL_FLASHEx_Erase(&er, &fault_sec);
   vDEBUG_ASSERT("HAL_FLASHEx_Erase fail", eHAL_EC == HAL_OK);
   HAL_FLASH_Lock();
 
-  eHAL_EC = HAL_FLASH_Unlock();
-  vDEBUG_ASSERT("eBSP_FLASH_WRITE unlock fail", eHAL_EC == HAL_OK);
-
-  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-  uiSectorIndex = uiStartSector;
-
-  while(uiSectorIndex < uiEndSector)
+  if(eHAL_EC == HAL_OK)
   {
-    uiData = 0;
-    uiData |= (uint32_t)pParam->pBuff[0];
-    uiData <<= 8;
-    uiData |= (uint32_t)pParam->pBuff[1];
-    uiData <<= 8;
-    uiData |= (uint32_t)pParam->pBuff[2];
-    uiData <<= 8;
-    uiData |= (uint32_t)pParam->pBuff[3];
-    eHAL_EC = HAL_FLASH_Program(TYPEPROGRAM_WORD, uiStartSector, uiData);
-//  eHAL_EC = HAL_FLASH_Program(TYPEPROGRAM_BYTE, uiStartSector, 0xAA);
-    if(eHAL_EC != HAL_OK)
-    {
-      break;
-    }
-    pParam->pBuff += 4;
-    uiSectorIndex += 4;
+    eEC = ER_OK;
   }
-  eHAL_EC = HAL_FLASH_Lock();
-  vDEBUG_ASSERT("eBSP_FLASH_WRITE lock fail", eHAL_EC == HAL_OK);
 
   return eEC;
 }
