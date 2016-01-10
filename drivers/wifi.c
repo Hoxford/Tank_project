@@ -21,6 +21,7 @@
 #include "utils_inc/proj_debug.h"
 
 #include "drivers_inc/wifi.h"
+#include "drivers_inc/nvram.h"
 #include "drivers_inc/AT_commands.h"
 #include "board.h"
 
@@ -59,7 +60,7 @@ typedef enum WIFI_MSG_ID
 {
   WIFI_MSG_NONE,
   WIFI_MSG_TEST,
-  WIFI_MSG_CONNECT,
+  WIFI_MSG_AP_CONNECT,
   WIFI_MSG_LIMIT,
 }WIFI_MSG_ID;
 
@@ -69,16 +70,53 @@ typedef enum WIFI_MSG_ID
 //tWifi activity state for command, control and status of the task
 typedef struct tWifi_Activity_State
 {
-  bool    bIs_Wifi_Ready;
-  uint8_t uiSendBuff[WIFI_SEND_BUF_LEN];
-  uint8_t uiRcvBuff[WIFI_RCV_BUF_LEN];
-  uint8_t uiIP_Address[4];
-  char    cIP_Address[16];
-  uint8_t uiMAC_Address[6];
-  char    cMAC_Address[18];
+  bool     bIs_Wifi_Ready;
+  bool     bIs_Wifi_Yask_Ready;
+  uint8_t  uiSendBuff[WIFI_SEND_BUF_LEN];
+  uint8_t  uiRcvBuff[WIFI_RCV_BUF_LEN];
+  uint8_t  uiIP_Address[4];
+  char     cIP_Address[16];
+  uint8_t  uiMAC_Address[6];
+  char     cMAC_Address[18];
+  uint32_t uiWifi_NVID;
 }tWifi_Activity_State;
 
-tWifi_Activity_State tWifi_AS;
+tWifi_Activity_State tWifi_AS =
+{
+  false,//bool    bIs_Wifi_Ready;
+  false,//bool    bIs_Wifi_Yask_Ready;
+  //uint8_t uiSendBuff[WIFI_SEND_BUF_LEN];
+  {
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  },
+  //uint8_t uiRcvBuff[WIFI_RCV_BUF_LEN];
+  {
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  },
+  //uint8_t uiIP_Address[4];
+  {
+    0,0,0,0,
+  },
+  //char    cIP_Address[16];
+  {
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  },
+  //uint8_t uiMAC_Address[6];
+  {
+    0,0,0,0,0,0,
+  },
+  //char    cMAC_Address[18];
+  {
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  },
+  0x74BEAD94,//uint32_t uiWifi_NVID;
+};
 
 typedef struct tWifi_Message_Struct
 {
@@ -107,10 +145,12 @@ typedef struct tWifi_Receive
 ******************************************************************************/
 
 ERROR_CODE eWifi_Setup(void);
+ERROR_CODE eWifi_Default_Settings(void);
 ERROR_CODE eWifi_get_ready(void);
 ERROR_CODE eWifi_clear_intf(void);
 ERROR_CODE eWifi_disable_echo(void);
 ERROR_CODE eWifi_rcv_OK(void);
+ERROR_CODE eWifi_AP_connect(void);
 ERROR_CODE eWifi_send(tWifi_Send * pParam);
 ERROR_CODE eWifi_rcv(tWifi_Receive * pParam);
 void       vWifi_Driver_Task(void * pvParameters);
@@ -120,8 +160,8 @@ void       vWifi_Driver_Task(void * pvParameters);
 ******************************************************************************/
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name: Filename_or_abreviation_funciton
+* todo: DESCRIPTION, PARAM, RETURN
+* name: eWifi_Setup
 * description:
 * param description: type - value: value description (in order from left to right)
 *                    bool - true: do action when set to true
@@ -153,16 +193,36 @@ ERROR_CODE eWifi_Setup(void)
     eEC = eWifi_rcv_OK();
   }
 
+//  todo: get mac address
+
   return eEC;
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name: Filename_or_abreviation_funciton
+* todo: DESCRIPTION, PARAM, RETURN
+* name: eWifi_Default_Settings
 * description:
 * param description: type - value: value description (in order from left to right)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eWifi_Default_Settings(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  //todo: code goes here
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: eWifi_get_ready
+* description: gets the ready status from the wifi module. call any time after
+*              resetting the module to default settings
+* param description: none
+* return value description: ERROR_CODE - ER_OK: wifi module ready for instructions
+*                                      - ER_FAIL: failed to receive any data from wifi module
+*                                      - ER_TIMEOUT: Communications with the wifi module timed out
 ******************************************************************************/
 ERROR_CODE eWifi_get_ready(void)
 {
@@ -355,12 +415,13 @@ ERROR_CODE eWifi_disable_echo(void)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name: Filename_or_abreviation_funciton
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* todo: DESCRIPTION, PARAM, RETURN
+* name: eWifi_rcv_OK
+* description: receives the OK from the wifi module. Used for receiving responses
+*              from wifi module while in command mode.
+* param description: none
+* return value description: ERROR_CODE - ER_OK: OK received
+*                                      - ER_FAIL: failed to receive OK from module
 ******************************************************************************/
 ERROR_CODE eWifi_rcv_OK(void)
 {
@@ -394,6 +455,120 @@ ERROR_CODE eWifi_rcv_OK(void)
     {
       eEC = ER_OK;
     }
+  }
+
+  return eEC;
+}
+
+/******************************************************************************
+* todo: DESCRIPTION, PARAM, RETURN
+* name: eWifi_AP_connect
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eWifi_AP_connect(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  tWifi_Send tSend;
+  tWifi_Receive  tRcv;
+  char * cAP_list = NULL;
+  char * cStartAddress = NULL;
+  char * cEndAddress = NULL;
+  char cDiscard;
+  uint8_t uiAddress[12];
+  int iTimeout;
+  int index = 0;
+  tRcv.tBSP_Receive.uiBuff_Len = WIFI_RCV_BUF_LEN;
+  tRcv.tBSP_Receive.pBuff = tWifi_AS.uiRcvBuff;
+
+  //list AP's
+  //setup the send buffer
+  index = tSend.tBSP_Send.uiBuff_Len = strlen(AT_CMD_LST_AP);
+  tSend.tBSP_Send.pBuff = tWifi_AS.uiSendBuff;
+  memcpy(tSend.tBSP_Send.pBuff, AT_CMD_LST_AP, tSend.tBSP_Send.uiBuff_Len);
+  tSend.tBSP_Send.pBuff[index] = 0;
+
+  //setup the receive buffer
+  tRcv.tBSP_Receive.uiBuff_Len = 1024 * 3;
+  cAP_list = calloc(1024 * 3, sizeof(uint8_t));
+  vDEBUG_ASSERT("eWifi_Setup cAP_list malloc NULL", cAP_list == NULL);
+  iTimeout = WIFI_XMIT_1S_TIMEOUT * 3;
+  tRcv.iTimeout = iTimeout;
+  tRcv.tBSP_Receive.pBuff = (uint8_t *)cAP_list;
+
+  //send the AP list command
+  eEC = eWifi_send(&tSend);
+  WIFI_SEND_ASSERT();
+
+  //receive the AP list
+  eEC = eWifi_rcv(&tRcv);
+
+  //Find AP
+  if(strstr((char *)cAP_list, GET_AP_ID()) == NULL)
+  {
+    vDEBUG_ASSERT("AP not found", 1);
+    eEC = ER_NOT_FOUND;
+  }
+  else
+  {
+    eEC = ER_OK;
+  }
+
+  if(strstr((char *)tRcv.tBSP_Receive.pBuff, AT_OK) == NULL)
+  {
+    eWifi_clear_intf();
+    vDEBUG_ASSERT("cAP_list not big enough", 0);
+  }
+
+  free(cAP_list);
+
+  if(eEC == ER_OK)
+  {
+    //connect to the AP
+    tSend.tBSP_Send.pBuff = tWifi_AS.uiSendBuff;
+    index = tSend.tBSP_Send.uiBuff_Len = snprintf((char *)tSend.tBSP_Send.pBuff, WIFI_SEND_BUF_LEN, AT_CMD_JOIN_AP, GET_AP_ID(), GET_AP_PW());
+    tSend.tBSP_Send.pBuff[index] = 0;
+
+    eEC = eWifi_send(&tSend);
+    WIFI_SEND_ASSERT();
+
+    eEC = eWifi_rcv_OK();
+  }
+
+  if(eEC == ER_OK)
+  {
+    //Get the IP address
+    tSend.tBSP_Send.pBuff = tWifi_AS.uiSendBuff;
+    index = tSend.tBSP_Send.uiBuff_Len = strlen(AT_CMD_GET_IP_ADD);
+    memcpy(tSend.tBSP_Send.pBuff, AT_CMD_GET_IP_ADD, index);
+    tSend.tBSP_Send.pBuff[index] = 0;
+
+    tRcv.tBSP_Receive.uiBuff_Len = WIFI_RCV_BUF_LEN;
+    iTimeout = WIFI_XMIT_1S_TIMEOUT * 3;
+    tRcv.iTimeout = iTimeout;
+    tRcv.bReceive_Until_OK = true;
+    tRcv.tBSP_Receive.pBuff = tWifi_AS.uiRcvBuff;
+    memset(tRcv.tBSP_Receive.pBuff, 0x00, WIFI_RCV_BUF_LEN);
+
+    eEC = eWifi_send(&tSend);
+    WIFI_SEND_ASSERT();
+
+    eEC = eWifi_rcv(&tRcv);
+
+    cStartAddress = strchr((char *)tWifi_AS.uiRcvBuff, '"');
+    cEndAddress = strchr(cStartAddress + 1, '"');
+    index = cEndAddress - cStartAddress;
+    memcpy(tWifi_AS.cIP_Address, cStartAddress + 1, index - 1);
+    cStartAddress = tWifi_AS.cIP_Address;
+    index = sscanf(cStartAddress, "%d.%d.%d.%d",
+           &uiAddress[0],
+           &uiAddress[1],
+           &uiAddress[2],
+           &uiAddress[3]);
+
+    memcpy(tWifi_AS.uiIP_Address, uiAddress, 4);
   }
 
   return eEC;
@@ -488,8 +663,10 @@ void vWifi_Driver_Task(void * pvParameters)
   ERROR_CODE eEC = ER_FAIL;
   tOSAL_Queue_Parameters tWifi_Queue_Param;
   tOSAL_Queue_Handle * pWifi_Queue_Handle;
+  tWifi_Activity_State * pActivity_State;
   tWifi_Message_Struct tMsg;
   tWifi_Send tSend;
+  tNvram_Request tNVReq;
   char cHelloWorld[] = "HELLO WORLD";
 //  tWifi_Receive  tRcv;
 
@@ -502,6 +679,28 @@ void vWifi_Driver_Task(void * pvParameters)
   eEC = eOSAL_Queue_Create(&tWifi_Queue_Param, &pWifi_Queue_Handle);
   vDEBUG_ASSERT("vWifi_Driver_Task queue create fail", eEC == ER_OK);
 
+  //check persistant settings
+  eEC = eNvram_Request_Param_Init(&tNVReq);
+  vDEBUG_ASSERT("eNvram_Request_Param_Init fail", eEC == ER_OK);
+  tNVReq.eRequestID = NVRAM_REQUEST_IS_ID_REGISTERED;
+  tNVReq.uiSettings_ID = tWifi_AS.uiWifi_NVID;
+  eEC = eNvram_Request(&tNVReq);
+  if(eEC == ER_OK)
+  {
+    //if wifi persistent settings exist copy over what is needed
+    pActivity_State = calloc(sizeof(tWifi_Activity_State), sizeof(uint8_t));
+    eNvram_Request_Param_Init(&tNVReq);
+    tNVReq.eRequestID = NVRAM_REQUEST_READ;
+    tNVReq.uiSettings_ID = tWifi_AS.uiWifi_NVID;
+    tNVReq.pBuff = (uint8_t *)pActivity_State;
+    tNVReq.uiSize = sizeof(tWifi_Activity_State);
+    eNvram_Request(&tNVReq);
+    memcpy(tWifi_AS.uiMAC_Address, pActivity_State->uiMAC_Address,
+          (sizeof(tWifi_AS.uiMAC_Address) + sizeof(tWifi_AS.cMAC_Address)));
+    free(pActivity_State);
+  }
+
+  //perform wifi setup
   eEC = eWifi_Setup();
   vDEBUG_ASSERT("vWifi_Driver_Task driver setup fail", eEC == ER_OK);
 
@@ -528,104 +727,9 @@ void vWifi_Driver_Task(void * pvParameters)
           break;
         }
 
-        case WIFI_MSG_CONNECT:
+        case WIFI_MSG_AP_CONNECT:
         {
-          //  tWifi_Receive  tRcv;
-          //  char * cAP_list = NULL;
-          //  char * cStartAddress = NULL;
-          //  char * cEndAddress = NULL;
-          //  char cDiscard;
-          //  uint8_t uiAddress[12];
-          //  int iTimeout;
-          //    tRcv.tBSP_Receive.uiBuff_Len = WIFI_RCV_BUF_LEN;
-          //    tRcv.tBSP_Receive.pBuff = tWifi_AS.uiRcvBuff;
-//          if(eEC == ER_OK)
-//            {
-//              //list AP's
-//              index = tSend.tBSP_Send.uiBuff_Len = strlen(AT_CMD_LST_AP);
-//              tSend.tBSP_Send.pBuff = tWifi_AS.uiSendBuff;
-//              memcpy(tSend.tBSP_Send.pBuff, AT_CMD_LST_AP, tSend.tBSP_Send.uiBuff_Len);
-//              tSend.tBSP_Send.pBuff[index] = 0;
-//
-//              tRcv.tBSP_Receive.uiBuff_Len = 1024 * 3;
-//              cAP_list = calloc(1024 * 3, sizeof(uint8_t));
-//              vDEBUG_ASSERT("eWifi_Setup cAP_list malloc NULL", cAP_list == NULL);
-//              iTimeout = WIFI_XMIT_1S_TIMEOUT * 3;
-//              tRcv.iTimeout = iTimeout;
-//              tRcv.tBSP_Receive.pBuff = (uint8_t *)cAP_list;
-//
-//
-//              eEC = eWifi_send(&tSend);
-//              WIFI_SEND_ASSERT();
-//
-//              eEC = eWifi_rcv(&tRcv);
-//
-//              //Find AP
-//              if(strstr((char *)cAP_list, GET_AP_ID()) == NULL)
-//              {
-//                vDEBUG_ASSERT("AP not found", 1);
-//                eEC = ER_NOT_FOUND;
-//              }
-//              else
-//              {
-//                eEC = ER_OK;
-//              }
-//
-//              if(strstr((char *)tRcv.tBSP_Receive.pBuff, AT_OK) == NULL)
-//              {
-//                eWifi_clear_intf();
-//                vDEBUG_ASSERT("cAP_list not big enough", 1);
-//              }
-//
-//              free(cAP_list);
-//            }
-//
-//            if(eEC == ER_OK)
-//            {
-//              //connect to the AP
-//              tSend.tBSP_Send.pBuff = tWifi_AS.uiSendBuff;
-//              index = tSend.tBSP_Send.uiBuff_Len = snprintf((char *)tSend.tBSP_Send.pBuff, WIFI_SEND_BUF_LEN, AT_CMD_JOIN_AP, GET_AP_ID(), GET_AP_PW());
-//              tSend.tBSP_Send.pBuff[index] = 0;
-//
-//              eEC = eWifi_send(&tSend);
-//              WIFI_SEND_ASSERT();
-//
-//              eEC = eWifi_rcv_OK();
-//            }
-//
-//            if(eEC == ER_OK)
-//            {
-//              //Get the IP address
-//              tSend.tBSP_Send.pBuff = tWifi_AS.uiSendBuff;
-//              index = tSend.tBSP_Send.uiBuff_Len = strlen(AT_CMD_GET_IP_ADD);
-//              memcpy(tSend.tBSP_Send.pBuff, AT_CMD_GET_IP_ADD, index);
-//              tSend.tBSP_Send.pBuff[index] = 0;
-//
-//              tRcv.tBSP_Receive.uiBuff_Len = WIFI_RCV_BUF_LEN;
-//              iTimeout = WIFI_XMIT_1S_TIMEOUT * 3;
-//              tRcv.iTimeout = iTimeout;
-//              tRcv.bReceive_Until_OK = true;
-//              tRcv.tBSP_Receive.pBuff = tWifi_AS.uiRcvBuff;
-//              memset(tRcv.tBSP_Receive.pBuff, 0x00, WIFI_RCV_BUF_LEN);
-//
-//              eEC = eWifi_send(&tSend);
-//              WIFI_SEND_ASSERT();
-//
-//              eEC = eWifi_rcv(&tRcv);
-//
-//              cStartAddress = strchr((char *)tWifi_AS.uiRcvBuff, '"');
-//              cEndAddress = strchr(cStartAddress + 1, '"');
-//              index = cEndAddress - cStartAddress;
-//              memcpy(tWifi_AS.cIP_Address, cStartAddress + 1, index - 1);
-//              cStartAddress = tWifi_AS.cIP_Address;
-//              index = sscanf(cStartAddress, "%d.%d.%d.%d",
-//                     &uiAddress[0],
-//                     &uiAddress[1],
-//                     &uiAddress[2],
-//                     &uiAddress[3]);
-//
-//              memcpy(tWifi_AS.uiIP_Address, uiAddress, 4);
-//            }
+
           break;
         }
         default:
@@ -681,25 +785,36 @@ ERROR_CODE eWifi_Request(tWifi_Request * pRequest)
 {
   ERROR_CODE eEC = ER_FAIL;
 
-  switch(pRequest->eRequestID)
+  if(pRequest->eRequestID == WIFI_REQUEST_TASK_PARAMETERS)
   {
-    case WIFI_REQUEST_TASK_PARAMETERS:
-    {
-      pRequest->pWifi_Task_Param->pTaskFcn = &vWifi_Driver_Task;
-      pRequest->pWifi_Task_Param->pName = cWifi_Task_Name;
-      pRequest->pWifi_Task_Param->uiStack_Size = 4096;
-      pRequest->pWifi_Task_Param->pParameters = NULL;
-      pRequest->pWifi_Task_Param->uiTask_Priority = TASK_WIFI_PRIORITY;
-      eEC = ER_OK;
-      break;
-    }
-    case WIFI_REQUEST_CONNECT:
-    {
-      break;
-    }
-    default:
-      eEC = ER_FAIL;
+    pRequest->pWifi_Task_Param->pTaskFcn = &vWifi_Driver_Task;
+    pRequest->pWifi_Task_Param->pName = cWifi_Task_Name;
+    pRequest->pWifi_Task_Param->uiStack_Size = 4096;
+    pRequest->pWifi_Task_Param->pParameters = NULL;
+    pRequest->pWifi_Task_Param->uiTask_Priority = TASK_WIFI_PRIORITY;
+
+    eEC = ER_OK;
   }
+  else
+  {
+    switch(pRequest->eRequestID)
+    {
+      case WIFI_REQUEST_TASK_PARAMETERS:
+      {
+
+        eEC = ER_OK;
+        break;
+      }
+      case WIFI_REQUEST_CONNECT:
+      {
+        break;
+      }
+      default:
+        eEC = ER_FAIL;
+    }
+  }
+
+
 
   return eEC;
 }

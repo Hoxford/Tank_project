@@ -71,6 +71,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/drivers/nvram.c</locationURI>
 		</link>
 		<link>
+			<name>src/drivers/usb.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/drivers/usb.c</locationURI>
+		</link>
+		<link>
 			<name>src/drivers/wifi.c</name>
 			<type>1</type>
 			<locationURI>copy_PARENT/drivers/wifi.c</locationURI>

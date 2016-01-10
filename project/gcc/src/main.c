@@ -21,8 +21,9 @@
 #include "BlinkLed.h"
 
 #include "drivers_inc/camera.h"
-#include "drivers_inc/wifi.h"
 #include "drivers_inc/nvram.h"
+#include "drivers_inc/wifi.h"
+#include "drivers_inc/usb.h"
 #include "app_inc/commander.h"
 
 // ----- main() ---------------------------------------------------------------
@@ -166,6 +167,7 @@ int main(int argc, char* argv[])
 
   if(eEC == ER_OK)
   {
+    //Initialize NV ram
     eNvram_Request_Param_Init(&tNVReq);
     tNVReq.eRequestID = NVRAM_REQUEST_INIT;
     eNvram_Request(&tNVReq);
@@ -173,6 +175,7 @@ int main(int argc, char* argv[])
 
   if(eEC == ER_OK)
   {
+    //create command task
     eCommand_Param_Init(&tCmnd_Req);
     eOSAL_Task_Param_Init(&tOSAL_Task_Param);
     tCmnd_Req.eRequestID = CMND_REQUEST_TASK_PARAMETERS;
@@ -187,7 +190,23 @@ int main(int argc, char* argv[])
 
   if(eEC == ER_OK)
   {
+    //create wifi task
     eWifi_Request_Param_Init(&tWifi_Req);
+    eOSAL_Task_Param_Init(&tOSAL_Task_Param);
+    tWifi_Req.eRequestID = WIFI_REQUEST_TASK_PARAMETERS;
+    tWifi_Req.pWifi_Task_Param = &tOSAL_Task_Param;
+    eEC = eWifi_Request(&tWifi_Req);
+
+    if(eEC == ER_OK)
+    {
+      eEC = eOSAL_Task_Create(&tOSAL_Task_Param);
+    }
+  }
+
+  if(eEC == ER_OK)
+  {
+    //create USB task
+    eUSB_Request_Param_Init(&tUsb_Req);
     eOSAL_Task_Param_Init(&tOSAL_Task_Param);
     tWifi_Req.eRequestID = WIFI_REQUEST_TASK_PARAMETERS;
     tWifi_Req.pWifi_Task_Param = &tOSAL_Task_Param;
@@ -203,6 +222,8 @@ int main(int argc, char* argv[])
   {
     eOSAL_OS_start();
   }
+
+  vDEBUG_ASSERT("main() process start fail", eEC == ER_OK);
 
   return -1;
 }

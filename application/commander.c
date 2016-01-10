@@ -131,16 +131,17 @@ void vCommander_Task(void * pvParameters)
   tNvram_Request tNVReq;
   tCommand_Activity_State * pActivity_State;
 
+  //create the commanders message queue
   eEC = eOSAL_Queue_Params_Init(&tCommander_Queue_Param);
   vDEBUG_ASSERT("Commander Queue params init fail", eEC == ER_OK);
   tCommander_Queue_Param.uiNum_Of_Queue_Elements = 3;
   tCommander_Queue_Param.uiSize_Of_Queue_Element = sizeof(tCommander_Message_Struct);
   tCommander_Queue_Param.pMsgBuff = &tMsg;
   tCommander_Queue_Param.iTimeout = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
-
   eEC = eOSAL_Queue_Create(&tCommander_Queue_Param, &pCommander_Queue_Handle);
   vDEBUG_ASSERT("vCommander_Task queue create fail", eEC == ER_OK);
 
+  //check nv ram for persistent settings
   eEC = eNvram_Request_Param_Init(&tNVReq);
   vDEBUG_ASSERT("eNvram_Request_Param_Init fail", eEC == ER_OK);
   tNVReq.eRequestID = NVRAM_REQUEST_IS_ID_REGISTERED;
@@ -159,6 +160,7 @@ void vCommander_Task(void * pvParameters)
     free(pActivity_State);
   }
 
+  //check if auto connect is enabled
   if(tCommand_AS.bAuto_Interface_Connect == true)
   {
     tMsg.eMSG = COMMAND_MSG_INTERFACE_CONNECT;
@@ -166,6 +168,7 @@ void vCommander_Task(void * pvParameters)
     vDEBUG_ASSERT("vCommander_Task msg post fail", eEC == ER_OK);
   }
 
+  //just before the task loop mark commander task ready
   tCommand_AS.bIs_Command_Task_Ready = true;
 
   while(1)
