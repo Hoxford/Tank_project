@@ -153,6 +153,7 @@ int main(int argc, char* argv[])
   tWifi_Request tWifi_Req;
   tCommand_Request tCmnd_Req;
   tNvram_Request tNVReq;
+  tUsb_Request tUsb_Req;
 
   eEC = eBSP_Board_Init();
 

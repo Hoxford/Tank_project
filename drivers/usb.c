@@ -20,6 +20,8 @@
 #include "utils_inc/proj_debug.h"
 
 #include "drivers_inc/usb.h"
+#include "usbh_core.h"
+#include "usbh_cdc.h"
 #include "board.h"
 
 /******************************************************************************
@@ -48,27 +50,34 @@ char cUsb_Task_Name[] = "USB";
 /******************************************************************************
 * enums ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-//eExample_enum description
-//typedef enum
-//{
-//    enum_1,
-//    enum_2,
-//    enum_3....
-//}eExample_enum;
+typedef enum USB_MSG_ID
+{
+  USB_MSG_NONE,
+  USB_MSG_CONNECT,
+  USB_MSG_DISCONNECT,
+  USB_MSG_SEND,
+  USB_MSG_RCV,
+  USB_MSG_LIMIT,
+}USB_MSG_ID;
 
-//eExample_enum eMy_enum; //short eMy_enum description
+typedef enum CDC_ApplicationTypeDef
+{
+  APPLICATION_IDLE = 0,
+  APPLICATION_START,
+  APPLICATION_RUNNING,
+}CDC_ApplicationTypeDef;
+
+CDC_ApplicationTypeDef AppliState = APPLICATION_IDLE;
 
 /******************************************************************************
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-//tExample_struct description
-//typedef struct
-//{
-//    int var1;
-//    ....
-//}tExample_struct;
-//
-//tExample_struct tMy_struct;  //short tMy_struct description
+USBH_HandleTypeDef hUSBHost; /* USB Host handle */
+
+typedef struct tUSB_Message_Struct
+{
+    USB_MSG_ID eMSG;
+}tUSB_Message_Struct;
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +86,8 @@ char cUsb_Task_Name[] = "USB";
 /******************************************************************************
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-//int example_function(param_1, param_2); //short function declaration description
+ERROR_CODE eUSB_init(void);
+static void USBH_UserProcess(USBH_HandleTypeDef *pHost, uint8_t vId);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,12 +100,99 @@ char cUsb_Task_Name[] = "USB";
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
+ERROR_CODE eUSB_init(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  USBH_Init(&hUSBHost, USBH_UserProcess, 0);
+
+  USBH_RegisterClass(&hUSBHost, USBH_CDC_CLASS);
+
+  USBH_Start(&hUSBHost);
+
+  return eEC;
+}
+
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+/**
+  * @brief  User Process
+  * @param  phost: Host Handle
+  * @param  id: Host Library user message ID
+  * @retval None
+  */
+static void USBH_UserProcess (USBH_HandleTypeDef *pHost, uint8_t vId)
+{
+  switch (vId)
+  {
+  case HOST_USER_SELECT_CONFIGURATION:
+    break;
+
+  case HOST_USER_DISCONNECTION:
+    AppliState = APPLICATION_IDLE;
+    break;
+
+  case HOST_USER_CLASS_ACTIVE:
+    AppliState = APPLICATION_START;
+    break;
+
+  case HOST_USER_CONNECTION:
+    break;
+
+  default:
+    break;
+  }
+}
+
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
 void vUSB_Task(void * pvParameters)
 {
+  ERROR_CODE eEC = ER_FAIL;
+  tOSAL_Queue_Parameters tUSB_Queue_Param;
+  tOSAL_Queue_Handle * pUSB_Queue_Handle;
+  tUSB_Message_Struct tMsg;
+
+  //create the USB message queue
+  eEC = eOSAL_Queue_Params_Init(&tUSB_Queue_Param);
+  vDEBUG_ASSERT("USB Queue params init fail", eEC == ER_OK);
+  tUSB_Queue_Param.uiNum_Of_Queue_Elements = 3;
+  tUSB_Queue_Param.uiSize_Of_Queue_Element = sizeof(tUSB_Message_Struct);
+  tUSB_Queue_Param.pMsgBuff = &tMsg;
+  tUSB_Queue_Param.iTimeout = 10;
+  eEC = eOSAL_Queue_Create(&tUSB_Queue_Param, &pUSB_Queue_Handle);
+  vDEBUG_ASSERT("vUSB_Task queue create fail", eEC == ER_OK);
 
   while(1)
   {
-
+    if(eOSAL_Queue_Get_msg(pUSB_Queue_Handle, &tMsg) == ER_OK)
+    {
+      switch(tMsg.eMSG)
+      {
+        case USB_MSG_CONNECT:
+        case USB_MSG_DISCONNECT:
+        case USB_MSG_SEND:
+        case USB_MSG_RCV:
+        default:
+          break;
+      }
+    }
+    else
+    {
+      USBH_Process(&hUSBHost);
+    }
   }
 }
 
@@ -144,6 +241,10 @@ ERROR_CODE eUSB_Request(tUsb_Request * pRequest)
     pRequest->pCommander_Task_Param->pTaskFcn        = vUSB_Task;
     pRequest->pCommander_Task_Param->uiStack_Size    = 2048;
     pRequest->pCommander_Task_Param->uiTask_Priority = TASK_USB_PRIORITY;
+  }
+  else if(pRequest->eRequestID == USB_REQUEST_INIT)
+  {
+
   }
 
   return eEC;
