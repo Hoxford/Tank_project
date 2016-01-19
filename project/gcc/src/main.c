@@ -209,9 +209,9 @@ int main(int argc, char* argv[])
     //create USB task
     eUSB_Request_Param_Init(&tUsb_Req);
     eOSAL_Task_Param_Init(&tOSAL_Task_Param);
-    tWifi_Req.eRequestID = WIFI_REQUEST_TASK_PARAMETERS;
-    tWifi_Req.pWifi_Task_Param = &tOSAL_Task_Param;
-    eEC = eWifi_Request(&tWifi_Req);
+    tUsb_Req.eRequestID = USB_REQUEST_TASK_PARAM;
+    tUsb_Req.pUsb_Task_Param = &tOSAL_Task_Param;
+    eEC = eUSB_Request(&tUsb_Req);
 
     if(eEC == ER_OK)
     {

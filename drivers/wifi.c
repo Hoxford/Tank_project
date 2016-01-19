@@ -679,7 +679,7 @@ void vWifi_Driver_Task(void * pvParameters)
   eEC = eOSAL_Queue_Create(&tWifi_Queue_Param, &pWifi_Queue_Handle);
   vDEBUG_ASSERT("vWifi_Driver_Task queue create fail", eEC == ER_OK);
 
-  //check persistant settings
+  //check persistent settings
   eEC = eNvram_Request_Param_Init(&tNVReq);
   vDEBUG_ASSERT("eNvram_Request_Param_Init fail", eEC == ER_OK);
   tNVReq.eRequestID = NVRAM_REQUEST_IS_ID_REGISTERED;

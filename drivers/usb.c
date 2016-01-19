@@ -86,7 +86,7 @@ typedef struct tUSB_Message_Struct
 /******************************************************************************
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-ERROR_CODE eUSB_init(void);
+ERROR_CODE eUSB_setup(void);
 static void USBH_UserProcess(USBH_HandleTypeDef *pHost, uint8_t vId);
 
 /******************************************************************************
@@ -100,15 +100,27 @@ static void USBH_UserProcess(USBH_HandleTypeDef *pHost, uint8_t vId);
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eUSB_init(void)
+ERROR_CODE eUSB_setup(void)
 {
   ERROR_CODE eEC = ER_FAIL;
+  USBH_StatusTypeDef eUSBH_Status = USBH_FAIL;
 
-  USBH_Init(&hUSBHost, USBH_UserProcess, 0);
+  eUSBH_Status = USBH_Init(&hUSBHost, USBH_UserProcess, 0);
 
-  USBH_RegisterClass(&hUSBHost, USBH_CDC_CLASS);
+  if(eUSBH_Status == USBH_OK)
+  {
+    eUSBH_Status = USBH_RegisterClass(&hUSBHost, USBH_CDC_CLASS);
+  }
 
-  USBH_Start(&hUSBHost);
+  if(eUSBH_Status == USBH_OK)
+  {
+    eUSBH_Status = USBH_Start(&hUSBHost);
+  }
+
+  if(eUSBH_Status == USBH_OK)
+  {
+    eEC = ER_OK;
+  }
 
   return eEC;
 }
@@ -175,6 +187,13 @@ void vUSB_Task(void * pvParameters)
   eEC = eOSAL_Queue_Create(&tUSB_Queue_Param, &pUSB_Queue_Handle);
   vDEBUG_ASSERT("vUSB_Task queue create fail", eEC == ER_OK);
 
+  //check persistent settings
+  //todo: persistent settings code
+
+  //set up the USB low level driver
+  eEC = eUSB_setup();
+  vDEBUG_ASSERT("vUSB_Task driver setup fail", eEC == ER_OK);
+
   while(1)
   {
     if(eOSAL_Queue_Get_msg(pUSB_Queue_Handle, &tMsg) == ER_OK)
@@ -236,11 +255,11 @@ ERROR_CODE eUSB_Request(tUsb_Request * pRequest)
 
   if(pRequest->eRequestID == USB_REQUEST_TASK_PARAM)
   {
-    pRequest->pCommander_Task_Param->pName           = cUsb_Task_Name;
-    pRequest->pCommander_Task_Param->pParameters     = NULL;
-    pRequest->pCommander_Task_Param->pTaskFcn        = vUSB_Task;
-    pRequest->pCommander_Task_Param->uiStack_Size    = 2048;
-    pRequest->pCommander_Task_Param->uiTask_Priority = TASK_USB_PRIORITY;
+    pRequest->pUsb_Task_Param->pName           = cUsb_Task_Name;
+    pRequest->pUsb_Task_Param->pParameters     = NULL;
+    pRequest->pUsb_Task_Param->pTaskFcn        = vUSB_Task;
+    pRequest->pUsb_Task_Param->uiStack_Size    = 2048;
+    pRequest->pUsb_Task_Param->uiTask_Priority = TASK_USB_PRIORITY;
   }
   else if(pRequest->eRequestID == USB_REQUEST_INIT)
   {

@@ -51,8 +51,8 @@ void HAL_HCD_MspInit(HCD_HandleTypeDef *hHCD)
   if(hHCD->Instance == USB_OTG_FS)
   {
     /* Configure USB FS GPIOs */
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    HOST_POWERSW_CLK_ENABLE();
+//    __HAL_RCC_GPIOA_CLK_ENABLE();
+//    HOST_POWERSW_CLK_ENABLE();
     
     /* Configure DM DP Pins */
     GPIO_InitStruct.Pin = GPIO_PIN_11 | GPIO_PIN_12;
@@ -81,7 +81,7 @@ void HAL_HCD_MspInit(HCD_HandleTypeDef *hHCD)
     HAL_GPIO_Init(HOST_POWERSW_PORT, &GPIO_InitStruct);
     
     /* Enable USB FS Clocks */ 
-    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+//    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
     
     /* Set USBFS Interrupt to the lowest priority */
     HAL_NVIC_SetPriority(OTG_FS_IRQn, 6, 0);

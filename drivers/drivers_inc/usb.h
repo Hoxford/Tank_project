@@ -44,7 +44,7 @@ typedef enum USB_REQUEST_ID
 typedef struct tUsb_Request
 {
   USB_REQUEST_ID eRequestID;
-  tOSAL_Task_Parameters * pCommander_Task_Param;
+  tOSAL_Task_Parameters * pUsb_Task_Param;
 	uint32_t   uiSize;
   uint8_t  * pBuff;
 }tUsb_Request;
