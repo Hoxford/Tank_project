@@ -121,6 +121,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>src/platform/stm32f4disc/CMSIS</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>src/platform/stm32f4disc/STM32F4xx_HAL_Driver</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -129,6 +134,11 @@
 			<name>src/platform/stm32f4disc/board.c</name>
 			<type>1</type>
 			<locationURI>copy_PARENT/platform/stm32f4disc/board.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/ldscripts</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>src/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source</name>
@@ -146,9 +156,29 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>src/platform/stm32f4disc/STM32F4xx_HAL_Driver/Src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/ldscripts/libs.ld</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/ldscripts/libs.ld</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/ldscripts/mem.ld</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/ldscripts/mem.ld</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/ldscripts/sections.ld</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/ldscripts/sections.ld</locationURI>
 		</link>
 		<link>
 			<name>src/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/croutine.c</name>
@@ -217,6 +247,11 @@
 		</link>
 		<link>
 			<name>src/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Src</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -621,6 +656,26 @@
 			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Src/usbh_pipes.c</locationURI>
 		</link>
 		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/cortexm</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/diag</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/newlib</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>src/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -711,9 +766,84 @@
 			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/Template/Src/usbh_template.c</locationURI>
 		</link>
 		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Source</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/cortexm/_initialize_hardware.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/cortexm/_initialize_hardware.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/cortexm/_reset_hardware.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/cortexm/_reset_hardware.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/cortexm/exception_handlers.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/cortexm/exception_handlers.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/diag/Trace.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/diag/Trace.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/diag/trace_impl.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/diag/trace_impl.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/newlib/README.txt</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/newlib/README.txt</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/newlib/_cxx.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/newlib/_cxx.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/newlib/_exit.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/newlib/_exit.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/newlib/_sbrk.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/newlib/_sbrk.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/newlib/_startup.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/newlib/_startup.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/newlib/_syscalls.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/newlib/_syscalls.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/newlib/assert.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/newlib/assert.c</locationURI>
+		</link>
+		<link>
 			<name>src/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c</name>
 			<type>1</type>
 			<locationURI>copy_PARENT/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Source/system_stm32f4xx.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Source/system_stm32f4xx.c</locationURI>
+		</link>
+		<link>
+			<name>src/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Source/vectors_stm32f4xx.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Source/vectors_stm32f4xx.c</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>

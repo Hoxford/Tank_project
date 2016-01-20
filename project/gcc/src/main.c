@@ -137,15 +137,6 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
   for( ;; );
 }
 
-//void vPortSetupTimerInterrupt( void )
-//{
-//  static int x;
-//
-//    x++;
-//
-//  return;
-//}
-
 int main(int argc, char* argv[])
 {
   ERROR_CODE eEC = ER_FAIL;

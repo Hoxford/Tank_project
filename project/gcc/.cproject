@@ -45,22 +45,28 @@
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.printsize.651673058" name="Print size" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.printsize" value="true" valueType="boolean"/>
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.unit.2106303755" name="FPU Type" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.unit" value="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.unit.fpv4spd16" valueType="enumerated"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform.1470396345" isAbstract="false" osList="all" superClass="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform"/>
-							<builder autoBuildTarget="all" buildPath="${workspace_loc:/Camera_01}/Debug" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" errorParsers="org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.CWDLocator" id="ilg.gnuarmeclipse.managedbuild.cross.builder.2032255948" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="false" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder"/>
+							<builder autoBuildTarget="all" buildPath="${workspace_loc:/Camera_01}/Debug" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" errorParsers="org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.CWDLocator" id="ilg.gnuarmeclipse.managedbuild.cross.builder.2032255948" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="false" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Release"/>
+								</outputEntries>
+							</builder>
 							<tool command="${cross_prefix}${cross_c}${cross_suffix}" commandLinePattern="${COMMAND} ${cross_toolchain_flags} ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser" id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.636999012" name="Cross ARM GNU Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.852881491" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.1252875290" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;../include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../drivers&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../project/gcc/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../utility&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc/&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../system/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../system/include/cmsis&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../system/include/stm32f4-hal&quot;"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/utility"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers/drivers_inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/application"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc/Legacy"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Include"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.393589015" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
@@ -70,28 +76,29 @@
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
+									<listOptionValue builtIn="false" value="STM32F4"/>
+									<listOptionValue builtIn="false" value="USING_FREE_RTOS"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1478866235" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
 							<tool command="${cross_prefix}${cross_c}${cross_suffix}" commandLinePattern="${COMMAND} ${cross_toolchain_flags} ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.486718022" name="Cross ARM C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.21139635" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;../include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../drivers&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../drivers/drivers_inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../application&quot;"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/application"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers/drivers_inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/utility"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc/Legacy"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Include"/>
+									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/CMSIS/Device/ST/include/cmsis&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/CMSIS/Device/ST/include&quot;"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc"/>
 									<listOptionValue builtIn="false" value="&quot;../../../project/gcc/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../utility&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc/Legacy&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc/&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../system/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../system/include/cmsis&quot;"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.403543725" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
@@ -99,9 +106,9 @@
 									<listOptionValue builtIn="false" value="TRACE"/>
 									<listOptionValue builtIn="false" value="OS_USE_TRACE_ITM"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
-									<listOptionValue builtIn="false" value="STM32F4"/>
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
+									<listOptionValue builtIn="false" value="STM32F4"/>
 									<listOptionValue builtIn="false" value="USING_FREE_RTOS"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other.1912311416" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
@@ -110,17 +117,22 @@
 							</tool>
 							<tool command="${cross_prefix}${cross_cpp}${cross_suffix}" commandLinePattern="${COMMAND} ${cross_toolchain_flags} ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.516208295" name="Cross ARM C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.1088590058" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;../include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../drivers&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../utility&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc/&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../system/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../system/include/cmsis&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;../system/include/stm32f4-hal&quot;"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/utility"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers/drivers_inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/application"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc/Legacy"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Include"/>
+									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc"/>
+									<listOptionValue builtIn="false" value="&quot;../../../project/gcc/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/CMSIS/Device/ST&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/CMSIS/Device/ST/include&quot;"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions.1555103240" name="Do not use exceptions (-fno-exceptions)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti.504325020" name="Do not use RTTI (-fno-rtti)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti" useByScannerDiscovery="true" value="true" valueType="boolean"/>
@@ -134,7 +146,10 @@
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
+									<listOptionValue builtIn="false" value="STM32F4"/>
+									<listOptionValue builtIn="false" value="USING_FREE_RTOS"/>
 								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files.2018597115" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files" useByScannerDiscovery="false" valueType="includeFiles"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.129619543" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker.1471175207" name="Cross ARM C Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker">
@@ -156,13 +171,11 @@
 							</tool>
 							<tool command="${cross_prefix}${cross_cpp}${cross_suffix}" commandLinePattern="${COMMAND} ${cross_toolchain_flags} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="" id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker.136915352" name="Cross ARM C++ Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.linker">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections.1169674197" name="Remove unused sections (-Xlinker --gc-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths.436485231" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;../ldscripts&quot;"/>
-								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths.436485231" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile.1319837610" name="Script files (-T)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile" valueType="stringList">
-									<listOptionValue builtIn="false" value="mem.ld"/>
-									<listOptionValue builtIn="false" value="libs.ld"/>
-									<listOptionValue builtIn="false" value="sections.ld"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/platform/stm32f4disc/ldscripts/mem.ld}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/platform/stm32f4disc/ldscripts/libs.ld}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/platform/stm32f4disc/ldscripts/sections.ld}&quot;"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.nostart.1640813394" name="Do not use standard start files (-nostartfiles)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.nostart" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.usenewlibnano.1374242679" name="Use newlib-nano (--specs=nano.specs)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.usenewlibnano" value="true" valueType="boolean"/>
@@ -185,24 +198,8 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1354291416.system/src/newlib/_startup.c" name="_startup.c" rcbsApplicability="disable" resourcePath="system/src/newlib/_startup.c" toolsToInvoke="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.486718022.868499352">
-						<tool errorParsers="org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.486718022.868499352" name="Cross ARM C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.486718022">
-							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.1730374167" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" valueType="definedSymbols">
-								<listOptionValue builtIn="false" value="DEBUG"/>
-								<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
-								<listOptionValue builtIn="false" value="TRACE"/>
-								<listOptionValue builtIn="false" value="OS_USE_TRACE_ITM"/>
-								<listOptionValue builtIn="false" value="STM32F407xx"/>
-								<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
-								<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-								<listOptionValue builtIn="false" value="OS_INCLUDE_STARTUP_INIT_MULTIPLE_RAM_SECTIONS"/>
-							</option>
-							<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1862107639" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
-						</tool>
-					</fileInfo>
 					<sourceEntries>
-						<entry excluding="ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Src/usbh_conf_template.c|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/Template|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/MTP|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/MSC|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/HID|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/AUDIO|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_usart.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_1.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_wwdg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rtc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rng.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_pwr.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_iwdg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_i2c.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash_sha1.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash_md5.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fsmc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dcmi.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dbgmcu.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dac.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_tdes.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_des.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_aes.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_crc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_can.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_adc.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_5.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_4.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_3.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/event_groups.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/croutine.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
-						<entry excluding="src/stm32f4-hal/stm32f4xx_hal_rcc_ex.c|src/stm32f4-hal/stm32f4xx_hal_adc.c|src/stm32f4-hal/stm32f4xx_hal_adc_ex.c|src/stm32f4-hal/stm32f4xx_hal_can.c|src/stm32f4-hal/stm32f4xx_hal_crc.c|src/stm32f4-hal/stm32f4xx_hal_cryp.c|src/stm32f4-hal/stm32f4xx_hal_cryp_ex.c|src/stm32f4-hal/stm32f4xx_hal_dac.c|src/stm32f4-hal/stm32f4xx_hal_dac_ex.c|src/stm32f4-hal/stm32f4xx_hal_dcmi.c|src/stm32f4-hal/stm32f4xx_hal_dma.c|src/stm32f4-hal/stm32f4xx_hal_dma2d.c|src/stm32f4-hal/stm32f4xx_hal_dma_ex.c|src/stm32f4-hal/stm32f4xx_hal_eth.c|src/stm32f4-hal/stm32f4xx_hal_hash.c|src/stm32f4-hal/stm32f4xx_hal_hash_ex.c|src/stm32f4-hal/stm32f4xx_hal_i2c_ex.c|src/stm32f4-hal/stm32f4xx_hal_i2s.c|src/stm32f4-hal/stm32f4xx_hal_i2s_ex.c|src/stm32f4-hal/stm32f4xx_hal_irda.c|src/stm32f4-hal/stm32f4xx_hal_ltdc.c|src/stm32f4-hal/stm32f4xx_hal_msp_template.c|src/stm32f4-hal/stm32f4xx_hal_nand.c|src/stm32f4-hal/stm32f4xx_hal_nor.c|src/stm32f4-hal/stm32f4xx_hal_pccard.c|src/stm32f4-hal/stm32f4xx_hal_pcd.c|src/stm32f4-hal/stm32f4xx_hal_rng.c|src/stm32f4-hal/stm32f4xx_hal_rtc.c|src/stm32f4-hal/stm32f4xx_hal_rtc_ex.c|src/stm32f4-hal/stm32f4xx_hal_sai.c|src/stm32f4-hal/stm32f4xx_hal_sd.c|src/stm32f4-hal/stm32f4xx_hal_sdram.c|src/stm32f4-hal/stm32f4xx_hal_smartcard.c|src/stm32f4-hal/stm32f4xx_hal_spi.c|src/stm32f4-hal/stm32f4xx_hal_sram.c|src/stm32f4-hal/stm32f4xx_hal_tim_ex.c|src/stm32f4-hal/stm32f4xx_hal_wwdg.c|src/stm32f4-hal/stm32f4xx_ll_fmc.c|src/stm32f4-hal/stm32f4xx_ll_fsmc.c|src/stm32f4-hal/stm32f4xx_ll_sdmmc.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
+						<entry excluding="_initialize_hardware.c|_write.c|Timer.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dac.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_5.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fsmc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_can.c|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/Template|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_4.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/event_groups.c|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/MSC|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_des.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_3.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rng.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_pwr.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_aes.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_wwdg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rtc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_adc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_tdes.c|ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Src/usbh_conf_template.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_1.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dbgmcu.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/croutine.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_usart.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash_sha1.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_iwdg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dcmi.c|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/AUDIO|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma.c|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/MTP|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_crc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash_md5.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_i2c.c|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/HID" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -349,21 +346,8 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1537905368.system/src/newlib/_startup.c" name="_startup.c" rcbsApplicability="disable" resourcePath="system/src/newlib/_startup.c" toolsToInvoke="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1131221925.657686394">
-						<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1131221925.657686394" name="Cross ARM C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1131221925">
-							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.513677559" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" valueType="definedSymbols">
-								<listOptionValue builtIn="false" value="OS_USE_TRACE_ITM"/>
-								<listOptionValue builtIn="false" value="STM32F407xx"/>
-								<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
-								<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-								<listOptionValue builtIn="false" value="OS_INCLUDE_STARTUP_INIT_MULTIPLE_RAM_SECTIONS"/>
-							</option>
-							<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1757655528" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
-						</tool>
-					</fileInfo>
 					<sourceEntries>
-						<entry excluding="ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Src/usbh_conf_template.c|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/Template|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/MTP|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/MSC|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/HID|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/AUDIO|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_usart.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_1.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_wwdg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rtc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rng.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_pwr.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_iwdg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_i2c.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash_sha1.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash_md5.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fsmc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dcmi.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dbgmcu.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dac.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_tdes.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_des.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_aes.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_crc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_can.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_adc.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_5.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_4.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_3.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/event_groups.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/croutine.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
-						<entry excluding="src/stm32f4-hal/stm32f4xx_hal_rcc_ex.c|src/stm32f4-hal/stm32f4xx_hal_adc.c|src/stm32f4-hal/stm32f4xx_hal_adc_ex.c|src/stm32f4-hal/stm32f4xx_hal_can.c|src/stm32f4-hal/stm32f4xx_hal_crc.c|src/stm32f4-hal/stm32f4xx_hal_cryp.c|src/stm32f4-hal/stm32f4xx_hal_cryp_ex.c|src/stm32f4-hal/stm32f4xx_hal_dac.c|src/stm32f4-hal/stm32f4xx_hal_dac_ex.c|src/stm32f4-hal/stm32f4xx_hal_dcmi.c|src/stm32f4-hal/stm32f4xx_hal_dma.c|src/stm32f4-hal/stm32f4xx_hal_dma2d.c|src/stm32f4-hal/stm32f4xx_hal_dma_ex.c|src/stm32f4-hal/stm32f4xx_hal_eth.c|src/stm32f4-hal/stm32f4xx_hal_hash.c|src/stm32f4-hal/stm32f4xx_hal_hash_ex.c|src/stm32f4-hal/stm32f4xx_hal_i2c_ex.c|src/stm32f4-hal/stm32f4xx_hal_i2s.c|src/stm32f4-hal/stm32f4xx_hal_i2s_ex.c|src/stm32f4-hal/stm32f4xx_hal_irda.c|src/stm32f4-hal/stm32f4xx_hal_ltdc.c|src/stm32f4-hal/stm32f4xx_hal_msp_template.c|src/stm32f4-hal/stm32f4xx_hal_nand.c|src/stm32f4-hal/stm32f4xx_hal_nor.c|src/stm32f4-hal/stm32f4xx_hal_pccard.c|src/stm32f4-hal/stm32f4xx_hal_pcd.c|src/stm32f4-hal/stm32f4xx_hal_rng.c|src/stm32f4-hal/stm32f4xx_hal_rtc.c|src/stm32f4-hal/stm32f4xx_hal_rtc_ex.c|src/stm32f4-hal/stm32f4xx_hal_sai.c|src/stm32f4-hal/stm32f4xx_hal_sd.c|src/stm32f4-hal/stm32f4xx_hal_sdram.c|src/stm32f4-hal/stm32f4xx_hal_smartcard.c|src/stm32f4-hal/stm32f4xx_hal_spi.c|src/stm32f4-hal/stm32f4xx_hal_sram.c|src/stm32f4-hal/stm32f4xx_hal_tim_ex.c|src/stm32f4-hal/stm32f4xx_hal_wwdg.c|src/stm32f4-hal/stm32f4xx_ll_fmc.c|src/stm32f4-hal/stm32f4xx_ll_fsmc.c|src/stm32f4-hal/stm32f4xx_ll_sdmmc.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
+						<entry excluding="_initialize_hardware.c|_write.c|Timer.c|ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Src/usbh_conf_template.c|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/Template|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/MTP|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/MSC|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/HID|ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/AUDIO|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_usart.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_1.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_wwdg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_syscfg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rtc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rng.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_pwr.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_iwdg.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_i2c.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash_sha1.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_hash_md5.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fsmc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dcmi.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dbgmcu.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dac.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_tdes.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_des.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_cryp_aes.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_crc.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_can.c|platform/stm32f4disc/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_adc.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_5.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_4.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_3.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/event_groups.c|ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/croutine.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -372,15 +356,6 @@
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="Camera_01.ilg.gnuarmeclipse.managedbuild.cross.target.elf.443715075" name="Executable" projectType="ilg.gnuarmeclipse.managedbuild.cross.target.elf"/>
-	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1537905368;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1537905368.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1131221925;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1658690347">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1354291416;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1354291416.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.486718022;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1724232523">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
@@ -392,4 +367,16 @@
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1354291416;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1354291416.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.516208295;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.129619543">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1354291416;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1354291416.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.486718022;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1724232523">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1537905368;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1537905368.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1131221925;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1658690347">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
 </cproject>
