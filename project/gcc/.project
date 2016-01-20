@@ -81,11 +81,6 @@
 			<locationURI>PARENT-2-PROJECT_LOC/drivers/usb.c</locationURI>
 		</link>
 		<link>
-			<name>src/drivers/usbh_conf.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/drivers/usbh_conf.c</locationURI>
-		</link>
-		<link>
 			<name>src/drivers/wifi.c</name>
 			<type>1</type>
 			<locationURI>copy_PARENT/drivers/wifi.c</locationURI>
@@ -116,6 +111,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>src/ThirdParty/ST_middleware/STM32_USB_Host_Library</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -142,6 +142,16 @@
 		</link>
 		<link>
 			<name>src/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -214,6 +224,46 @@
 			<name>src/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/timers.c</name>
 			<type>1</type>
 			<locationURI>copy_PARENT/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/timers.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/AUDIO</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CDC</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CustomHID</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/DFU</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/HID</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/Template</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Src</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>src/ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/AUDIO</name>
@@ -601,6 +651,96 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/AUDIO/Inc</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/AUDIO/Src</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CDC/Src</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CustomHID/Inc</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CustomHID/Src</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/DFU/Inc</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/DFU/Src</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/HID/Inc</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/HID/Src</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Inc</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Src</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/Template/Inc</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/Template/Src</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Src/usbd_conf.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Src/usbd_conf.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Src/usbd_core.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Src/usbd_core.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Src/usbd_desc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Src/usbd_desc.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c</locationURI>
+		</link>
+		<link>
 			<name>src/ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/AUDIO/Src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -631,9 +771,9 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>src/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Src/usbh_conf_template.c</name>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Src/usbh_conf.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Src/usbh_conf_template.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Src/usbh_conf.c</locationURI>
 		</link>
 		<link>
 			<name>src/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Src/usbh_core.c</name>
@@ -704,6 +844,146 @@
 			<name>src/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_5.c</name>
 			<type>1</type>
 			<locationURI>copy_PARENT/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/MemMang/heap_5.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/AUDIO/Inc/usbd_audio.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/AUDIO/Inc/usbd_audio.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/AUDIO/Inc/usbd_audio_if_template.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/AUDIO/Inc/usbd_audio_if_template.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/AUDIO/Src/usbd_audio.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/AUDIO/Src/usbd_audio.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/AUDIO/Src/usbd_audio_if_template.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/AUDIO/Src/usbd_audio_if_template.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc_interface.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc_interface.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CustomHID/Inc/usbd_customhid.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CustomHID/Inc/usbd_customhid.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CustomHID/Inc/usbd_customhid_if_template.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CustomHID/Inc/usbd_customhid_if_template.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CustomHID/Src/usbd_customhid.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CustomHID/Src/usbd_customhid.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CustomHID/Src/usbd_customhid_if_template.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CustomHID/Src/usbd_customhid_if_template.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/DFU/Inc/usbd_dfu.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/DFU/Inc/usbd_dfu.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/DFU/Inc/usbd_dfu_media_template.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/DFU/Inc/usbd_dfu_media_template.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/DFU/Src/usbd_dfu.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/DFU/Src/usbd_dfu.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/DFU/Src/usbd_dfu_media_template.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/DFU/Src/usbd_dfu_media_template.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/HID/Inc/usbd_hid.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/HID/Inc/usbd_hid.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/HID/Src/usbd_hid.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/HID/Src/usbd_hid.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Inc/usbd_msc.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Inc/usbd_msc.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Inc/usbd_msc_bot.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Inc/usbd_msc_bot.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Inc/usbd_msc_data.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Inc/usbd_msc_data.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Inc/usbd_msc_scsi.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Inc/usbd_msc_scsi.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Inc/usbd_msc_storage_template.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Inc/usbd_msc_storage_template.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Src/usbd_msc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Src/usbd_msc.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Src/usbd_msc_bot.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Src/usbd_msc_bot.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Src/usbd_msc_data.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Src/usbd_msc_data.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Src/usbd_msc_scsi.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Src/usbd_msc_scsi.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Src/usbd_msc_storage_template.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/MSC/Src/usbd_msc_storage_template.c</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/Template/Inc/usbd_template.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/Template/Inc/usbd_template.h</locationURI>
+		</link>
+		<link>
+			<name>src/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/Template/Src/usbd_template.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/Template/Src/usbd_template.c</locationURI>
 		</link>
 		<link>
 			<name>src/ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/AUDIO/Src/usbh_audio.c</name>

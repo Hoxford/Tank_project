@@ -88,8 +88,8 @@
 //#define HAL_SMARTCARD_MODULE_ENABLED
 //#define HAL_WWDG_MODULE_ENABLED
 #define HAL_CORTEX_MODULE_ENABLED
-//#define HAL_PCD_MODULE_ENABLED
-#define HAL_HCD_MODULE_ENABLED
+#define HAL_PCD_MODULE_ENABLED
+//#define HAL_HCD_MODULE_ENABLED
 
 
 /* ########################## HSE/HSI Values adaptation ##################### */

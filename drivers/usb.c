@@ -20,8 +20,10 @@
 #include "utils_inc/proj_debug.h"
 
 #include "drivers_inc/usb.h"
-#include "usbh_core.h"
-#include "usbh_cdc.h"
+#include "usbd_core.h"
+#include "usbd_desc.h"
+#include "usbd_cdc.h"
+#include "usbd_cdc_interface.h"
 #include "board.h"
 
 /******************************************************************************
@@ -72,11 +74,11 @@ CDC_ApplicationTypeDef AppliState = APPLICATION_IDLE;
 /******************************************************************************
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-USBH_HandleTypeDef hUSBHost; /* USB Host handle */
+USBD_HandleTypeDef USBD_Device; /* USB Device handle */
 
 typedef struct tUSB_Message_Struct
 {
-    USB_MSG_ID eMSG;
+  USB_MSG_ID eMSG;
 }tUSB_Message_Struct;
 
 /******************************************************************************
@@ -87,7 +89,6 @@ typedef struct tUSB_Message_Struct
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 ERROR_CODE eUSB_setup(void);
-static void USBH_UserProcess(USBH_HandleTypeDef *pHost, uint8_t vId);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,63 +104,35 @@ static void USBH_UserProcess(USBH_HandleTypeDef *pHost, uint8_t vId);
 ERROR_CODE eUSB_setup(void)
 {
   ERROR_CODE eEC = ER_FAIL;
-  USBH_StatusTypeDef eUSBH_Status = USBH_FAIL;
+  USBD_StatusTypeDef eUSBD_Status = USBD_FAIL;
 
-  eUSBH_Status = USBH_Init(&hUSBHost, USBH_UserProcess, 0);
+  /* Init Device Library */
+  eUSBD_Status = USBD_Init(&USBD_Device, &VCP_Desc, 0);
 
-  if(eUSBH_Status == USBH_OK)
+  if(eUSBD_Status == USBD_OK)
   {
-    eUSBH_Status = USBH_RegisterClass(&hUSBHost, USBH_CDC_CLASS);
+    /* Add Supported Class */
+    eUSBD_Status = USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
   }
 
-  if(eUSBH_Status == USBH_OK)
+  if(eUSBD_Status == USBD_OK)
   {
-    eUSBH_Status = USBH_Start(&hUSBHost);
+    /* Add CDC Interface Class */
+    eUSBD_Status = USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
   }
 
-  if(eUSBH_Status == USBH_OK)
+  if(eUSBD_Status == USBD_OK)
+  {
+    /* Start Device Process */
+    eUSBD_Status = USBD_Start(&USBD_Device);
+  }
+
+  if(eUSBD_Status == USBD_OK)
   {
     eEC = ER_OK;
   }
 
   return eEC;
-}
-
-/******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
-******************************************************************************/
-/**
-  * @brief  User Process
-  * @param  phost: Host Handle
-  * @param  id: Host Library user message ID
-  * @retval None
-  */
-static void USBH_UserProcess (USBH_HandleTypeDef *pHost, uint8_t vId)
-{
-  switch (vId)
-  {
-  case HOST_USER_SELECT_CONFIGURATION:
-    break;
-
-  case HOST_USER_DISCONNECTION:
-    AppliState = APPLICATION_IDLE;
-    break;
-
-  case HOST_USER_CLASS_ACTIVE:
-    AppliState = APPLICATION_START;
-    break;
-
-  case HOST_USER_CONNECTION:
-    break;
-
-  default:
-    break;
-  }
 }
 
 /******************************************************************************
@@ -210,7 +183,7 @@ void vUSB_Task(void * pvParameters)
     }
     else
     {
-      USBH_Process(&hUSBHost);
+
     }
   }
 }
@@ -260,6 +233,8 @@ ERROR_CODE eUSB_Request(tUsb_Request * pRequest)
     pRequest->pUsb_Task_Param->pTaskFcn        = vUSB_Task;
     pRequest->pUsb_Task_Param->uiStack_Size    = 2048;
     pRequest->pUsb_Task_Param->uiTask_Priority = TASK_USB_PRIORITY;
+
+    eEC = ER_OK;
   }
   else if(pRequest->eRequestID == USB_REQUEST_INIT)
   {
