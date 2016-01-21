@@ -250,6 +250,26 @@ ERROR_CODE eNvram_Read(tNvram_Read * pRead)
 ERROR_CODE eNvram_Request_Param_Init(tNvram_Request * pRequest)
 {
   ERROR_CODE eEC = ER_FAIL;
+  int i;
+  void * pRtn;
+
+  if(pRequest == NULL)
+  {
+    eEC = ER_PARAM;
+  }
+  else
+  {
+    i = sizeof(tNvram_Request);
+    pRtn = memset(pRequest, 0x00, i);
+    if(pRtn == pRequest)
+    {
+      eEC = ER_OK;
+    }
+    else
+    {
+      eEC = ER_FAIL;
+    }
+  }
 
   return eEC;
 }

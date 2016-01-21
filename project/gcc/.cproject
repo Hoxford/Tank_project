@@ -5,16 +5,16 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1354291416" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="${cross_rm} -rf" description="" errorParsers="org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1354291416" name="Debug" parent="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug" postannouncebuildStep="" postbuildStep="" preannouncebuildStep="" prebuildStep="">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="${cross_rm} -rf" description="" errorParsers="org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1354291416" name="Debug" parent="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug" postannouncebuildStep="" postbuildStep="" preannouncebuildStep="" prebuildStep="">
 					<folderInfo id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1354291416." name="/" resourcePath="">
 						<toolChain errorParsers="" id="ilg.gnuarmeclipse.managedbuild.cross.toolchain.elf.debug.2080740172" name="Cross ARM GCC" superClass="ilg.gnuarmeclipse.managedbuild.cross.toolchain.elf.debug">
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.level.958709946" name="Optimization Level" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.level" value="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.level.none" valueType="enumerated"/>
@@ -54,19 +54,19 @@
 							<tool command="${cross_prefix}${cross_c}${cross_suffix}" commandLinePattern="${COMMAND} ${cross_toolchain_flags} ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser" id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.636999012" name="Cross ARM GNU Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.852881491" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.1252875290" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/utility"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers/drivers_inc"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/application"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc/Legacy"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Include"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc"/>
+									<listOptionValue builtIn="false" value="../../../drivers"/>
+									<listOptionValue builtIn="false" value="../../../utility"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc"/>
+									<listOptionValue builtIn="false" value="../../../drivers/drivers_inc"/>
+									<listOptionValue builtIn="false" value="../../../application"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc/Legacy"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Include"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.393589015" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
@@ -83,23 +83,23 @@
 							</tool>
 							<tool command="${cross_prefix}${cross_c}${cross_suffix}" commandLinePattern="${COMMAND} ${cross_toolchain_flags} ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.486718022" name="Cross ARM C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.21139635" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/application"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers/drivers_inc"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/utility"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc"/>
+									<listOptionValue builtIn="false" value="../../../application"/>
+									<listOptionValue builtIn="false" value="../../../drivers/drivers_inc"/>
+									<listOptionValue builtIn="false" value="../../../drivers"/>
+									<listOptionValue builtIn="false" value="../../../utility"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc"/>
 									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/ST_middleware/STM32_USB_Device_Library/Core/Inc&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../../../ThirdParty/ST_middleware/STM32_USB_Device_Library/Class/CDC/Inc&quot;"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc/Legacy"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Include"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc/Legacy"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/CMSIS/Device/ST/include/cmsis&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/CMSIS/Device/ST/include&quot;"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc"/>
 									<listOptionValue builtIn="false" value="&quot;../../../project/gcc/include&quot;"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.403543725" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
@@ -109,6 +109,7 @@
 									<listOptionValue builtIn="false" value="OS_USE_TRACE_ITM"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
+									<listOptionValue builtIn="false" value="USE_USB_HS"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="STM32F4"/>
 									<listOptionValue builtIn="false" value="USING_FREE_RTOS"/>
@@ -119,19 +120,19 @@
 							</tool>
 							<tool command="${cross_prefix}${cross_cpp}${cross_suffix}" commandLinePattern="${COMMAND} ${cross_toolchain_flags} ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.516208295" name="Cross ARM C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.1088590058" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/utility"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/drivers/drivers_inc"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/application"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc/Legacy"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Include"/>
-									<listOptionValue builtIn="false" value="D:/DDocuments/Workspace/Mini_Panzer_01/platform/stm32f4disc"/>
+									<listOptionValue builtIn="false" value="../../../drivers"/>
+									<listOptionValue builtIn="false" value="../../../utility"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/include"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/FreeRTOSV8.2.0/FreeRTOS/Source"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Core/Inc"/>
+									<listOptionValue builtIn="false" value="../../../ThirdParty/ST_middleware/STM32_USB_Host_Library/Class/CDC/Inc"/>
+									<listOptionValue builtIn="false" value="../../../drivers/drivers_inc"/>
+									<listOptionValue builtIn="false" value="../../../application"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc/STM32F4xx_HAL_Driver/Inc/Legacy"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc/CMSIS/Device/ST/STM32F4xx/Include"/>
+									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc"/>
 									<listOptionValue builtIn="false" value="&quot;../../../project/gcc/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/CMSIS/Device/ST&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/CMSIS/Device/ST/include&quot;"/>
@@ -151,7 +152,7 @@
 									<listOptionValue builtIn="false" value="STM32F4"/>
 									<listOptionValue builtIn="false" value="USING_FREE_RTOS"/>
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files.2018597115" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files" useByScannerDiscovery="false" valueType="includeFiles"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files.2018597115" name="Include files (-include)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.files" useByScannerDiscovery="false"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.129619543" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker.1471175207" name="Cross ARM C Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker">
@@ -211,16 +212,16 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1537905368" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<externalSettings/>
 				<extensions>
-					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1537905368" name="Release" parent="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1537905368" name="Release" parent="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release">
 					<folderInfo id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1537905368." name="/" resourcePath="">
 						<toolChain id="ilg.gnuarmeclipse.managedbuild.cross.toolchain.elf.release.115193021" name="Cross ARM GCC" superClass="ilg.gnuarmeclipse.managedbuild.cross.toolchain.elf.release">
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.level.1990209610" name="Optimization Level" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.level" value="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.level.size" valueType="enumerated"/>
