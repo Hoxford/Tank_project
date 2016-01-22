@@ -71,7 +71,7 @@ typedef enum WIFI_MSG_ID
 typedef struct tWifi_Activity_State
 {
   bool     bIs_Wifi_Ready;
-  bool     bIs_Wifi_Yask_Ready;
+  bool     bIs_Wifi_Task_Ready;
   uint8_t  uiSendBuff[WIFI_SEND_BUF_LEN];
   uint8_t  uiRcvBuff[WIFI_RCV_BUF_LEN];
   uint8_t  uiIP_Address[4];
@@ -84,7 +84,7 @@ typedef struct tWifi_Activity_State
 tWifi_Activity_State tWifi_AS =
 {
   false,//bool    bIs_Wifi_Ready;
-  false,//bool    bIs_Wifi_Yask_Ready;
+  false,//bool    bIs_Wifi_Task_Ready;
   //uint8_t uiSendBuff[WIFI_SEND_BUF_LEN];
   {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -702,8 +702,15 @@ void vWifi_Driver_Task(void * pvParameters)
 
   //perform wifi setup
   eEC = eWifi_Setup();
-  vDEBUG_ASSERT("vWifi_Driver_Task driver setup fail", eEC == ER_OK);
-
+  //todo: bring back vDEBUG_ASSERT("vWifi_Driver_Task driver setup fail", eEC == ER_OK);
+  if(eEC == ER_OK)
+  {
+    tWifi_AS.bIs_Wifi_Ready = true;
+  }
+  else
+  {
+    tWifi_AS.bIs_Wifi_Ready = false;
+  }
 
 //  tMsg.eMSG = WIFI_MSG_TEST;
 //  eEC = eOSAL_Queue_Post_msg(pWifi_Queue_Handle, &tMsg);
@@ -713,6 +720,8 @@ void vWifi_Driver_Task(void * pvParameters)
   tSend.tBSP_Send.pBuff = (uint8_t *)cHelloWorld;
   tSend.tBSP_Send.uiBuff_Len = strlen(cHelloWorld);
   memset(&tMsg, 0x00, sizeof(tWifi_Message_Struct));
+
+  tWifi_AS.bIs_Wifi_Task_Ready = true;
 
   while(1)
   {

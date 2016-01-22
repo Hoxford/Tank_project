@@ -3,6 +3,8 @@
 // Copyright (c) 2014 Liviu Ionescu.
 //
 
+//todo: find a better file name for this instead of exception handler i.e. stm32f4xx_it.c .h
+
 // ----------------------------------------------------------------------------
 
 #include "cortexm/ExceptionHandlers.h"
@@ -127,4 +129,3 @@ SysTick_Handler(void)
   // Useful in case someone (like STM HAL) inadvertently enables SysTick.
   ;
 }
-

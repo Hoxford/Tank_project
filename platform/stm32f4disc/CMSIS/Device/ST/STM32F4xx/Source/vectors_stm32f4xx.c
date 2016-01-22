@@ -8,6 +8,11 @@
 #include "cortexm/ExceptionHandlers.h"
 #include "utils_inc/error_codes.h"
 #include "utils_inc/osal.h"
+#include "stm32f4xx_hal.h"
+
+// ----------------------------------------------------------------------------
+
+extern PCD_HandleTypeDef hpcd;
 
 // ----------------------------------------------------------------------------
 
@@ -15,6 +20,7 @@ void __attribute__((weak))
 Default_Handler(void);
 
 void SysTick_Handler (void);
+void OTG_HS_IRQHandler(void);
 
 // Forward declaration of the specific IRQ handlers. These are aliased
 // to the Default_Handler, which is a 'forever' loop. When the application
@@ -167,8 +173,8 @@ void __attribute__ ((weak, alias ("Default_Handler")))
 OTG_HS_EP1_IN_IRQHandler(void);
 void __attribute__ ((weak, alias ("Default_Handler")))
 OTG_HS_WKUP_IRQHandler(void);
-void __attribute__ ((weak, alias ("Default_Handler")))
-OTG_HS_IRQHandler(void);
+//void __attribute__ ((weak, alias ("Default_Handler")))
+//OTG_HS_IRQHandler(void);
 void __attribute__ ((weak, alias ("Default_Handler")))
 HASH_RNG_IRQHandler(void);
 #endif
@@ -1058,6 +1064,20 @@ void SysTick_Handler (void)
   }
 
   HAL_IncTick();
+}
+
+/**
+  * @brief  This function handles USB-On-The-Go FS global interrupt request.
+  * @param  None
+  * @retval None
+  */
+#ifdef USE_USB_FS
+void OTG_FS_IRQHandler(void)
+#else
+void OTG_HS_IRQHandler(void)
+#endif
+{
+  HAL_PCD_IRQHandler(&hpcd);
 }
 
 // ----------------------------------------------------------------------------

@@ -75,15 +75,15 @@ uint8_t uiWifi_RX_Buff[WIFI_RX_BUF_LEN];
 typedef struct tBSP_Activity_State
 {
   bool bIs_Camera_Intf_Init;
-
   bool bIs_Wifi_Intf_Init;
+  bool bIs_Usb_Intf_Init;
 }tBSP_Activity_State;
 
 tBSP_Activity_State tBSP_AS =
 {
   false,  //bool bIs_Camera_Intf_Init;
-
   false,  //bool bIs_Wifi_Intf_Init;
+  false,  //bool bIs_Usb_Intf_Init;
 };
 
 //USART_HandleTypeDef tWifi_UART_Handle;
@@ -101,6 +101,7 @@ UART_HandleTypeDef  tWifi_UART_Handle;
 
 ERROR_CODE eBSP_Camera_Intf_Init(void);
 ERROR_CODE eBSP_Wifi_Intf_Init(void);
+ERROR_CODE eBSP_Usb_Intf_Init(void);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -229,6 +230,27 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: Filename_or_abreviation_funciton
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_Usb_Intf_Init(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+  GPIO_InitTypeDef      tUsb_GPIO_Init;
+
+  if(tBSP_AS.bIs_Usb_Intf_Init == false)
+  {
+
+  }
+
+  return eEC;
+}
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -538,6 +560,7 @@ ERROR_CODE eBSP_Board_Init(void)
   __USART2_CLK_ENABLE();
   __I2C1_CLK_ENABLE();
   __TIM4_CLK_ENABLE();
+  __USB_OTG_HS_CLK_ENABLE();
 
   eEC = eBSP_Camera_Intf_Init();
 
