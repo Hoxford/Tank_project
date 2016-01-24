@@ -241,16 +241,53 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void)
 ERROR_CODE eBSP_Usb_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
-  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+//  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
   GPIO_InitTypeDef      tUsb_GPIO_Init;
 
   if(tBSP_AS.bIs_Usb_Intf_Init == false)
   {
+    /* Configure DM DP Pins */
+    tUsb_GPIO_Init.Pin       = GPIO_PIN_11 | GPIO_PIN_12;
+    tUsb_GPIO_Init.Mode      = GPIO_MODE_AF_PP;//GPIO_MODE_AF_OD;//
+    tUsb_GPIO_Init.Pull      = GPIO_NOPULL;//GPIO_PULLDOWN;//GPIO_PULLUP;//
+    tUsb_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
+    tUsb_GPIO_Init.Alternate = GPIO_AF10_OTG_HS;
+    HAL_GPIO_Init(GPIOA,&tUsb_GPIO_Init);
 
+    /* Configure VBUS Pin */
+    tUsb_GPIO_Init.Pin = GPIO_PIN_9;
+    tUsb_GPIO_Init.Mode = GPIO_MODE_INPUT;
+    tUsb_GPIO_Init.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &tUsb_GPIO_Init);
+
+    /* This for ID line debug */
+    tUsb_GPIO_Init.Pin = GPIO_PIN_10;
+    tUsb_GPIO_Init.Mode = GPIO_MODE_AF_OD;
+    tUsb_GPIO_Init.Pull = GPIO_PULLUP;
+    tUsb_GPIO_Init.Speed = GPIO_SPEED_HIGH;
+    tUsb_GPIO_Init.Alternate = GPIO_AF10_OTG_HS;
+    HAL_GPIO_Init(GPIOA, &tUsb_GPIO_Init);
+
+    /* Enable USB HS Clocks */
+    __USB_OTG_HS_CLK_ENABLE();
+
+    /* Set USBHS Interrupt to the lowest priority */
+    HAL_NVIC_SetPriority(OTG_HS_IRQn, 3, 0);
+
+    /* Enable USBHS Interrupt */
+    HAL_NVIC_EnableIRQ(OTG_HS_IRQn);
+
+    tBSP_AS.bIs_Usb_Intf_Init = true;
+    eEC = ER_OK;
+  }
+  else
+  {
+    eEC = ER_OK;
   }
 
   return eEC;
 }
+
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -550,6 +587,7 @@ ERROR_CODE eBSP_Board_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
 
+  HAL_Init();
 
   SystemCoreClock = HAL_RCC_GetHCLKFreq();
 
@@ -567,6 +605,11 @@ ERROR_CODE eBSP_Board_Init(void)
   if(eEC == ER_OK)
   {
     eEC = eBSP_Wifi_Intf_Init();
+  }
+
+  if(eEC == ER_OK)
+  {
+    eEC = eBSP_Usb_Intf_Init();
   }
 
   return eEC;

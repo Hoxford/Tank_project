@@ -6,7 +6,7 @@
 // ----------------------------------------------------------------------------
 
 #include <stdlib.h>
-#include "diag/Trace.h"
+//#include "diag/Trace.h"
 #include "cmsis_device.h"
 #include "core_cm4.h"
 
@@ -52,7 +52,7 @@ void
 __attribute__((weak,noreturn))
 abort(void)
 {
-  trace_puts("abort(), exiting...");
+//  trace_puts("abort(), exiting...");
 
   _exit(1);
 }

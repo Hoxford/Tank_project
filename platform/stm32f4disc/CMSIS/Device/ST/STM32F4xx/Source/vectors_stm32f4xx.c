@@ -20,6 +20,7 @@ void __attribute__((weak))
 Default_Handler(void);
 
 void SysTick_Handler (void);
+//void OTG_FS_IRQHandler(void);
 void OTG_HS_IRQHandler(void);
 
 // Forward declaration of the specific IRQ handlers. These are aliased
