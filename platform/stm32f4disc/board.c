@@ -246,6 +246,9 @@ ERROR_CODE eBSP_Usb_Intf_Init(void)
 
   if(tBSP_AS.bIs_Usb_Intf_Init == false)
   {
+#ifdef USE_USB_FS
+    eEC = ER_OK;
+#elif USE_USB_HS
     /* Configure DM DP Pins */
     tUsb_GPIO_Init.Pin       = GPIO_PIN_11 | GPIO_PIN_12;
     tUsb_GPIO_Init.Mode      = GPIO_MODE_AF_PP;//GPIO_MODE_AF_OD;//
@@ -279,6 +282,9 @@ ERROR_CODE eBSP_Usb_Intf_Init(void)
 
     tBSP_AS.bIs_Usb_Intf_Init = true;
     eEC = ER_OK;
+#else
+  #error no usb defined
+#endif
   }
   else
   {

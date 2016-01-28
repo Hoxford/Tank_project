@@ -109,7 +109,7 @@
 									<listOptionValue builtIn="false" value="OS_USE_TRACE_ITM"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
-									<listOptionValue builtIn="false" value="USE_USB_HS"/>
+									<listOptionValue builtIn="false" value="USE_USB_FS"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="STM32F4"/>
 									<listOptionValue builtIn="false" value="USING_FREE_RTOS"/>

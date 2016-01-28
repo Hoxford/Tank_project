@@ -20,8 +20,9 @@ void __attribute__((weak))
 Default_Handler(void);
 
 void SysTick_Handler (void);
-//void OTG_FS_IRQHandler(void);
-void OTG_HS_IRQHandler(void);
+void OTG_FS_WKUP_IRQHandler(void);
+void OTG_FS_IRQHandler(void);
+//void OTG_HS_IRQHandler(void);
 
 // Forward declaration of the specific IRQ handlers. These are aliased
 // to the Default_Handler, which is a 'forever' loop. When the application
@@ -102,8 +103,8 @@ void __attribute__ ((weak, alias ("Default_Handler")))
 EXTI15_10_IRQHandler(void);
 void __attribute__ ((weak, alias ("Default_Handler")))
 RTC_Alarm_IRQHandler(void);
-void __attribute__ ((weak, alias ("Default_Handler")))
-OTG_FS_WKUP_IRQHandler(void);
+//void __attribute__ ((weak, alias ("Default_Handler")))
+//OTG_FS_WKUP_IRQHandler(void);
 void __attribute__ ((weak, alias ("Default_Handler")))
 DMA1_Stream7_IRQHandler(void);
 
@@ -174,8 +175,8 @@ void __attribute__ ((weak, alias ("Default_Handler")))
 OTG_HS_EP1_IN_IRQHandler(void);
 void __attribute__ ((weak, alias ("Default_Handler")))
 OTG_HS_WKUP_IRQHandler(void);
-//void __attribute__ ((weak, alias ("Default_Handler")))
-//OTG_HS_IRQHandler(void);
+void __attribute__ ((weak, alias ("Default_Handler")))
+OTG_HS_IRQHandler(void);
 void __attribute__ ((weak, alias ("Default_Handler")))
 HASH_RNG_IRQHandler(void);
 #endif
@@ -189,8 +190,8 @@ void __attribute__ ((weak, alias ("Default_Handler")))
 DCMI_IRQHandler(void);
 #endif
 
-void __attribute__ ((weak, alias ("Default_Handler")))
-OTG_FS_IRQHandler(void);
+//void __attribute__ ((weak, alias ("Default_Handler")))
+//OTG_FS_IRQHandler(void);
 void __attribute__ ((weak, alias ("Default_Handler")))
 DMA2_Stream5_IRQHandler(void);
 void __attribute__ ((weak, alias ("Default_Handler")))
@@ -1065,6 +1066,11 @@ void SysTick_Handler (void)
   }
 
   HAL_IncTick();
+}
+
+void OTG_FS_WKUP_IRQHandler(void)
+{
+  return;
 }
 
 /**

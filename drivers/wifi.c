@@ -429,7 +429,7 @@ ERROR_CODE eWifi_rcv_OK(void)
   tWifi_Receive  tRcv;
 
   memset(tWifi_AS.uiSendBuff, 0x00, strlen(AT_ERROR)+1);
-  tRcv.tBSP_Receive.uiBuff_Len = strlen(AT_OK);
+  tRcv.tBSP_Receive.uiBuff_Len = strlen(AT_OK) + 1;
   tRcv.tBSP_Receive.pBuff = tWifi_AS.uiSendBuff;
   tRcv.iTimeout = WIFI_XMIT_1S_TIMEOUT * 10;
 
@@ -702,7 +702,7 @@ void vWifi_Driver_Task(void * pvParameters)
 
   //perform wifi setup
   eEC = eWifi_Setup();
-  //todo: bring back vDEBUG_ASSERT("vWifi_Driver_Task driver setup fail", eEC == ER_OK);
+  vDEBUG_ASSERT("vWifi_Driver_Task driver setup fail", eEC == ER_OK);
   if(eEC == ER_OK)
   {
     tWifi_AS.bIs_Wifi_Ready = true;
