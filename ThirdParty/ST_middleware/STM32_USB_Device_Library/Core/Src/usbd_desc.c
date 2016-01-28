@@ -59,12 +59,12 @@ uint8_t *USBD_VCP_USRStringDesc (USBD_SpeedTypeDef speed, uint8_t idx, uint16_t 
 /* Private variables ---------------------------------------------------------*/
 USBD_DescriptorsTypeDef VCP_Desc = {
   USBD_VCP_DeviceDescriptor,
-  USBD_VCP_LangIDStrDescriptor, 
+  USBD_VCP_LangIDStrDescriptor,
   USBD_VCP_ManufacturerStrDescriptor,
   USBD_VCP_ProductStrDescriptor,
   USBD_VCP_SerialStrDescriptor,
   USBD_VCP_ConfigStrDescriptor,
-  USBD_VCP_InterfaceStrDescriptor,  
+  USBD_VCP_InterfaceStrDescriptor,
 };
 
 /* USB Standard Device Descriptor */

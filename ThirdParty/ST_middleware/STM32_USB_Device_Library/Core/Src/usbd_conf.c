@@ -59,9 +59,9 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
     
     /* Configure DM DP Pins */
     GPIO_InitStruct.Pin = (GPIO_PIN_11 | GPIO_PIN_12);
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); 
     
@@ -75,26 +75,27 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
     GPIO_InitStruct.Pin = GPIO_PIN_10;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
     
     /* Enable USB FS Clock */
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
     
-    /* Set USBFS Interrupt priority */
-    HAL_NVIC_SetPriority(OTG_FS_WKUP_IRQn, 6, 0);
+//    /* Set USBFS Interrupt priority */
+//    HAL_NVIC_SetPriority(OTG_FS_WKUP_IRQn, 6, 0);
+//
+//    /* Enable USBFS Interrupt */
+//    HAL_NVIC_EnableIRQ(OTG_FS_WKUP_IRQn);
 
-    /* Enable USBFS Interrupt */
-    HAL_NVIC_EnableIRQ(OTG_FS_WKUP_IRQn);
-
     /* Set USBFS Interrupt priority */
-    HAL_NVIC_SetPriority(OTG_FS_IRQn, 6, 0);
-    
+    HAL_NVIC_SetPriority(OTG_FS_IRQn, 3, 0);
+
     /* Enable USBFS Interrupt */
     HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
 
-    HAL_NVIC_ClearPendingIRQ(OTG_FS_WKUP_IRQn);
-    HAL_NVIC_ClearPendingIRQ(OTG_FS_WKUP_IRQn);
+//    HAL_NVIC_ClearPendingIRQ(OTG_FS_WKUP_IRQn);
+//    HAL_NVIC_ClearPendingIRQ(OTG_FS_WKUP_IRQn);
   }
   else if(hpcd->Instance == USB_OTG_HS)
   {
@@ -343,7 +344,8 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
   hpcd.Init.Sof_enable = 0;
   hpcd.Init.speed = PCD_SPEED_FULL;
-  hpcd.Init.vbus_sensing_enable = 0;
+//  hpcd.Init.vbus_sensing_enable = 0;
+  hpcd.Init.vbus_sensing_enable = 1;
   hpcd.Init.lpm_enable = 0;
   
   /* Link The driver to the stack */
