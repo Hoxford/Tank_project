@@ -602,9 +602,9 @@ ERROR_CODE eBSP_Board_Init(void)
   __GPIOA_CLK_ENABLE();
   __GPIOB_CLK_ENABLE();
   __USART2_CLK_ENABLE();
-  __I2C1_CLK_ENABLE();
+//  __I2C1_CLK_ENABLE();
   __TIM4_CLK_ENABLE();
-  __USB_OTG_HS_CLK_ENABLE();
+//  __USB_OTG_HS_CLK_ENABLE();
 
   eEC = eBSP_Camera_Intf_Init();
 
