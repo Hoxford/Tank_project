@@ -22,7 +22,13 @@
 #include "drivers_inc/usb.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
-#include "usbd_cdc.h"
+#ifdef USE_USB_CDC
+  #include "usbd_cdc.h"
+#elif USE_USB_HID
+  #include "usbd_hid.h"
+#else
+  #warning NO USB CLASS DEFINED
+#endif
 #include "usbd_cdc_interface.h"
 #include "board.h"
 
@@ -74,7 +80,8 @@ CDC_ApplicationTypeDef AppliState = APPLICATION_IDLE;
 /******************************************************************************
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-USBD_HandleTypeDef USBD_Device; /* USB Device handle */
+USBD_HandleTypeDef  USBD_Device; /* USB Device handle */
+USBD_HandleTypeDef  hUSBDDevice;
 
 typedef struct tUSB_Message_Struct
 {
@@ -106,6 +113,7 @@ ERROR_CODE eUSB_setup(void)
   ERROR_CODE eEC = ER_FAIL;
   USBD_StatusTypeDef eUSBD_Status = USBD_FAIL;
 
+#ifdef USE_USB_CDC
   /* Init Device Library */
   eUSBD_Status = USBD_Init(&USBD_Device, &VCP_Desc, 0);
 
@@ -126,6 +134,24 @@ ERROR_CODE eUSB_setup(void)
     /* Start Device Process */
     eUSBD_Status = USBD_Start(&USBD_Device);
   }
+#elif USE_USB_HID
+  /* Init Device Library */
+  eUSBD_Status = USBD_Init(&hUSBDDevice, &HID_Desc, 0);
+
+  if(eUSBD_Status == USBD_OK)
+  {
+    /* Add Supported Class */
+    eUSBD_Status = USBD_RegisterClass(&hUSBDDevice, USBD_HID_CLASS);
+  }
+
+  if(eUSBD_Status == USBD_OK)
+  {
+    /* Start Device Process */
+    eUSBD_Status = USBD_Start(&hUSBDDevice);
+  }
+#else
+  #warning NO USB CLASS DEFINED
+#endif
 
   if(eUSBD_Status == USBD_OK)
   {

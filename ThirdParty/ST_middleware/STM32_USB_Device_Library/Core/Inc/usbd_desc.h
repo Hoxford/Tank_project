@@ -32,6 +32,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_def.h"
 
+#ifdef USE_USB_CDC
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 #define         DEVICE_ID1          (0x1FFF7A10)
@@ -42,7 +43,17 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 extern USBD_DescriptorsTypeDef VCP_Desc;
+#endif //#ifdef USE_USB_CDC
 
+#ifdef USE_USB_HID
+/** @defgroup USBD_DESC_Exported_Variables
+  * @{
+  */
+extern USBD_DescriptorsTypeDef HID_Desc;
+/**
+  * @}
+  */
+#endif //#ifdef USE_USB_HID
 #endif /* __USBD_DESC_H */
  
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

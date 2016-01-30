@@ -122,10 +122,10 @@ DebugMon_Handler(void)
 //    }
 //}
 
-void __attribute__ ((section(".after_vectors"),weak))
-SysTick_Handler(void)
-{
-  // DO NOT loop, just return.
-  // Useful in case someone (like STM HAL) inadvertently enables SysTick.
-  ;
-}
+//void __attribute__ ((section(".after_vectors"),weak))
+//SysTick_Handler(void)
+//{
+//  // DO NOT loop, just return.
+//  // Useful in case someone (like STM HAL) inadvertently enables SysTick.
+//  ;
+//}
