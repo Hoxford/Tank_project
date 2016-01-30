@@ -137,6 +137,8 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
   for( ;; );
 }
 
+extern ERROR_CODE eUSB_setup(void);
+
 int main(int argc, char* argv[])
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -147,6 +149,10 @@ int main(int argc, char* argv[])
   tUsb_Request tUsb_Req;
 
   eEC = eBSP_Board_Init();
+
+  eUSB_setup();
+
+  while(1){};
 
   if(eEC == ER_OK)
   {

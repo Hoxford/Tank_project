@@ -113,7 +113,7 @@ ERROR_CODE eUSB_setup(void)
   ERROR_CODE eEC = ER_FAIL;
   USBD_StatusTypeDef eUSBD_Status = USBD_FAIL;
 
-#ifdef USE_USB_CDC
+#if defined(USE_USB_CDC)
   /* Init Device Library */
   eUSBD_Status = USBD_Init(&USBD_Device, &VCP_Desc, 0);
 
@@ -134,7 +134,7 @@ ERROR_CODE eUSB_setup(void)
     /* Start Device Process */
     eUSBD_Status = USBD_Start(&USBD_Device);
   }
-#elif USE_USB_HID
+#elif defined(USE_USB_HID)
   /* Init Device Library */
   eUSBD_Status = USBD_Init(&hUSBDDevice, &HID_Desc, 0);
 

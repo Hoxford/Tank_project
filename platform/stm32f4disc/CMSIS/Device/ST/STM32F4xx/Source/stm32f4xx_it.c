@@ -182,6 +182,9 @@ void SysTick_Handler(void)
   }
 
   HAL_IncTick();
+
+  /* Call user callback */
+  HAL_SYSTICK_IRQHandler();
 }
 
 /******************************************************************************/
