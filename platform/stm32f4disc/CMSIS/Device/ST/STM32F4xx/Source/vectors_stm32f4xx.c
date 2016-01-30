@@ -1,4 +1,4 @@
-#if 0
+
 //
 // This file is part of the µOS++ III distribution.
 // Copyright (c) 2014 Liviu Ionescu.
@@ -398,7 +398,6 @@ Default_Handler(void)
     }
 }
 
-<<<<<<< HEAD
 //void SysTick_Handler (void)
 //{
 //  ERROR_CODE eEC = ER_FAIL;
@@ -417,47 +416,11 @@ Default_Handler(void)
 //{
 //  return;
 //}
-=======
-void __attribute__ ((section(".after_vectors")))
-SysTick_Handler (void)
-{
-  ERROR_CODE eEC = ER_FAIL;
-//  timer_tick ();
-
-  eEC = eOSAL_Is_OS_Running();
-  if(eEC == ER_TRUE)
-  {
-    xPortSysTickHandler();
-  }
-
-  HAL_IncTick();
-}
-
-void __attribute__ ((section(".after_vectors")))
-OTG_FS_WKUP_IRQHandler(void)
-{
-  return;
-}
->>>>>>> 7f5f27fcf009b18f9cb0ebf7c7fc286c73d2a3c4
-
-/**
-  * @brief  This function handles USB-On-The-Go FS global interrupt request.
-  * @param  None
-  * @retval None
-  */
-<<<<<<< HEAD
-//#ifdef USE_USB_FS
-//void OTG_FS_IRQHandler(void)
-//#else
-//void OTG_HS_IRQHandler(void)
-//#endif
-//{
-//  HAL_PCD_IRQHandler(&hpcd);
-//}
 
 // ----------------------------------------------------------------------------
-#endif //#if 0
 
+
+#if 0
 //
 // This file is part of the µOS++ III distribution.
 // Copyright (c) 2014 Liviu Ionescu.
@@ -1511,4 +1474,5 @@ Default_Handler(void)
 }
 
 // ----------------------------------------------------------------------------
-
+#endif //#if 0
+#endif //#if 0

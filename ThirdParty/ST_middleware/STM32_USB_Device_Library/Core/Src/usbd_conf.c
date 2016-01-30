@@ -90,10 +90,10 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
 //    HAL_NVIC_EnableIRQ(OTG_FS_WKUP_IRQn);
 
     /* Set USBFS Interrupt priority */
-    HAL_NVIC_SetPriority(OTG_FS_IRQn, 3, 0);
+    HAL_NVIC_SetPriority(OTG_HS_IRQn, 3, 0);
 
     /* Enable USBFS Interrupt */
-    HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
+    HAL_NVIC_EnableIRQ(OTG_HS_IRQn);
 
 //    HAL_NVIC_ClearPendingIRQ(OTG_FS_WKUP_IRQn);
 //    HAL_NVIC_ClearPendingIRQ(OTG_FS_WKUP_IRQn);
