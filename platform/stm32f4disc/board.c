@@ -102,6 +102,7 @@ UART_HandleTypeDef  tWifi_UART_Handle;
 ERROR_CODE eBSP_Camera_Intf_Init(void);
 ERROR_CODE eBSP_Wifi_Intf_Init(void);
 ERROR_CODE eBSP_Usb_Intf_Init(void);
+ERROR_CODE eBSP_SystemClock_Config(void);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,57 +242,83 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void)
 ERROR_CODE eBSP_Usb_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
-//  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
-  GPIO_InitTypeDef      tUsb_GPIO_Init;
 
+  //The low level interface initialization is handled by the 3rd party driver
   if(tBSP_AS.bIs_Usb_Intf_Init == false)
   {
-#ifdef USE_USB_FS
-    eEC = ER_OK;
-#elif USE_USB_HS
-    /* Configure DM DP Pins */
-    tUsb_GPIO_Init.Pin       = GPIO_PIN_11 | GPIO_PIN_12;
-    tUsb_GPIO_Init.Mode      = GPIO_MODE_AF_PP;//GPIO_MODE_AF_OD;//
-    tUsb_GPIO_Init.Pull      = GPIO_NOPULL;//GPIO_PULLDOWN;//GPIO_PULLUP;//
-    tUsb_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-    tUsb_GPIO_Init.Alternate = GPIO_AF10_OTG_HS;
-    HAL_GPIO_Init(GPIOA,&tUsb_GPIO_Init);
-
-    /* Configure VBUS Pin */
-    tUsb_GPIO_Init.Pin = GPIO_PIN_9;
-    tUsb_GPIO_Init.Mode = GPIO_MODE_INPUT;
-    tUsb_GPIO_Init.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &tUsb_GPIO_Init);
-
-    /* This for ID line debug */
-    tUsb_GPIO_Init.Pin = GPIO_PIN_10;
-    tUsb_GPIO_Init.Mode = GPIO_MODE_AF_OD;
-    tUsb_GPIO_Init.Pull = GPIO_PULLUP;
-    tUsb_GPIO_Init.Speed = GPIO_SPEED_HIGH;
-    tUsb_GPIO_Init.Alternate = GPIO_AF10_OTG_HS;
-    HAL_GPIO_Init(GPIOA, &tUsb_GPIO_Init);
-
-    /* Enable USB HS Clocks */
-    __USB_OTG_HS_CLK_ENABLE();
-
-    /* Set USBHS Interrupt to the lowest priority */
-    HAL_NVIC_SetPriority(OTG_HS_IRQn, 3, 0);
-
-    /* Enable USBHS Interrupt */
-    HAL_NVIC_EnableIRQ(OTG_HS_IRQn);
-
     tBSP_AS.bIs_Usb_Intf_Init = true;
-    eEC = ER_OK;
-#else
-  #error no usb defined
-#endif
   }
-  else
+
+  eEC = ER_OK;
+
+  return eEC;
+}
+
+/******************************************************************************
+* todo: DESCRIPTION
+* name: eBSP_SystemClock_Config
+* description:
+* param description: none
+* return value description: ERROR_CODE - ER_OK: System clock configured
+*                                      - ER_FAIL: System clock configuration process failed
+******************************************************************************/
+ERROR_CODE eBSP_SystemClock_Config(void)
+{
+
+  ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_STATUS = HAL_ERROR;
+
+  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_OscInitTypeDef RCC_OscInitStruct;
+
+  /* Enable Power Control clock */
+  __HAL_RCC_PWR_CLK_ENABLE();
+
+  /* The voltage scaling allows optimizing the power consumption when the device is
+     clocked below the maximum system frequency, to update the voltage scaling value
+     regarding system frequency refer to product datasheet.  */
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+  /* Enable HSE Oscillator and activate PLL with HSE as source */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 336;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 7;
+  eHAL_STATUS = HAL_RCC_OscConfig(&RCC_OscInitStruct);
+
+  if(eHAL_STATUS == HAL_OK)
+  {
+  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
+   clocks dividers */
+    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+    eHAL_STATUS = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
+  }
+
+  if(eHAL_STATUS == HAL_OK)
+  {
+    /* STM32F405x/407x/415x/417x Revision Z devices: prefetch is supported  */
+    if (HAL_GetREVID() == 0x1001)
+    {
+      /* Enable the Flash prefetch */
+      __HAL_FLASH_PREFETCH_BUFFER_ENABLE();
+    }
+  }
+
+  if(eHAL_STATUS == HAL_OK)
   {
     eEC = ER_OK;
   }
 
   return eEC;
+
 }
 
 /******************************************************************************
@@ -581,47 +608,6 @@ ERROR_CODE eBSP_Get_Current_ms_count(uint32_t * uiSystem_total_ms_count)
   return eEC;
 }
 
-static void SystemClock_Config(void)
-{
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-
-  /* Enable Power Control clock */
-  __HAL_RCC_PWR_CLK_ENABLE();
-
-  /* The voltage scaling allows optimizing the power consumption when the device is
-     clocked below the maximum system frequency, to update the voltage scaling value
-     regarding system frequency refer to product datasheet.  */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-
-  /* Enable HSE Oscillator and activate PLL with HSE as source */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 336;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 7;
-  HAL_RCC_OscConfig(&RCC_OscInitStruct);
-
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
-     clocks dividers */
-  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
-  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
-
-  /* STM32F405x/407x/415x/417x Revision Z devices: prefetch is supported  */
-  if (HAL_GetREVID() == 0x1001)
-  {
-    /* Enable the Flash prefetch */
-    __HAL_FLASH_PREFETCH_BUFFER_ENABLE();
-  }
-}
-
 /******************************************************************************
 * todo: NAME, DESCRIPTION, PARAM, RETURN
 * name: eBSP_Board_Init
@@ -636,7 +622,7 @@ ERROR_CODE eBSP_Board_Init(void)
 
   HAL_Init();
 
-  SystemClock_Config();
+  eEC = eBSP_SystemClock_Config();
 
   SystemCoreClock = HAL_RCC_GetHCLKFreq();
 

@@ -1,4 +1,4 @@
-#if 0
+#if defined (USE_USB_CDC) //USB device type
 /**
   ******************************************************************************
   * @file    USB_Device/CDC_Standalone/Src/usbd_conf.c
@@ -80,7 +80,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
     GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
     
-    /* Enable USB FS Clock */
+    /* Enable USB HS Clock */
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
     
 //    /* Set USBFS Interrupt priority */
@@ -90,10 +90,10 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
 //    HAL_NVIC_EnableIRQ(OTG_FS_WKUP_IRQn);
 
     /* Set USBFS Interrupt priority */
-    HAL_NVIC_SetPriority(OTG_HS_IRQn, 3, 0);
+    HAL_NVIC_SetPriority(OTG_FS_IRQn, 3, 0);
 
     /* Enable USBFS Interrupt */
-    HAL_NVIC_EnableIRQ(OTG_HS_IRQn);
+    HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
 
 //    HAL_NVIC_ClearPendingIRQ(OTG_FS_WKUP_IRQn);
 //    HAL_NVIC_ClearPendingIRQ(OTG_FS_WKUP_IRQn);
@@ -102,53 +102,28 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
   {
     /* Configure USB HS GPIOs */
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOC_CLK_ENABLE();
     
-//    /* CLK */
-//    GPIO_InitStruct.Pin = GPIO_PIN_5;
-//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-//    GPIO_InitStruct.Alternate = GPIO_AF10_OTG_HS;
-//    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-//
-//    /* D0 */
-//    GPIO_InitStruct.Pin = GPIO_PIN_3;
-//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-//    GPIO_InitStruct.Alternate = GPIO_AF10_OTG_HS;
-//    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-//
-//    /* D1 D2 D3 D4 D5 D6 D7 */
-//    GPIO_InitStruct.Pin = GPIO_PIN_0  | GPIO_PIN_1  | GPIO_PIN_5 |\
-//      GPIO_PIN_10 | GPIO_PIN_2 | GPIO_PIN_12 | GPIO_PIN_13;
-//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    GPIO_InitStruct.Alternate = GPIO_AF10_OTG_HS;
-//    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-//
-//    /* STP */
-//    GPIO_InitStruct.Pin = GPIO_PIN_0;
-//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    GPIO_InitStruct.Alternate = GPIO_AF10_OTG_HS;
-//    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-//
-//    /* NXT */
-//    GPIO_InitStruct.Pin = GPIO_PIN_3;
-//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    GPIO_InitStruct.Alternate = GPIO_AF10_OTG_HS;
-//    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-//
-//    /* DIR */
-//    GPIO_InitStruct.Pin = GPIO_PIN_2;
-//    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-//    GPIO_InitStruct.Pull = GPIO_NOPULL;
-//    GPIO_InitStruct.Alternate = GPIO_AF10_OTG_HS;
-//    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    /* Configure DM DP Pins */
+    GPIO_InitStruct.Pin = (GPIO_PIN_11 | GPIO_PIN_12);
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Alternate = GPIO_AF10_OTG_HS;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /* Configure VBUS Pin */
+    GPIO_InitStruct.Pin = GPIO_PIN_9;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /* Configure ID pin */
+    GPIO_InitStruct.Pin = GPIO_PIN_10;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF10_OTG_HS;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
     
     __HAL_RCC_USB_OTG_HS_ULPI_CLK_ENABLE();
    
@@ -586,7 +561,7 @@ void USBD_LL_Delay(uint32_t Delay)
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-#endif //#if 0
+#elif defined(USE_USB_HID)
 /**
   ******************************************************************************
   * @file    Demonstrations/Src/usbd_conf.c
@@ -1063,3 +1038,4 @@ void  USBD_LL_Delay (uint32_t Delay)
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+#endif //USB device type

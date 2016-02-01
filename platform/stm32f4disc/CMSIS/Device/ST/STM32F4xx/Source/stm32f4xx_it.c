@@ -217,6 +217,18 @@ void OTG_FS_IRQHandler(void)
 }
 
 /**
+  * @brief  OTG_HS_IRQHandler
+  *          This function handles USB-On-The-Go HS global interrupt request.
+  *          requests.
+  * @param  None
+  * @retval None
+  */
+void OTG_HS_IRQHandler(void)
+{
+   HAL_PCD_IRQHandler(&hpcd);
+}
+
+/**
   * @}
   */ 
 

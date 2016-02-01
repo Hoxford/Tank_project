@@ -469,7 +469,8 @@ ERROR_CODE eOSAL_Unregister_Queue(tOSAL_Queue_Descriptor * pQueue_Descriptor)
 ******************************************************************************/
 
 /******************************************************************************
-* name: Filename_or_abreviation_funciton
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
 * description:
 * param description: type - value: value description (in order from left to right)
 *                    bool - true: do action when set to true
@@ -489,7 +490,8 @@ ERROR_CODE eOSAL_Task_Param_Init(tOSAL_Task_Parameters *pParam)
 }
 
 /******************************************************************************
-* name: Filename_or_abreviation_funciton
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
 * description:
 * param description: type - value: value description (in order from left to right)
 *                    bool - true: do action when set to true
@@ -528,7 +530,8 @@ ERROR_CODE eOSAL_Task_Create(tOSAL_Task_Parameters *pParam)
 }
 
 /******************************************************************************
-* name: Filename_or_abreviation_funciton
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
 * description:
 * param description: type - value: value description (in order from left to right)
 *                    bool - true: do action when set to true
@@ -566,6 +569,13 @@ ERROR_CODE eOSAL_OS_start(void)
   return eEC;
 }
 
+/******************************************************************************
+* name: eOSAL_Is_OS_Running
+* description: determines if the OS is running and returns the corresponding error code
+* param description: none
+* return value description: ERROR_CODE - ER_TRUE: OS is running
+*                                      - ER_FALSE: OS is not running
+******************************************************************************/
 ERROR_CODE eOSAL_Is_OS_Running(void)
 {
   ERROR_CODE eEC = ER_FALSE;
@@ -667,7 +677,7 @@ ERROR_CODE eOSAL_Mailbox_Params_Init (tOSAL_Mailbox_Handle * ptMbox_handle)
 ERROR_CODE eOSAL_Mailbox_Create  (tOSAL_Mailbox_Handle * ptMbox_handle)
 {
   ERROR_CODE eEC = ER_FAIL;
-
+  vDEBUG_ASSERT("eOSAL_Mailbox_Create not defined", eEC == ER_OK);
   return eEC;
 }
 
@@ -681,7 +691,7 @@ ERROR_CODE eOSAL_Mailbox_Create  (tOSAL_Mailbox_Handle * ptMbox_handle)
 ERROR_CODE eOSAL_Mailbox_Get_msg (tOSAL_Mailbox_Handle * ptMailbox_handle)
 {
   ERROR_CODE eEC = ER_FAIL;
-
+  vDEBUG_ASSERT("eOSAL_Mailbox_Get_msg not defined", eEC == ER_OK);
   return eEC;
 }
 

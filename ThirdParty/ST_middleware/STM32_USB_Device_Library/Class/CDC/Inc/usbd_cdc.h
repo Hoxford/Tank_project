@@ -77,6 +77,7 @@
 #define CDC_GET_LINE_CODING                         0x21
 #define CDC_SET_CONTROL_LINE_STATE                  0x22
 #define CDC_SEND_BREAK                              0x23
+#define CDC_RAW_SEND                                0xF0
 
 /**
   * @}

@@ -20,10 +20,12 @@
 #include "utils_inc/proj_debug.h"
 
 #include "drivers_inc/usb.h"
+#include "usbd_def.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #ifdef USE_USB_CDC
   #include "usbd_cdc.h"
+  #include "usbd_cdc_interface.h"
 #elif USE_USB_HID
   #include "usbd_hid.h"
 #else
@@ -80,12 +82,47 @@ CDC_ApplicationTypeDef AppliState = APPLICATION_IDLE;
 /******************************************************************************
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+typedef struct tUSB_Send
+{
+  bool bIs_Send_Free;
+  uint8_t uiBuff[1024];
+}tUSB_Send;
+
+typedef struct tUSB_Activity_State
+{
+  bool bIs_USB_Ready;
+  tUSB_Send tUSB_Send_Buff;
+  tOSAL_Queue_Handle * pUSB_Queue_Handle;
+}tUSB_Activity_State;
+
+tUSB_Activity_State tUSB_AS =
+{
+  false,//  bool bIs_USB_Ready;
+  //tUSB_Send tUSB_Send_Buff;
+  {
+    false, //bool bIs_Send_Free;
+    //uint8_t uiBuff[1024];
+    {
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    },
+  },
+  NULL, //tOSAL_Queue_Handle * pUSB_Queue_Handle;
+};
+
 USBD_HandleTypeDef  USBD_Device; /* USB Device handle */
-USBD_HandleTypeDef  hUSBDDevice;
 
 typedef struct tUSB_Message_Struct
 {
   USB_MSG_ID eMSG;
+  uint8_t *  pBuff;
+  uint16_t   uiBuff_Len;
 }tUSB_Message_Struct;
 
 /******************************************************************************
@@ -113,48 +150,52 @@ ERROR_CODE eUSB_setup(void)
   ERROR_CODE eEC = ER_FAIL;
   USBD_StatusTypeDef eUSBD_Status = USBD_FAIL;
 
+  if(tUSB_AS.bIs_USB_Ready == false)
+  {
 #if defined(USE_USB_CDC)
-  /* Init Device Library */
-  eUSBD_Status = USBD_Init(&USBD_Device, &VCP_Desc, 0);
+    /* Init Device Library */
+    eUSBD_Status = USBD_Init(&USBD_Device, &VCP_Desc, 0);
 
-  if(eUSBD_Status == USBD_OK)
-  {
-    /* Add Supported Class */
-    eUSBD_Status = USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
-  }
+    if(eUSBD_Status == USBD_OK)
+    {
+      /* Add Supported Class */
+      eUSBD_Status = USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
+    }
 
-  if(eUSBD_Status == USBD_OK)
-  {
-    /* Add CDC Interface Class */
-    eUSBD_Status = USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
-  }
+    if(eUSBD_Status == USBD_OK)
+    {
+      /* Add CDC Interface Class */
+      eUSBD_Status = USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
+    }
 
-  if(eUSBD_Status == USBD_OK)
-  {
-    /* Start Device Process */
-    eUSBD_Status = USBD_Start(&USBD_Device);
-  }
+    if(eUSBD_Status == USBD_OK)
+    {
+      /* Start Device Process */
+      eUSBD_Status = USBD_Start(&USBD_Device);
+    }
 #elif defined(USE_USB_HID)
-  /* Init Device Library */
-  eUSBD_Status = USBD_Init(&hUSBDDevice, &HID_Desc, 0);
+    /* Init Device Library */
+    eUSBD_Status = USBD_Init(&USBD_Device, &HID_Desc, 0);
 
-  if(eUSBD_Status == USBD_OK)
-  {
-    /* Add Supported Class */
-    eUSBD_Status = USBD_RegisterClass(&hUSBDDevice, USBD_HID_CLASS);
-  }
+    if(eUSBD_Status == USBD_OK)
+    {
+      /* Add Supported Class */
+      eUSBD_Status = USBD_RegisterClass(&USBD_Device, USBD_HID_CLASS);
+    }
 
-  if(eUSBD_Status == USBD_OK)
-  {
-    /* Start Device Process */
-    eUSBD_Status = USBD_Start(&hUSBDDevice);
-  }
+    if(eUSBD_Status == USBD_OK)
+    {
+      /* Start Device Process */
+      eUSBD_Status = USBD_Start(&USBD_Device);
+    }
 #else
   #warning NO USB CLASS DEFINED
 #endif
+  }
 
   if(eUSBD_Status == USBD_OK)
   {
+    tUSB_AS.bIs_USB_Ready = true;
     eEC = ER_OK;
   }
 
@@ -162,18 +203,16 @@ ERROR_CODE eUSB_setup(void)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: vUSB_Task
+* description: USB task function. Handles task related interfacing to the USB API.
+* param description: void * - pvParameters: parameter passed to the function from its instantiation.
+* return value description: none
 ******************************************************************************/
 void vUSB_Task(void * pvParameters)
 {
   ERROR_CODE eEC = ER_FAIL;
+  USBD_StatusTypeDef eUSBD_Status = USBD_FAIL;
   tOSAL_Queue_Parameters tUSB_Queue_Param;
-  tOSAL_Queue_Handle * pUSB_Queue_Handle;
   tUSB_Message_Struct tMsg;
 
   //create the USB message queue
@@ -182,8 +221,8 @@ void vUSB_Task(void * pvParameters)
   tUSB_Queue_Param.uiNum_Of_Queue_Elements = 3;
   tUSB_Queue_Param.uiSize_Of_Queue_Element = sizeof(tUSB_Message_Struct);
   tUSB_Queue_Param.pMsgBuff = &tMsg;
-  tUSB_Queue_Param.iTimeout = 10;
-  eEC = eOSAL_Queue_Create(&tUSB_Queue_Param, &pUSB_Queue_Handle);
+  tUSB_Queue_Param.iTimeout = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
+  eEC = eOSAL_Queue_Create(&tUSB_Queue_Param, &tUSB_AS.pUSB_Queue_Handle);
   vDEBUG_ASSERT("vUSB_Task queue create fail", eEC == ER_OK);
 
   //check persistent settings
@@ -195,21 +234,36 @@ void vUSB_Task(void * pvParameters)
 
   while(1)
   {
-    if(eOSAL_Queue_Get_msg(pUSB_Queue_Handle, &tMsg) == ER_OK)
+    if(eOSAL_Queue_Get_msg(tUSB_AS.pUSB_Queue_Handle, &tMsg) == ER_OK)
     {
       switch(tMsg.eMSG)
       {
         case USB_MSG_CONNECT:
+          break;
         case USB_MSG_DISCONNECT:
+          break;
         case USB_MSG_SEND:
+        {
+#if defined(USE_USB_CDC)
+          eUSBD_Status = USBD_CDC_fops.Control(CDC_RAW_SEND, tMsg.pBuff, tMsg.uiBuff_Len);
+          if(eUSBD_Status == USBD_OK)
+          {
+            //TODO: call callbacks
+          }
+#else
+#warning NO USB SEND DEFINED
+#endif //USB SEND
+          break;
+        }
         case USB_MSG_RCV:
+          break;
         default:
           break;
       }
     }
     else
     {
-
+      vDEBUG_ASSERT("vUSB_Task eOSAL_Queue_Get_msg fail", 0);
     }
   }
 }
@@ -251,6 +305,8 @@ ERROR_CODE eUSB_Request_Param_Init(tUsb_Request * pRequest)
 ERROR_CODE eUSB_Request(tUsb_Request * pRequest)
 {
   ERROR_CODE eEC = ER_FAIL;
+  USBD_StatusTypeDef eUSBD_Status = USBD_FAIL;
+  tUSB_Message_Struct tMsg;
 
   if(pRequest->eRequestID == USB_REQUEST_TASK_PARAM)
   {
@@ -264,6 +320,31 @@ ERROR_CODE eUSB_Request(tUsb_Request * pRequest)
   }
   else if(pRequest->eRequestID == USB_REQUEST_INIT)
   {
+
+  }
+  else
+  {
+    switch(pRequest->eRequestID)
+    {
+      case USB_REQUEST_REGISTER_CALLBACK:
+        break;
+      case USB_REQUEST_SEND:
+        tMsg.eMSG = USB_MSG_SEND;
+        memcpy(tUSB_AS.tUSB_Send_Buff.uiBuff, pRequest->pBuff, pRequest->uiSize);
+        eEC = eOSAL_Queue_Post_msg(tUSB_AS.pUSB_Queue_Handle, &tMsg);
+        break;
+      case USB_REQUEST_SEND_IMMEDIATE:
+        eUSBD_Status = USBD_CDC_fops.Control(CDC_RAW_SEND, pRequest->pBuff, pRequest->uiSize);
+        if(eUSBD_Status == USBD_OK)
+        {
+          eEC = ER_OK;
+        }
+        break;
+      case USB_REQUEST_RECEIVE:
+        break;
+      default:
+        break;
+    }
 
   }
 
