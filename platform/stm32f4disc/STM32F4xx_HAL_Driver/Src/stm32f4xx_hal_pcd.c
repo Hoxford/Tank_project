@@ -246,14 +246,14 @@ HAL_StatusTypeDef HAL_PCD_DeInit(PCD_HandleTypeDef *hpcd)
   * @param  hpcd: PCD handle
   * @retval None
   */
-__weak void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
-{
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hpcd);
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PCD_MspInit could be implemented in the user file
-   */
-}
+//__weak void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
+//{
+//  /* Prevent unused argument(s) compilation warning */
+//  UNUSED(hpcd);
+//  /* NOTE : This function Should not be modified, when the callback is needed,
+//            the HAL_PCD_MspInit could be implemented in the user file
+//   */
+//}
 
 /**
   * @brief  DeInitializes PCD MSP.

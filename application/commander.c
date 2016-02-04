@@ -28,6 +28,7 @@
 ******************************************************************************/
 // TASK mappings
   #define TASK_COMMANDER_PRIORITY  6
+  #define TASK_COMMANDER_STACK_SIZE 2048/sizeof(uint32_t) //size in bytes divided by RTOS stack type, portSTACK_TYPE
 //End TASK mappings
 
 //module persistent settings
@@ -243,7 +244,7 @@ ERROR_CODE eCommand_Request(tCommand_Request * pRequest)
     case CMND_REQUEST_TASK_PARAMETERS:
       pRequest->pCommander_Task_Param->pTaskFcn = &vCommander_Task;
       pRequest->pCommander_Task_Param->pName = cCommand_Task_Name;
-      pRequest->pCommander_Task_Param->uiStack_Size = 2048;
+      pRequest->pCommander_Task_Param->uiStack_Size = TASK_COMMANDER_STACK_SIZE;
       pRequest->pCommander_Task_Param->pParameters = NULL;
       pRequest->pCommander_Task_Param->uiTask_Priority = TASK_COMMANDER_PRIORITY;
       eEC = ER_OK;

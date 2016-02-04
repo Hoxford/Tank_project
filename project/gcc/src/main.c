@@ -145,6 +145,7 @@ int main(int argc, char* argv[])
   tCommand_Request tCmnd_Req;
   tNvram_Request tNVReq;
   tUsb_Request tUsb_Req;
+  tCamera_Request tCamera_Req;
 
   eEC = eBSP_Board_Init();
 
@@ -203,6 +204,21 @@ int main(int argc, char* argv[])
     tUsb_Req.eRequestID = USB_REQUEST_TASK_PARAM;
     tUsb_Req.pUsb_Task_Param = &tOSAL_Task_Param;
     eEC = eUSB_Request(&tUsb_Req);
+
+    if(eEC == ER_OK)
+    {
+      eEC = eOSAL_Task_Create(&tOSAL_Task_Param);
+    }
+  }
+
+  if(eEC == ER_OK)
+  {
+    //create Camera task
+    eCamera_Request_Param_Init(&tCamera_Req);
+    eOSAL_Task_Param_Init(&tOSAL_Task_Param);
+    tCamera_Req.eRequestID = CAMERA_REQUEST_TASK_PARAM;
+    tCamera_Req.pCamera_Task_Param = &tOSAL_Task_Param;
+    eEC = eCamera_Request(&tCamera_Req);
 
     if(eEC == ER_OK)
     {

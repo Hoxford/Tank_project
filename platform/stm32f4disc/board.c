@@ -126,6 +126,7 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
     //camera gpio init
     //
     //Config camera reset and power down pins to GPIO
+    __GPIOB_CLK_ENABLE();
     tCamera_GPIO_Init.Pin   = GPIO_PIN_4 | GPIO_PIN_5;
     tCamera_GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
     tCamera_GPIO_Init.Pull  = GPIO_NOPULL;
@@ -133,20 +134,66 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
     HAL_GPIO_Init(GPIOB,&tCamera_GPIO_Init);
 
     //config camera control interface pins to I2C
-    tCamera_GPIO_Init.Pin       = GPIO_PIN_6 | GPIO_PIN_7;
+    __GPIOB_CLK_ENABLE();
+    tCamera_GPIO_Init.Pin       = GPIO_PIN_10 | GPIO_PIN_11;
     tCamera_GPIO_Init.Mode      = GPIO_MODE_AF_PP;
     tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
     tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-    tCamera_GPIO_Init.Alternate = GPIO_AF4_I2C1;
+    tCamera_GPIO_Init.Alternate = GPIO_AF4_I2C2;
     HAL_GPIO_Init(GPIOB,&tCamera_GPIO_Init);
+    __I2C2_CLK_ENABLE();
+
+    //todo I2C init
 
     //config camera pixel(PCLK) and system (XCLK) pins to output timers
-    tCamera_GPIO_Init.Pin       = GPIO_PIN_8 | GPIO_PIN_9;
+    __GPIOD_CLK_ENABLE();
+    tCamera_GPIO_Init.Pin       = GPIO_PIN_14 | GPIO_PIN_15;
     tCamera_GPIO_Init.Mode      = GPIO_MODE_AF_PP;
     tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
     tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
     tCamera_GPIO_Init.Alternate = GPIO_AF2_TIM4;
-    HAL_GPIO_Init(GPIOB,&tCamera_GPIO_Init);
+    HAL_GPIO_Init(GPIOD,&tCamera_GPIO_Init);
+    __TIM4_CLK_ENABLE();
+
+    //todo Timer init
+
+    //config Digital Camera Interface pins
+    __GPIOC_CLK_ENABLE();
+                                  //DCMI 0, 1, 2, 3
+    tCamera_GPIO_Init.Pin       = GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9;
+    tCamera_GPIO_Init.Mode      = GPIO_MODE_INPUT;
+    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
+    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
+    tCamera_GPIO_Init.Alternate = 0;
+    HAL_GPIO_Init(GPIOC, &tCamera_GPIO_Init);
+                                  //DCMI 4, 7
+    __GPIOE_CLK_ENABLE();
+    tCamera_GPIO_Init.Pin       = GPIO_PIN_4 | GPIO_PIN_7;
+    tCamera_GPIO_Init.Mode      = GPIO_MODE_INPUT;
+    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
+    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
+    tCamera_GPIO_Init.Alternate = 0;
+    HAL_GPIO_Init(GPIOE, &tCamera_GPIO_Init);
+                                  //DCMI 5, 6
+    __GPIOB_CLK_ENABLE();
+    tCamera_GPIO_Init.Pin       = GPIO_PIN_6 | GPIO_PIN_8;
+    tCamera_GPIO_Init.Mode      = GPIO_MODE_INPUT;
+    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
+    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
+    tCamera_GPIO_Init.Alternate = 0;
+    HAL_GPIO_Init(GPIOB, &tCamera_GPIO_Init);
+
+    //config HREF horizontal timing VSYNC vertical timing pins
+    __GPIOE_CLK_ENABLE();
+    tCamera_GPIO_Init.Pin       = GPIO_PIN_12 | GPIO_PIN_13;
+    tCamera_GPIO_Init.Mode      = GPIO_MODE_IT_RISING;
+    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
+    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
+    tCamera_GPIO_Init.Alternate = 0;
+    HAL_GPIO_Init(GPIOE, &tCamera_GPIO_Init);
+
+    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0x0F, 0);
+    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
     eEC = ER_OK;
 
@@ -632,7 +679,7 @@ ERROR_CODE eBSP_Board_Init(void)
   __GPIOB_CLK_ENABLE();
   __USART2_CLK_ENABLE();
 //  __I2C1_CLK_ENABLE();
-  __TIM4_CLK_ENABLE();
+
 //  __USB_OTG_HS_CLK_ENABLE();
 
   eEC = eBSP_Camera_Intf_Init();
@@ -642,10 +689,10 @@ ERROR_CODE eBSP_Board_Init(void)
     eEC = eBSP_Wifi_Intf_Init();
   }
 
-//  if(eEC == ER_OK)
-//  {
-//    eEC = eBSP_Usb_Intf_Init();
-//  }
+  if(eEC == ER_OK)
+  {
+    eEC = eBSP_Usb_Intf_Init();
+  }
 
   return eEC;
 }

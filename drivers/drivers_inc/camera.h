@@ -29,6 +29,11 @@
 typedef enum CAMERA_REQUEST_ID
 {
   CAMERA_REQUEST_NONE = 0,
+  CAMERA_REQUEST_TASK_PARAM,
+  CAMERA_REQUEST_REGISTER_CALLBACK,
+  CAMERA_REQUEST_TAKE_SINGLE_IMAGE,
+  CAMERA_REQUEST_START_CONTINUOUS_IMAGE_CAPTURE,
+  CAMERA_REQUEST_STOP_CONTINUOUS_IMAGE_CAPTURE,
   CAMERA_REQUEST_LIMIT,
 }CAMERA_REQUEST_ID;
 
@@ -39,6 +44,7 @@ typedef enum CAMERA_REQUEST_ID
 typedef struct tCamera_Request
 {
   CAMERA_REQUEST_ID eRequestID;
+  tOSAL_Task_Parameters * pCamera_Task_Param;
 }tCamera_Request;
 
 /******************************************************************************

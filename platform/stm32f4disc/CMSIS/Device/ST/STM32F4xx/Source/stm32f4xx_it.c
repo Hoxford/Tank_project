@@ -204,6 +204,35 @@ void EXTI0_IRQHandler(void)
 //  HAL_GPIO_EXTI_IRQHandler(KEY_BUTTON_PIN);
 }
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+void EXTI15_10_IRQHandler(void)
+{
+  GPIO_PinState PinState;
+  uint16_t uiPinSet = 0;
+
+  PinState = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_12);
+  if(PinState == GPIO_PIN_SET)
+  {
+    uiPinSet |= GPIO_PIN_12;
+  }
+
+  PinState = HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_13);
+  if(PinState == GPIO_PIN_SET)
+  {
+    uiPinSet |= GPIO_PIN_13;
+  }
+
+  HAL_GPIO_EXTI_IRQHandler(uiPinSet);
+  return;
+}
+
 /**
   * @brief  OTG_FS_IRQHandler
   *          This function handles USB-On-The-Go FS global interrupt request.

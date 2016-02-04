@@ -37,7 +37,10 @@
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
 #define TASK_USB_PRIORITY    3
+#define TASK_USB_STACK_SIZE 2048/sizeof(uint32_t) //size in bytes divided by RTOS stack type, portSTACK_TYPE
+
 // Define group ID mappings IE:
 // RADIO interface mappings////////////////////////////////
 //  #def RADIO_EXAMPLE_DEF  value  //def description
@@ -138,8 +141,8 @@ ERROR_CODE eUSB_setup(void);
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
+* todo: DESCRIPTION, PARAM, RETURN
+* name:eUSB_setup
 * description:
 * param description: type - value: value description (in order from left to right)
 *                    bool - true: do action when set to true
@@ -313,7 +316,7 @@ ERROR_CODE eUSB_Request(tUsb_Request * pRequest)
     pRequest->pUsb_Task_Param->pName           = cUsb_Task_Name;
     pRequest->pUsb_Task_Param->pParameters     = NULL;
     pRequest->pUsb_Task_Param->pTaskFcn        = vUSB_Task;
-    pRequest->pUsb_Task_Param->uiStack_Size    = 2048;
+    pRequest->pUsb_Task_Param->uiStack_Size    = TASK_USB_STACK_SIZE;
     pRequest->pUsb_Task_Param->uiTask_Priority = TASK_USB_PRIORITY;
 
     eEC = ER_OK;

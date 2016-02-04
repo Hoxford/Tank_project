@@ -30,6 +30,7 @@
 ******************************************************************************/
 
 #define TASK_WIFI_PRIORITY       2
+#define TASK_WIFI_STACK_SIZE 4096/sizeof(uint32_t) //size in bytes divided by RTOS stack type, portSTACK_TYPE
 
 #define WIFI_SEND_BUF_LEN    256
 #define WIFI_RCV_BUF_LEN    256
@@ -673,8 +674,8 @@ void vWifi_Driver_Task(void * pvParameters)
   eOSAL_Queue_Params_Init(&tWifi_Queue_Param);
   tWifi_Queue_Param.uiNum_Of_Queue_Elements = 3;
   tWifi_Queue_Param.uiSize_Of_Queue_Element = sizeof(tWifi_Message_Struct);
-  tWifi_Queue_Param.pMsgBuff = &tMsg;
-  tWifi_Queue_Param.iTimeout = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
+  tWifi_Queue_Param.pMsgBuff                = &tMsg;
+  tWifi_Queue_Param.iTimeout                = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
 
   eEC = eOSAL_Queue_Create(&tWifi_Queue_Param, &pWifi_Queue_Handle);
   vDEBUG_ASSERT("vWifi_Driver_Task queue create fail", eEC == ER_OK);
@@ -725,7 +726,6 @@ void vWifi_Driver_Task(void * pvParameters)
 
   while(1)
   {
-    eOSAL_delay(1000, NULL);
     if(eOSAL_Queue_Get_msg(pWifi_Queue_Handle, &tMsg) == ER_OK)
     {
       switch(tMsg.eMSG)
@@ -796,10 +796,10 @@ ERROR_CODE eWifi_Request(tWifi_Request * pRequest)
 
   if(pRequest->eRequestID == WIFI_REQUEST_TASK_PARAMETERS)
   {
-    pRequest->pWifi_Task_Param->pTaskFcn = &vWifi_Driver_Task;
-    pRequest->pWifi_Task_Param->pName = cWifi_Task_Name;
-    pRequest->pWifi_Task_Param->uiStack_Size = 4096;
-    pRequest->pWifi_Task_Param->pParameters = NULL;
+    pRequest->pWifi_Task_Param->pTaskFcn        = &vWifi_Driver_Task;
+    pRequest->pWifi_Task_Param->pName           = cWifi_Task_Name;
+    pRequest->pWifi_Task_Param->uiStack_Size    = TASK_WIFI_STACK_SIZE;
+    pRequest->pWifi_Task_Param->pParameters     = NULL;
     pRequest->pWifi_Task_Param->uiTask_Priority = TASK_WIFI_PRIORITY;
 
     eEC = ER_OK;
