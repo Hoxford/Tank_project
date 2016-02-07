@@ -30,6 +30,9 @@
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+//camera defines
+#define CAMERA_TIMER_INSTANCE  TIM4
+#define CAMERA_I2C_INSTANCE    I2C2
 
 //wifi defines
 #define WIFI_TX_BUF_LEN  512
@@ -88,6 +91,8 @@ tBSP_Activity_State tBSP_AS =
 
 //USART_HandleTypeDef tWifi_UART_Handle;
 UART_HandleTypeDef  tWifi_UART_Handle;
+TIM_HandleTypeDef   tCamera_Timer_Handle;
+I2C_HandleTypeDef   tCamera_I2C_Handle;
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +125,7 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
   GPIO_InitTypeDef      tCamera_GPIO_Init;
+  uint32_t uwPrescalerValue;
 
   if(tBSP_AS.bIs_Camera_Intf_Init == false)
   {
@@ -143,7 +149,22 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
     HAL_GPIO_Init(GPIOB,&tCamera_GPIO_Init);
     __I2C2_CLK_ENABLE();
 
-    //todo I2C init
+    //I2C init
+    tCamera_I2C_Handle.Instance             = CAMERA_I2C_INSTANCE;
+    tCamera_I2C_Handle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+    tCamera_I2C_Handle.Init.ClockSpeed      = 400000;
+    tCamera_I2C_Handle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    tCamera_I2C_Handle.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
+    tCamera_I2C_Handle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    tCamera_I2C_Handle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+    tCamera_I2C_Handle.Init.OwnAddress1     = I2C_ADDRESS;
+    tCamera_I2C_Handle.Init.OwnAddress2     = 0;
+
+    if(HAL_I2C_Init(&I2CxHandle) != HAL_OK)
+    {
+      /* Initialization Error */
+      eEC = ER_FAIL;
+    }
 
     //config camera pixel(PCLK) and system (XCLK) pins to output timers
     __GPIOD_CLK_ENABLE();
@@ -155,7 +176,29 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
     HAL_GPIO_Init(GPIOD,&tCamera_GPIO_Init);
     __TIM4_CLK_ENABLE();
 
-    //todo Timer init
+    //Timer init
+    /* Compute the prescaler value to have TIM4 counter clock equal to 10 MHz */
+    uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 10000000) - 1;
+
+    /* Set TIMx instance */
+    tCamera_Timer_Handle.Instance = CAMERA_TIMER_INSTANCE;
+
+    /* Initialize TIM4 peripheral as follow:
+         + Period = 10000000 - 1
+         + Prescaler = ((SystemCoreClock/2)/10000000) - 1
+         + ClockDivision = 0
+         + Counter direction = Up
+    */
+    tCamera_Timer_Handle.Init.Period = uwPrescalerValue/2;
+    tCamera_Timer_Handle.Init.Prescaler = uwPrescalerValue;
+    tCamera_Timer_Handle.Init.ClockDivision = 0;
+    tCamera_Timer_Handle.Init.CounterMode = TIM_COUNTERMODE_UP;
+    if(HAL_TIM_Base_Init(&tCamera_Timer_Handle) != HAL_OK)
+    {
+      eEC = ER_FAIL;
+    }
+
+    HAL_TIM_Base_Start(&tCamera_Timer_Handle);
 
     //config Digital Camera Interface pins
     __GPIOC_CLK_ENABLE();
