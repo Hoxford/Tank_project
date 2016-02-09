@@ -76,9 +76,13 @@ int example_function(param_1, param_2); //short function declaration description
 * todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* parameters: 
+*   type - value: value description (in order from left to right)
+*   bool - true: do action when set to true
+* return value description: 
+*   type - value: value description
+*   uint32_t - 0: did function action with return value of this
+*            - 1: did function action with return value of this
 ******************************************************************************/
 int example_PrivateFunction(param_1, param_2)
 {
@@ -92,9 +96,13 @@ int example_PrivateFunction(param_1, param_2)
 * todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* parameters: 
+*   type - value: value description (in order from left to right)
+*   bool - true: do action when set to true
+* return value description: 
+*   type - value: value description
+*   uint32_t - 0: did function action with return value of this
+*            - 1: did function action with return value of this
 ******************************************************************************/
 int iFilename_or_abreviation_funciton(param_1, param_2)
 {

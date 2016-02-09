@@ -59,5 +59,6 @@ extern int external_example_function(param); //short external function descripti
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+int iFilename_or_abreviation_funciton(param_1, param_2);  //breif function description
 
 #endif //__FILE_NAME_H__
