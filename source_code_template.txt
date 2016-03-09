@@ -27,8 +27,9 @@
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-int     iExample_var;  //variable description
-uin32_t uiAnother_var;
+int       iExample_var;  //variable description
+uin32_t   uiAnother_var;
+uin32_t * pFoo;
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,24 +40,25 @@ extern int iExample_extern_var;  //external variable description
 * enums ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 //eExample_enum description
-typedef enum
+typedef enum eEXAMPLE_ENUM
 {
     enum_1,
     enum_2,
-    enum_3....
-}eExample_enum;
+    enum_3
+}eEXAMPLE_ENUM;
 
-eExample_enum eMy_enum; //short eMy_enum description
+eEXAMPLE_ENUM eMY_ENUM; //short description
 
 /******************************************************************************
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 //tExample_struct description
-typedef struct
+typedef struct tExample_Struct
 {
-    int var1;
-    ....
-}tExample_struct;
+  int           iFoo;
+  uint32_t *    pFoo;
+  eEXAMPLE_ENUM eFOO;
+}tExample_Struct, * Example_Struct;
 
 tExample_struct tMy_struct;  //short tMy_struct description
 
@@ -67,28 +69,54 @@ extern int external_example_function(param); //short external function descripti
 /******************************************************************************
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-int example_function(param_1, param_2); //short function declaration description
+bool           bExample_PrivateFunction(param_1, param_2); //short function declaration description
+int            iExample_PrivateFunction(param_1, param_2); //short function declaration description
+Example_Struct pExample_PrivateFunction(param_1, param_2); //short function declaration description
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 /******************************************************************************
 * todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
+* name: [put name here]
 * description:
 *   [put description here]
 * parameters: 
 *   type - value: value description (in order from left to right)
 *   example:
 *   bool - true: do action when set to true
+*        - false: do action when set to false
+*   Example_Struct - pStruct:
+*     (int)->iFoo: Structure member description
+*     (uint32_t *)->pFoo: Structure member description
+*     (eEXAMPLE_ENUM)->eFOO: Structure member description
+*     
 * return value description: 
 *   type - value: value description
-*   example:
-*   uint32_t - 0: did function action with return value of this
-*            - 1: did function action with return value of this
+*   examples:
+*   bool - true: did function action and result is true
+*        - false: did function action and result is false
+*   uint32_t - : integer value after function action
+*   Example_Struct - *: address of the created object
+*                  - NULL: created object fail
 ******************************************************************************/
-int example_PrivateFunction(param_1, param_2)
+bool bExample_PrivateFunction(param_1, param_2)
 {
+  bool bFoo = false;
+  return bFoo;
+}
+/**/
+int iExample_PrivateFunction(param_1, param_2)
+{
+  int iFoo = 0;
+  return iFoo;
+}
+/**/
+Example_Struct pExample_PrivateFunction(param_1, param_2)
+{
+  Example_Struct pStruct = NULL;
+  pStruct = malloc(sizeof(tExample_Struct, ));
+  return pStruct;
 }
 
 /******************************************************************************
@@ -97,21 +125,45 @@ int example_PrivateFunction(param_1, param_2)
 
 /******************************************************************************
 * todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
+* name: [put name here]
 * description:
 *   [put description here]
 * parameters: 
 *   type - value: value description (in order from left to right)
 *   example:
 *   bool - true: do action when set to true
+*        - false: do action when set to false
+*   Example_Struct - pStruct:
+*     (int)->iFoo: Structure member description
+*     (uint32_t *)->pFoo: Structure member description
+*     (eEXAMPLE_ENUM)->eFOO: Structure member description
+*     
 * return value description: 
 *   type - value: value description
-*   example:
-*   uint32_t - 0: did function action with return value of this
-*            - 1: did function action with return value of this
+*   examples:
+*   bool - true: did function action and result is true
+*        - false: did function action and result is false
+*   int - : integer value description after function action
+*   Example_Struct - *: address of the created object
+*                  - NULL: created object fail
 ******************************************************************************/
+bool bFilename_or_abreviation_funciton(param_1, param_2)
+{
+  bool bFoo = false;
+  return bFoo;
+}
+/**/
 int iFilename_or_abreviation_funciton(param_1, param_2)
 {
+  int iFoo = 0;
+  return iFoo;
+}
+/**/
+Example_Struct pFilename_or_abreviation_funciton(param_1, param_2)
+{
+  Example_Struct pStruct = NULL;
+  pStruct = malloc(sizeof(tExample_Struct, ));
+  return pStruct;
 }
 
 #endif //__FILE_NAME_C__
