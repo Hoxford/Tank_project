@@ -30,14 +30,14 @@ extern int iExample_extern_var;  //external variable description
 *public enums /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 //eExample_enum description
-typedef enum
+typedef enum EXAMPLE_ENUM
 {
     enum_1,
     enum_2,
-    enum_3....
-}eExample_enum;
+    enum_3
+}eEXAMPLE_ENUM;
 
-eExample_enum eMy_enum; //short eMy_enum description
+eEXAMPLE_ENUM eMY_ENUM; //short description
 
 /******************************************************************************
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

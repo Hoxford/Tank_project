@@ -53,7 +53,7 @@ void vDEBUG_ASSERT(a, ...);
 *public defines ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 #if (DEBUG_LOG_LEVEL == 0)
-
+  #define vDEBUG_LVL(x, a, ...)
 #elif (DEBUG_LOG_LEVEL == 1)
 #else
   #error "DEBUG_LOG_LEVEL invalid value, default 0"
@@ -66,16 +66,14 @@ void vDEBUG_ASSERT(a, ...);
 #endif
 
 #if (DEBUG_OUT == 0)
-#define vDEBUG(a, ...)
+  #define vDEBUG(a, ...)
 #elif (DEBUG_OUT  == 1)
-
 #else
   #error "DEBUG_OUT invalid value, default 0"
 #endif
 
 #if (DEBUG_IN == 0)
 #elif (DEBUG_IN  == 1)
-
 #else
   #error "DEBUG_IN invalid value, default 0"
 #endif
@@ -110,7 +108,7 @@ void vDEBUG_ASSERT(a, ...);
 #define  DEBUG_BAUD                115200
 #define  DEBUG_UART_CONFIG         (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE)
 
-//Debug pin 1 mappings
+//Debug pin A mappings
 //
 #define DEBUG_GPIO_PORT_1          GPIO_PORTB_BASE
 #define DEBUG_GPIO_PIN_1           GPIO_PIN_3
@@ -129,6 +127,20 @@ void vDEBUG_ASSERT(a, ...);
 *public enums /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+#if (DEBUG_LOG_LEVEL >= 1)
+typedef enum LOG_LEVEL
+{
+  LOG_LVL_NONE = 0,
+  LOG_LVL_APP,
+  LOG_LVL_DRIVER,
+  LOG_LVL_PLATFORM,
+  LOG_LVL_THIRD_PARTY,
+  LOG_LVL_UTILITY,
+  LOG_LVL_MAX,
+}eDEBUG_LOG_LEVEL;
+#endif //#if (DEBUG_LOG_LEVEL >= 1)
+
+
 /******************************************************************************
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -143,13 +155,24 @@ void vDEBUG_ASSERT(a, ...);
 
 void __error__(char *pcFilename, uint32_t ui32Line);
 //void vUSB_driverlib_out(char *pcFilename, uint32_t ui32Line); //USB driverlib debug api
-#if (DEBUG_OUT  == 1)
+#if (DEBUG_OUT  >= 1)
   void vDEBUG(char * cMsg,...);
-#endif
-void vDEBUG_ASSERT(char * cMsg,int iAssert);
-void vDEBUG_GPIO_SET_A(void);
-void vDEBUG_GPIO_CLR_A(void);
-void vDEBUG_GPIO_TOGGLE_A(void);
+#endif //#if (DEBUG_OUT  == 1)
+
+#if  ((DEBUG_LOG_LEVEL >= 1) & (DEBUG_OUT >= 1) & (DEBUG_IN >= 1))
+  void vDEBUG_LVL(eDEBUG_LOG_LEVEL eLog_Lvl, char * cMsg, ...);
+#endif //#if (DEBUG_LOG_LEVEL >= 1)
+
+#if (DEBUG_ASSERT >= 1)
+  void vDEBUG_ASSERT(char * cMsg,int iAssert);
+#endif //#if (DEBUG_ASSERT >= 1)
+
+#if (DEBUG_GPIO_A  >= 1)
+  void vDEBUG_GPIO_SET_A(void);
+  void vDEBUG_GPIO_CLR_A(void);
+  void vDEBUG_GPIO_TOGGLE_A(void);
+#endif //#if (DEBUG_GPIO_A  >= 1)
+
 void vDEBUG_init(void);
 
 #endif //__PROJ_DEBUG_H__

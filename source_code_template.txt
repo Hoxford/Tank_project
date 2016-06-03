@@ -40,7 +40,7 @@ extern int iExample_extern_var;  //external variable description
 * enums ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 //eExample_enum description
-typedef enum eEXAMPLE_ENUM
+typedef enum EXAMPLE_ENUM
 {
     enum_1,
     enum_2,

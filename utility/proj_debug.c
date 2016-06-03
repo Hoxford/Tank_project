@@ -40,11 +40,38 @@
 #define DBG_CRNL_LEN 2
 #define DBG_STR_LEN 64
 
+#define DBG_RCV_BUFF_LEN    128
+
+#define DBG_LOG_EN_NONE           0x0000001
+#define DBG_LOG_EN_APP            0x0000002
+#define DBG_LOG_EN_DRIVER         0x0000004
+#define DBG_LOG_EN_PLATFORM       0x0000008
+#define DBG_LOG_EN_THIRD_PARTY    0x0000010
+#define DBG_LOG_EN_UTILITY        0x0000020
+
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
 char cDBG_String[DBG_STR_LEN];
+#if (DEBUG_IN >= 1)
+char cDebug_Context_Home[] = "\r\n                                           \
+                              Home debug menu                            \r\n\
+                              Enter a number from below and press enter: \r\n\
+                              1)Debug Level                              \r\n\
+                              ->";
+
+char cDebug_Context_Log_Level[] = "\r\n                                       \
+                                   Log level enable/disable menu          \r\n\
+                                   Enter a log level to enable/disable    \r\n\
+                                   [ ] = disabled, [X] = enabled          \r\n\
+                                   1)APP[%c]                              \r\n\
+                                   2)DRIVER[%c]                           \r\n\
+                                   3)PLATFORM[%c]                         \r\n\
+                                   4)THIRD_PARTY[%c]                      \r\n\
+                                   5)UTILITY[%c]                          \r\n\
+                                   ->";
+#endif //#if (DEBUG_IN >= 1)
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,18 +81,45 @@ char cDBG_String[DBG_STR_LEN];
 * enums ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+typedef enum DEBUG_IN_CONTEXT
+{
+  DEBUG_CONTEXT_NONE,
+  DEBUG_CONTEXT_HOME,
+  DEBUG_CONTEXT_LOG_LEVEL,
+  //DEBUG_CONTEXT_tbd,
+  DEBUG_CONTEXT_LIMIT,
+}eDEBUG_IN_CONTEXT;
+
 /******************************************************************************
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-typedef struct tDebut_Activity_State
+typedef struct tDebug_Activity_State
 {
   bool bIs_Debug_UART_Setup;
+
+#if (DEBUG_IN >= 1)
+  eDEBUG_IN_CONTEXT eDbg_In_Context;
+  char cDbg_Rcv_Buff[DBG_RCV_BUFF_LEN];
+#endif //#if (DEBUG_IN >= 1)
+
+  uint32_t  uiLog_Level_En;
 }tDebug_Activity_State;
 
 tDebug_Activity_State tDebug_AS =
 {
   false, //bool bIs_Debug_UART_Setup;
+
+#if (DEBUG_IN >= 1)
+  0, //eDEBUG_IN_CONTEXT eDbg_In_Context;
+  //char cDbg_Rcv_Buff[DBG_RCV_BUFF_LEN];
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+#endif //#if (DEBUG_IN >= 1)
+
+  0,     //uint32_t  uiLog_Level_En;
 };
 
 USART_HandleTypeDef * ptDebug_UART_Handle = NULL;
@@ -83,13 +137,13 @@ USART_HandleTypeDef tDebug_UART_Handle;
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+#if(DEBUG_OUT >= 1)
 //*****************************************************************************
 // name: vDEBUG
 // description: sends a message out the debug message interface
 // param description: none
 // return value description: none
 //*****************************************************************************
-#if(DEBUG_OUT >= 1)
 void vDEBUG(char * cMsg, ...)
 {
   HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
@@ -121,6 +175,37 @@ void vDEBUG(char * cMsg, ...)
 }
 #endif //#if(DEBUG_OUT >= 1)
 
+#if (DEBUG_IN >= 1)
+void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
+{
+
+}
+
+void vDEBUG_IN(char * pChar)
+{
+  memcpy(tDebug_AS.cDbg_Rcv_Buff, &tDebug_AS.cDbg_Rcv_Buff[1], DBG_RCV_BUFF_LEN);
+  tDebug_AS.cDbg_Rcv_Buff[0] = *pChar;
+  vDEBUG('\r');
+  vDEBUG(tDebug_AS.cDbg_Rcv_Buff);
+}
+#endif //#if (DEBUG_IN >= 1)
+
+#if ((DEBUG_LOG_LEVEL >= 1) & (DEBUG_OUT >= 1) & (DEBUG_IN >= 1))
+//*****************************************************************************
+// name: vDEBUG_LVL
+// description: sends a message out the debug message interface according to
+//              enabled log levels.
+// param description: none
+// return value description: none
+//*****************************************************************************
+void vDEBUG_LVL(eDEBUG_LOG_LEVEL eLog_Lvl, char * cMsg, ...)
+{
+  return;
+}
+#endif //((DEBUG_LOG_LEVEL >= 1) & (DEBUG_OUT >= 1))
+
+
+#if (DEBUG_ASSERT  >= 1)
 void vDEBUG_ASSERT(char * cMsg,int iAssert)
 {
 //  ERROR_CODE eEC = ER_FAIL;
@@ -154,7 +239,9 @@ void vDEBUG_ASSERT(char * cMsg,int iAssert)
     while (1){}
   }
 }
+#endif //#if (DEBUG_ASSERT  >= 1)
 
+#if (DEBUG_GPIO_A  >= 1)
 /******************************************************************************
 * name: vDEBUG_GPIO_SET_A
 * description: sets high DEBUG_GPIO_PIN_A
@@ -164,6 +251,7 @@ void vDEBUG_ASSERT(char * cMsg,int iAssert)
 void vDEBUG_GPIO_SET_A(void)
 {
   //todo: set gpio pin
+  __ASM volatile("BKPT 0x00A8");
   return;
 }
 
@@ -176,6 +264,7 @@ void vDEBUG_GPIO_SET_A(void)
 void vDEBUG_GPIO_CLR_A(void)
 {
   //todo: clear pin
+  __ASM volatile("BKPT 0x00A8");
   return;
 }
 
@@ -188,9 +277,10 @@ void vDEBUG_GPIO_CLR_A(void)
 void vDEBUG_GPIO_TOGGLE_A(void)
 {
   //todo: toggle pin
-
+  __ASM volatile("BKPT 0x00A8");
   return;
 }
+#endif //#if (DEBUG_GPIO_A  >= 1)
 
 /******************************************************************************
 * name: vDEBUG_init
@@ -263,6 +353,12 @@ void vDEBUG_init(void)
       tDebug_AS.bIs_Debug_UART_Setup = true;
     }
   }
+
+#if (DEBUG_IN >= 1)
+  vDEBUG(cDebug_Context_Home);
+  tDebug_AS.eDbg_In_Context = DEBUG_CONTEXT_HOME;
+#endif //#if (DEBUG_IN >= 1)
+
   //todo detect debugger eEC = eBSP_debugger_detect();
 //  if(eEC == ER_OK)
 //  {
