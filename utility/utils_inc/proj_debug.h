@@ -47,9 +47,55 @@ void vDEBUG_ASSERT(a, ...);
 * includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+#include "proj_debug_config.h"
+
 /******************************************************************************
 *public defines ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+#if (DEBUG_LOG_LEVEL == 0)
+
+#elif (DEBUG_LOG_LEVEL == 1)
+#else
+  #error "DEBUG_LOG_LEVEL invalid value, default 0"
+#endif
+
+#if (DEBUG_PERSISTANT_SETTINGS == 0)
+#elif (DEBUG_PERSISTANT_SETTINGS == 1)
+#else
+  #error "DEBUG_PERSISTANT_SETTINGS invalid value, default 0"
+#endif
+
+#if (DEBUG_OUT == 0)
+#define vDEBUG(a, ...)
+#elif (DEBUG_OUT  == 1)
+
+#else
+  #error "DEBUG_OUT invalid value, default 0"
+#endif
+
+#if (DEBUG_IN == 0)
+#elif (DEBUG_IN  == 1)
+
+#else
+  #error "DEBUG_IN invalid value, default 0"
+#endif
+
+#if (DEBUG_ASSERT == 0)
+  #define vDEBUG_ASSERT(a, x)
+#elif (DEBUG_ASSERT == 1)
+#else
+  #error "DEBUG_ASSERT invalid value, default 0"
+#endif
+
+#if (DEBUG_GPIO_A == 0)
+  #define vDEBUG_GPIO_SET_A()
+  #define vDEBUG_GPIO_CLR_A()
+  #define vDEBUG_GPIO_TOGGLE_A()
+#elif (DEBUG_GPIO_A == 1)
+#else
+  #error "DEBUG_GPIO_A invalid value, default 0"
+#endif
+
 // Debug uart mappings
 //
 #define  DEBUG_SYSCTL_PERIPH_GPIO  SYSCTL_PERIPH_GPIOC
@@ -97,11 +143,13 @@ void vDEBUG_ASSERT(a, ...);
 
 void __error__(char *pcFilename, uint32_t ui32Line);
 //void vUSB_driverlib_out(char *pcFilename, uint32_t ui32Line); //USB driverlib debug api
-void vDEBUG(char * cMsg,...);
+#if (DEBUG_OUT  == 1)
+  void vDEBUG(char * cMsg,...);
+#endif
 void vDEBUG_ASSERT(char * cMsg,int iAssert);
-void vDEBUG_GPIO_SET_1(void);
-void vDEBUG_GPIO_CLR_1(void);
-void vDEBUG_GPIO_TOGGLE_1(void);
+void vDEBUG_GPIO_SET_A(void);
+void vDEBUG_GPIO_CLR_A(void);
+void vDEBUG_GPIO_TOGGLE_A(void);
 void vDEBUG_init(void);
 
 #endif //__PROJ_DEBUG_H__

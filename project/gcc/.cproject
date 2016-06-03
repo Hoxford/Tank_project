@@ -86,6 +86,7 @@
 									<listOptionValue builtIn="false" value="../../../drivers/drivers_inc"/>
 									<listOptionValue builtIn="false" value="../../../drivers"/>
 									<listOptionValue builtIn="false" value="../../../utility"/>
+									<listOptionValue builtIn="false" value="../../../utility/utils_inc"/>
 									<listOptionValue builtIn="false" value="&quot;../../../project/gcc/include&quot;"/>
 									<listOptionValue builtIn="false" value="../../../platform/stm32f4disc"/>
 									<listOptionValue builtIn="false" value="&quot;../../../platform/stm32f4disc/CMSIS/Device/ST/include&quot;"/>

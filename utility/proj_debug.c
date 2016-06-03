@@ -89,6 +89,7 @@ USART_HandleTypeDef tDebug_UART_Handle;
 // param description: none
 // return value description: none
 //*****************************************************************************
+#if(DEBUG_OUT >= 1)
 void vDEBUG(char * cMsg, ...)
 {
   HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
@@ -118,6 +119,7 @@ void vDEBUG(char * cMsg, ...)
   }
   return;
 }
+#endif //#if(DEBUG_OUT >= 1)
 
 void vDEBUG_ASSERT(char * cMsg,int iAssert)
 {
@@ -154,24 +156,24 @@ void vDEBUG_ASSERT(char * cMsg,int iAssert)
 }
 
 /******************************************************************************
-* name: vDEBUG_GPIO_SET_1
-* description: sets high DEBUG_GPIO_PIN_1
+* name: vDEBUG_GPIO_SET_A
+* description: sets high DEBUG_GPIO_PIN_A
 * param description:
 * return value description:
 ******************************************************************************/
-void vDEBUG_GPIO_SET_1(void)
+void vDEBUG_GPIO_SET_A(void)
 {
   //todo: set gpio pin
   return;
 }
 
 /******************************************************************************
-* name: vDEBUG_GPIO_CLR_1
-* description: sets low DEBUG_GPIO_PIN_1
+* name: vDEBUG_GPIO_CLR_A
+* description: sets low DEBUG_GPIO_PIN_A
 * param description:
 * return value description:
 ******************************************************************************/
-void vDEBUG_GPIO_CLR_1(void)
+void vDEBUG_GPIO_CLR_A(void)
 {
   //todo: clear pin
   return;
@@ -183,7 +185,7 @@ void vDEBUG_GPIO_CLR_1(void)
 * param description:
 * return value description:
 ******************************************************************************/
-void vDEBUG_GPIO_TOGGLE_1(void)
+void vDEBUG_GPIO_TOGGLE_A(void)
 {
   //todo: toggle pin
 
