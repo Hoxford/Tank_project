@@ -33,6 +33,7 @@
 //camera defines
 #define CAMERA_TIMER_INSTANCE  TIM4
 #define CAMERA_I2C_INSTANCE    I2C2
+#define I2C_ADDRESS            0x30F
 
 //wifi defines
 #define WIFI_TX_BUF_LEN  512
@@ -160,7 +161,7 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
     tCamera_I2C_Handle.Init.OwnAddress1     = I2C_ADDRESS;
     tCamera_I2C_Handle.Init.OwnAddress2     = 0;
 
-    if(HAL_I2C_Init(&I2CxHandle) != HAL_OK)
+    if(HAL_I2C_Init(&tCamera_I2C_Handle) != HAL_OK)
     {
       /* Initialization Error */
       eEC = ER_FAIL;
@@ -184,7 +185,7 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
     tCamera_Timer_Handle.Instance = CAMERA_TIMER_INSTANCE;
 
     /* Initialize TIM4 peripheral as follow:
-         + Period = 10000000 - 1
+         + Period = uwPrescalerValue/2
          + Prescaler = ((SystemCoreClock/2)/10000000) - 1
          + ClockDivision = 0
          + Counter direction = Up
@@ -414,6 +415,36 @@ ERROR_CODE eBSP_SystemClock_Config(void)
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_Camera_Intf_Send(tBSP_Camera_Send * pParam)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  return eEC;
+}
+
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_Camera_Intf_Receive(tBSP_Camera_Receive * pParam)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  return eEC;
+}
 
 /******************************************************************************
 * todo: NAME, DESCRIPTION, PARAM, RETURN

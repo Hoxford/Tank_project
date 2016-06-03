@@ -31,6 +31,18 @@
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+typedef struct tBSP_Camera_Send
+{
+  uint16_t uiBuffLen;
+  uint8_t * pBuff;
+}tBSP_Camera_Send;
+
+typedef struct tBSP_Camera_Receive
+{
+  uint16_t uiBuffLen;
+  uint8_t * pBuff;
+}tBSP_Camera_Receive;
+
 typedef struct tBSP_tWifi_Transmit
 {
   uint8_t * pBuff;
@@ -65,6 +77,8 @@ typedef struct tBSP_Flash_Write
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+ERROR_CODE eBSP_Camera_Intf_Send(tBSP_Camera_Send * pParam);
+ERROR_CODE eBSP_Camera_Intf_Receive(tBSP_Camera_Receive * pParam);
 ERROR_CODE eBSP_Wifi_Rst_Clr(void);
 ERROR_CODE eBSP_Wifi_Rst_Set(void);
 ERROR_CODE eBSP_Wifi_Rst(void);
