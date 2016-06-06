@@ -33,6 +33,10 @@
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+//platform defines
+#define DBG_STM32F4
+
+
 #define SYS_HALT_MSG  "****!!!!SYS HALT!!!!****\r\n"
 #define SYS_ASSERT_RST_MSG  "****!!!!SYS ASSERT RESET!!!!****\r\n"
 
@@ -54,7 +58,7 @@
 ******************************************************************************/
 
 char cDBG_String[DBG_STR_LEN];
-#if (DEBUG_IN >= 1)
+#if (DEBUG_CFG_DEBUG_IN >= 1)
 char cDebug_Context_Home[] = "\r\n                                           \
                               Home debug menu                            \r\n\
                               Enter a number from below and press enter: \r\n\
@@ -71,7 +75,7 @@ char cDebug_Context_Log_Level[] = "\r\n                                       \
                                    4)THIRD_PARTY[%c]                      \r\n\
                                    5)UTILITY[%c]                          \r\n\
                                    ->";
-#endif //#if (DEBUG_IN >= 1)
+#endif //#if (DEBUG_CFG_DEBUG_IN >= 1)
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,10 +102,10 @@ typedef struct tDebug_Activity_State
 {
   bool bIs_Debug_UART_Setup;
 
-#if (DEBUG_IN >= 1)
+#if (DEBUG_CFG_DEBUG_IN >= 1)
   eDEBUG_IN_CONTEXT eDbg_In_Context;
   char cDbg_Rcv_Buff[DBG_RCV_BUFF_LEN];
-#endif //#if (DEBUG_IN >= 1)
+#endif //#if (DEBUG_CFG_DEBUG_IN >= 1)
 
   uint32_t  uiLog_Level_En;
 }tDebug_Activity_State;
@@ -110,20 +114,25 @@ tDebug_Activity_State tDebug_AS =
 {
   false, //bool bIs_Debug_UART_Setup;
 
-#if (DEBUG_IN >= 1)
+#if (DEBUG_CFG_DEBUG_IN >= 1)
   0, //eDEBUG_IN_CONTEXT eDbg_In_Context;
   //char cDbg_Rcv_Buff[DBG_RCV_BUFF_LEN];
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-#endif //#if (DEBUG_IN >= 1)
+#endif //#if (DEBUG_CFG_DEBUG_IN >= 1)
 
   0,     //uint32_t  uiLog_Level_En;
 };
 
-USART_HandleTypeDef * ptDebug_UART_Handle = NULL;
-USART_HandleTypeDef tDebug_UART_Handle;
+
+#ifdef DBG_STM32F4
+  USART_HandleTypeDef * ptDebug_UART_Handle = NULL;
+  USART_HandleTypeDef tDebug_UART_Handle;
+#elif
+  #error "No debug interface handles defined"
+#endif
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,11 +142,98 @@ USART_HandleTypeDef tDebug_UART_Handle;
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+void vDbg_Interface_Out(char * cString, uint32_t uiLen);
+bool bDbg_Detect_Debugger(void);
+
+/******************************************************************************
+* private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+******************************************************************************/
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: [put name here]
+* description:
+*   [put description here]
+* parameters:
+*   type - value: value description (in order from left to right)
+*   example:
+*   bool - true: do action when set to true
+*        - false: do action when set to false
+*   Example_Struct - pStruct:
+*     (int)->iFoo: Structure member description
+*     (uint32_t *)->pFoo: Structure member description
+*     (eEXAMPLE_ENUM)->eFOO: Structure member description
+*
+* return value description:
+*   type - value: value description
+*   examples:
+*   bool - true: did function action and result is true
+*        - false: did function action and result is false
+*   uint32_t - : integer value after function action
+*   Example_Struct - *: address of the created object
+*                  - NULL: created object fail
+******************************************************************************/
+void vDbg_Interface_Out(char * cString, uint32_t uiLen)
+{
+#ifdef DBG_STM32F4
+  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+
+  eHAL_Status = HAL_USART_Transmit(&tDebug_UART_Handle, (uint8_t *)cString, uiLen, 3000);
+
+//  memset(cDBG_String, 0x00, (DBG_CRNL_LEN + 1));
+//  memcpy(cDBG_String, DBG_CRNL, DBG_CRNL_LEN);
+//  eHAL_Status = HAL_USART_Transmit(&tDebug_UART_Handle, (uint8_t *)cDBG_String, DBG_CRNL_LEN, 3000);
+  eHAL_Status = HAL_USART_Transmit(&tDebug_UART_Handle, (uint8_t *)DBG_CRNL, DBG_CRNL_LEN, 3000);
+
+  if(eHAL_Status != HAL_OK)
+  {
+    while(1){};
+  }
+#elif
+  #error "No debug interface out api defined"
+#endif
+
+  return;
+}
+
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: [put name here]
+* description:
+*   [put description here]
+* parameters:
+*   type - value: value description (in order from left to right)
+*   example:
+*   bool - true: do action when set to true
+*        - false: do action when set to false
+*   Example_Struct - pStruct:
+*     (int)->iFoo: Structure member description
+*     (uint32_t *)->pFoo: Structure member description
+*     (eEXAMPLE_ENUM)->eFOO: Structure member description
+*
+* return value description:
+*   type - value: value description
+*   examples:
+*   bool - true: did function action and result is true
+*        - false: did function action and result is false
+*   uint32_t - : integer value after function action
+*   Example_Struct - *: address of the created object
+*                  - NULL: created object fail
+******************************************************************************/
+bool bDbg_Detect_Debugger(void)
+{
+  bool bDebugger_Preset = false;
+#ifdef DBG_STM32F4
+#elif
+  #error "No debuger detect api defined"
+#endif
+  return bDebugger_Present;
+}
+
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-#if(DEBUG_OUT >= 1)
+#if(DEBUG_CFG_DEBUG_OUT >= 1)
 //*****************************************************************************
 // name: vDEBUG
 // description: sends a message out the debug message interface
@@ -157,12 +253,7 @@ void vDEBUG(char * cMsg, ...)
       memset(cDBG_String, 0x00, (uiLen + 1));
       memcpy(cDBG_String, cMsg, uiLen);
 
-  //    eHAL_Status = HAL_USART_Transmit(ptDebug_UART_Handle, (uint8_t *)cDBG_String, uiLen, 3000);
-      eHAL_Status = HAL_USART_Transmit(&tDebug_UART_Handle, (uint8_t *)cDBG_String, uiLen, 3000);
-
-      memset(cDBG_String, 0x00, (DBG_CRNL_LEN + 1));
-      memcpy(cDBG_String, DBG_CRNL, DBG_CRNL_LEN);
-      eHAL_Status = HAL_USART_Transmit(&tDebug_UART_Handle, (uint8_t *)cDBG_String, DBG_CRNL_LEN, 3000);
+      vDbg_Interface_Out(cDBG_String, uiLen);
 
       if(eHAL_Status != HAL_OK)
       {
@@ -175,7 +266,7 @@ void vDEBUG(char * cMsg, ...)
 }
 #endif //#if(DEBUG_OUT >= 1)
 
-#if (DEBUG_IN >= 1)
+#if (DEBUG_CFG_DEBUG_IN >= 1)
 void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
 {
 
@@ -183,14 +274,23 @@ void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
 
 void vDEBUG_IN(char * pChar)
 {
-  memcpy(tDebug_AS.cDbg_Rcv_Buff, &tDebug_AS.cDbg_Rcv_Buff[1], DBG_RCV_BUFF_LEN);
-  tDebug_AS.cDbg_Rcv_Buff[0] = *pChar;
-  vDEBUG('\r');
-  vDEBUG(tDebug_AS.cDbg_Rcv_Buff);
-}
-#endif //#if (DEBUG_IN >= 1)
+  if(*pChar == '\r')
+  {
 
-#if ((DEBUG_LOG_LEVEL >= 1) & (DEBUG_OUT >= 1) & (DEBUG_IN >= 1))
+  }
+  else if(('9' >= *pChar) | (*pChar >= '0'))
+  {
+    memcpy(tDebug_AS.cDbg_Rcv_Buff, &tDebug_AS.cDbg_Rcv_Buff[1], DBG_RCV_BUFF_LEN);
+    tDebug_AS.cDbg_Rcv_Buff[0] = *pChar;
+  }
+  else
+  {
+
+  }
+}
+#endif //#if (DEBUG_CFG_DEBUG_IN >= 1)
+
+#if ((DEBUG_CFG_LOG_LEVEL >= 1) & (DEBUG_CFG_DEBUG_OUT >= 1) & (DEBUG_CFG_DEBUG_IN >= 1))
 //*****************************************************************************
 // name: vDEBUG_LVL
 // description: sends a message out the debug message interface according to
@@ -205,7 +305,7 @@ void vDEBUG_LVL(eDEBUG_LOG_LEVEL eLog_Lvl, char * cMsg, ...)
 #endif //((DEBUG_LOG_LEVEL >= 1) & (DEBUG_OUT >= 1))
 
 
-#if (DEBUG_ASSERT  >= 1)
+#if (DEBUG_CFG_ASSERT  >= 1)
 void vDEBUG_ASSERT(char * cMsg,int iAssert)
 {
 //  ERROR_CODE eEC = ER_FAIL;
@@ -216,32 +316,34 @@ void vDEBUG_ASSERT(char * cMsg,int iAssert)
   }
   else
   {
+#if (DEBUG_CFG_DEBUGGER_DETECT >= 1)
     //todo detct debugger eEC = eBSP_debugger_detect();
-//    if(eEC == ER_OK)
-//    {
-//      vDEBUG(SYS_HALT_MSG);
-//      vDEBUG(cMsg);
-//
-//      //todo: disable interrupts
-//      //todo: system halt
-//      while(1){};
-//    }
-//    else
-//    {
-//      vDEBUG(SYS_HALT_MSG);
-//      vDEBUG(cMsg);
-//
-//      //todo: disable interrupts
-//      //todo: system reset
-//      while(1){};
-//    }
+    if(bDgb_Detect_Debugger() == true)
+    {
+      vDEBUG(SYS_HALT_MSG);
+      vDEBUG(cMsg);
+
+      __ASM volatile("BKPT 0x00A8");
+      while(1){};
+    }
+    else
+    {
+      vDEBUG(SYS_HALT_MSG);
+      vDEBUG(cMsg);
+
+      //todo: disable interrupts
+      //todo: system reset
+      while(1){};
+    }
+#else
     __ASM volatile("BKPT 0x00A8");
     while (1){}
+#endif  //#if (DEBUG_CFG_DEBUGGER_DETECT >= 1)
   }
 }
-#endif //#if (DEBUG_ASSERT  >= 1)
+#endif //#if (DEBUG_CFG_ASSERT  >= 1)
 
-#if (DEBUG_GPIO_A  >= 1)
+#if (DEBUG_CFG_GPIO_A  >= 1)
 /******************************************************************************
 * name: vDEBUG_GPIO_SET_A
 * description: sets high DEBUG_GPIO_PIN_A
@@ -280,7 +382,7 @@ void vDEBUG_GPIO_TOGGLE_A(void)
   __ASM volatile("BKPT 0x00A8");
   return;
 }
-#endif //#if (DEBUG_GPIO_A  >= 1)
+#endif //#if (DEBUG_CFG_GPIO_A  >= 1)
 
 /******************************************************************************
 * name: vDEBUG_init
@@ -354,10 +456,10 @@ void vDEBUG_init(void)
     }
   }
 
-#if (DEBUG_IN >= 1)
+#if (DEBUG_CFG_DEBUG_IN >= 1)
   vDEBUG(cDebug_Context_Home);
   tDebug_AS.eDbg_In_Context = DEBUG_CONTEXT_HOME;
-#endif //#if (DEBUG_IN >= 1)
+#endif //#if (DEBUG_CFG_DEBUG_IN >= 1)
 
   //todo detect debugger eEC = eBSP_debugger_detect();
 //  if(eEC == ER_OK)

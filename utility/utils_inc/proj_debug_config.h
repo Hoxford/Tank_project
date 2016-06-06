@@ -13,15 +13,16 @@
 /******************************************************************************
 *public defines ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-#define DEBUG_LOG_LEVEL            1
-#define DEBUG_PERSISTANT_SETTINGS  0
-#define DEBUG_OUT                  1
-#define DEBUG_IN                   1
-#define DEBUG_ASSERT               1
-#define DEBUG_GPIO_A               0
-#define DEBUG_GPIO_B               0
-#define DEBUG_GPIO_C               0
-#define DEBUG_GPIO_D               0
+#define DEBUG_CFG_LOG_LEVEL            1
+#define DEBUG_CFG_PERSISTANT_SETTINGS  0
+#define DEBUG_CFG_DEBUG_OUT            1
+#define DEBUG_CFG_DEBUG_IN             1
+#define DEBUG_CFG_ASSERT               1
+#define DEBUG_CFG_DEBUGGER_DETECT      0
+#define DEBUG_CFG_GPIO_A               0
+#define DEBUG_CFG_GPIO_B               0
+#define DEBUG_CFG_GPIO_C               0
+#define DEBUG_CFG_GPIO_D               0
 
 /******************************************************************************
 *public variables /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
