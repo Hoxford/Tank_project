@@ -739,7 +739,7 @@ ERROR_CODE eBSP_Get_Current_ms_count(uint32_t * uiSystem_total_ms_count)
 ******************************************************************************/
 ERROR_CODE eBSP_Board_Init(void)
 {
-  ERROR_CODE eEC = ER_FAIL;
+  ERROR_CODE eEC = ER_OK;
 
   HAL_Init();
 
@@ -756,7 +756,7 @@ ERROR_CODE eBSP_Board_Init(void)
 
 //  __USB_OTG_HS_CLK_ENABLE();
 
-  eEC = eBSP_Camera_Intf_Init();
+//  eEC = eBSP_Camera_Intf_Init();
 
   if(eEC == ER_OK)
   {

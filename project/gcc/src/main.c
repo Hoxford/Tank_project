@@ -181,20 +181,20 @@ int main(int argc, char* argv[])
     }
   }
 
-  if(eEC == ER_OK)
-  {
-    //create wifi task
-    eWifi_Request_Param_Init(&tWifi_Req);
-    eOSAL_Task_Param_Init(&tOSAL_Task_Param);
-    tWifi_Req.eRequestID = WIFI_REQUEST_TASK_PARAMETERS;
-    tWifi_Req.pWifi_Task_Param = &tOSAL_Task_Param;
-    eEC = eWifi_Request(&tWifi_Req);
-
-    if(eEC == ER_OK)
-    {
-      eEC = eOSAL_Task_Create(&tOSAL_Task_Param);
-    }
-  }
+//  if(eEC == ER_OK)
+//  {
+//    //create wifi task
+//    eWifi_Request_Param_Init(&tWifi_Req);
+//    eOSAL_Task_Param_Init(&tOSAL_Task_Param);
+//    tWifi_Req.eRequestID = WIFI_REQUEST_TASK_PARAMETERS;
+//    tWifi_Req.pWifi_Task_Param = &tOSAL_Task_Param;
+//    eEC = eWifi_Request(&tWifi_Req);
+//
+//    if(eEC == ER_OK)
+//    {
+//      eEC = eOSAL_Task_Create(&tOSAL_Task_Param);
+//    }
+//  }
 
   if(eEC == ER_OK)
   {

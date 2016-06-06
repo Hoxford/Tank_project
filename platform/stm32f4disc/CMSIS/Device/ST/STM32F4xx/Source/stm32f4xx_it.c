@@ -257,6 +257,12 @@ void OTG_HS_IRQHandler(void)
    HAL_PCD_IRQHandler(&hpcd);
 }
 
+
+void USART6_IRQHandler(void)
+{
+  return;
+}
+
 /**
   * @}
   */ 

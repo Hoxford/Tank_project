@@ -144,6 +144,7 @@ tDebug_Activity_State tDebug_AS =
 
 void vDbg_Interface_Out(char * cString, uint32_t uiLen);
 bool bDbg_Detect_Debugger(void);
+void vDEBUG_IN(char * pChar);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -221,7 +222,7 @@ void vDbg_Interface_Out(char * cString, uint32_t uiLen)
 ******************************************************************************/
 bool bDbg_Detect_Debugger(void)
 {
-  bool bDebugger_Preset = false;
+  bool bDebugger_Present = false;
 #ifdef DBG_STM32F4
 #elif
   #error "No debuger detect api defined"
@@ -254,39 +255,40 @@ void vDEBUG(char * cMsg, ...)
       memcpy(cDBG_String, cMsg, uiLen);
 
       vDbg_Interface_Out(cDBG_String, uiLen);
-
-      if(eHAL_Status != HAL_OK)
-      {
-        while(1){};
-      }
-
     }
   }
   return;
 }
-#endif //#if(DEBUG_OUT >= 1)
+#endif //#if(DEBUG_CFG_DEBUG_OUT >= 1)
 
 #if (DEBUG_CFG_DEBUG_IN >= 1)
 void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
 {
-
+  vDEBUG_IN((char *)husart->pRxBuffPtr);
 }
 
 void vDEBUG_IN(char * pChar)
 {
+  static char cRcvd_Char;
+
   if(*pChar == '\r')
   {
-
+    cRcvd_Char = *pChar;
   }
   else if(('9' >= *pChar) | (*pChar >= '0'))
   {
+    cRcvd_Char = *pChar;
     memcpy(tDebug_AS.cDbg_Rcv_Buff, &tDebug_AS.cDbg_Rcv_Buff[1], DBG_RCV_BUFF_LEN);
-    tDebug_AS.cDbg_Rcv_Buff[0] = *pChar;
+    tDebug_AS.cDbg_Rcv_Buff[0] = cRcvd_Char;
+
+    //echo character out
+    vDbg_Interface_Out(&cRcvd_Char, 1);
   }
   else
   {
-
+    //received invalid character, do nothing
   }
+
 }
 #endif //#if (DEBUG_CFG_DEBUG_IN >= 1)
 
@@ -429,12 +431,15 @@ void vDEBUG_init(void)
     __GPIOC_CLK_ENABLE();
 //    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
     __USART6_CLK_ENABLE();
+    __HAL_RCC_USART6_CLK_ENABLE();
 //    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
 
     tDebug_UART_GPIO_Init.Pin = GPIO_PIN_6 | GPIO_PIN_7;
     tDebug_UART_GPIO_Init.Mode = GPIO_MODE_AF_PP;
-    tDebug_UART_GPIO_Init.Pull = GPIO_NOPULL;
-    tDebug_UART_GPIO_Init.Speed = GPIO_SPEED_HIGH;
+//    tDebug_UART_GPIO_Init.Pull = GPIO_NOPULL;
+    tDebug_UART_GPIO_Init.Pull = GPIO_PULLUP;
+//    tDebug_UART_GPIO_Init.Speed = GPIO_SPEED_HIGH;
+    tDebug_UART_GPIO_Init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     tDebug_UART_GPIO_Init.Alternate = GPIO_AF8_USART6;
     HAL_GPIO_Init(GPIOC,&tDebug_UART_GPIO_Init);
 
@@ -442,7 +447,11 @@ void vDEBUG_init(void)
     tDebug_UART_Handle.Init.WordLength = USART_WORDLENGTH_8B;
     tDebug_UART_Handle.Init.StopBits = USART_STOPBITS_1;
     tDebug_UART_Handle.Init.Parity = USART_PARITY_NONE;
+#if (DEBUG_CFG_DEBUG_IN >= 1)
+    tDebug_UART_Handle.Init.Mode = USART_MODE_TX_RX;
+#else
     tDebug_UART_Handle.Init.Mode = USART_MODE_TX;
+#endif
     tDebug_UART_Handle.Init.CLKPolarity = USART_POLARITY_LOW;
     tDebug_UART_Handle.Init.CLKPhase = USART_PHASE_1EDGE;
     tDebug_UART_Handle.Init.CLKLastBit = USART_LASTBIT_DISABLE;
@@ -457,6 +466,9 @@ void vDEBUG_init(void)
   }
 
 #if (DEBUG_CFG_DEBUG_IN >= 1)
+  HAL_NVIC_SetPriority(USART6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(USART6_IRQn);
+
   vDEBUG(cDebug_Context_Home);
   tDebug_AS.eDbg_In_Context = DEBUG_CONTEXT_HOME;
 #endif //#if (DEBUG_CFG_DEBUG_IN >= 1)
