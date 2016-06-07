@@ -24,6 +24,16 @@
 #define DEBUG_CFG_GPIO_C               0
 #define DEBUG_CFG_GPIO_D               0
 
+/* USER CODE BEGIN DEBUG_PROJECT_NAME */
+#define DEBUG_PROJECT_NAME             "Panzer"
+/* USER CODE END DEBUG_PROJECT_NAME */
+
+/* USER CODE BEGIN VERSION */
+#define DEBUG_VERSION_MAJOR    0
+#define DEBUG_VERSION_MINOR    0
+#define DEBUG_VERSION_PATCH    0
+/* USER CODE END VERSION */
+
 /******************************************************************************
 *public variables /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/

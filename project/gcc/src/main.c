@@ -152,7 +152,6 @@ int main(int argc, char* argv[])
   if(eEC == ER_OK)
   {
     vDEBUG_init();
-    vDEBUG("Hello world");
     eEC = ER_OK;
   }
 

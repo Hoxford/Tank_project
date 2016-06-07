@@ -258,10 +258,10 @@ void OTG_HS_IRQHandler(void)
 }
 
 
-void USART6_IRQHandler(void)
-{
-  return;
-}
+//void USART6_IRQHandler(void)
+//{
+//  return;
+//}
 
 /**
   * @}
