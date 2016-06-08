@@ -53,13 +53,18 @@
 #define DBG_LOG_EN_THIRD_PARTY    0x0000010
 #define DBG_LOG_EN_UTILITY        0x0000020
 
-#if (DEBUG_CFG_DEBUG_IN >= 1)
-  #ifdef DBG_STM32F4
+//platform specific defines
+#ifdef DBG_STM32F4
+  #define USART_HANDLE USART_HandleTypeDef
+  #if (DEBUG_CFG_DEBUG_IN >= 1)
     #define DBG_INF_IRQ_HANDLER       USART6_IRQHandler
+    #define DBG_INF_IRQ_RCV_HANDLER   HAL_UART_RxCpltCallback
   #else
-    #error "DBG_INF_IRQ_HANDLER not defined!"
-  #endif
-#endif //#if (DEBUG_CFG_DEBUG_IN >= 1)
+    #error "DBG_INF_IRQ not defined!"
+  #endif //#if (DEBUG_CFG_DEBUG_IN >= 1)
+#else
+  #error "Platform not defined!"
+#endif
 
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -185,12 +190,9 @@ tDebug_Activity_State tDebug_AS =
 };
 
 //Debug Interface handles
-#ifdef DBG_STM32F4
-  USART_HandleTypeDef * ptDebug_UART_Handle = NULL;
-  USART_HandleTypeDef tDebug_UART_Handle;
-#elif
-  #error "No debug interface handles defined"
-#endif
+USART_HANDLE * ptDebug_UART_Handle = NULL;
+USART_HANDLE tDebug_UART_Handle;
+
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -204,6 +206,7 @@ bool bDbg_Interface_Init(void);
 void vDbg_Interface_Out(char * cString, uint32_t uiLen);
 bool bDbg_Detect_Debugger(void);
 void DBG_INF_IRQ_HANDLER(void);
+void DBG_INF_IRQ_RCV_HANDLER(USART_HANDLE *pHandle);
 void vDEBUG_IN(char * pChar);
 
 /******************************************************************************
@@ -381,12 +384,22 @@ bool bDbg_Detect_Debugger(void)
 *   Example_Struct - *: address of the created object
 *                  - NULL: created object fail
 ******************************************************************************/
-void DBG_INF_IRQ_HANDLER(void)
+//void DBG_INF_IRQ_HANDLER(void)
+//{
+//  vDEBUG_IN(&cRcv_Char);
+//  HAL_USART_Receive_IT(&tDebug_UART_Handle, (uint8_t *)&cRcv_Char, 1);
+//  return;
+//}
+
+void DBG_INF_IRQ_RCV_HANDLER(USART_HANDLE *pHandle)
 {
-  vDEBUG_IN(&cRcv_Char);
-  HAL_USART_Receive_IT(&tDebug_UART_Handle, &cRcv_Char, 1);
-  return;
+  if(pHandle == &tDebug_UART_Handle)
+  {
+    vDEBUG_IN(&cRcv_Char);
+    HAL_USART_Receive_IT(&tDebug_UART_Handle, (uint8_t *)&cRcv_Char, 1);
+  }
 }
+
 #endif //#if (DEBUG_CFG_DEBUG_IN >= 1)
 
 /******************************************************************************
@@ -588,7 +601,7 @@ void vDEBUG_init(void)
 
   vDbg_Interface_Out(cDebug_Context_Home, strlen(cDebug_Context_Home));
   tDebug_AS.eDbg_In_Context = DEBUG_CONTEXT_HOME;
-  HAL_USART_Receive_IT(&tDebug_UART_Handle, &cRcv_Char, 1);
+  HAL_USART_Receive_IT(&tDebug_UART_Handle, (uint8_t *)&cRcv_Char, 1);
 #endif //#if (DEBUG_CFG_DEBUG_IN >= 1)
 
   return;
