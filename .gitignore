@@ -3,3 +3,4 @@ project/gcc/.settings/org.eclipse.cdt.ui.prefs
 project/gcc/.settings/org.eclipse.cdt.core.prefs
 project/gcc/.settings/org.eclipse.cdt.codan.core.prefs
 /Debug
+project/gcc/Debug/
