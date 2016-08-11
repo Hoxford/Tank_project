@@ -9,7 +9,41 @@
 /******************************************************************************
 * includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-#include "file.h"
+
+//Standard includes
+  #include <stdint.h>
+  #include <stdbool.h>
+  #include <string.h>
+  #include <stdlib.h>
+  #include <stdio.h>
+
+//Project specific includes
+  //#include "proj_inc/project_config.h"
+  /* Project specific include files here */
+
+
+//Utility includes
+  //#include "utils_inc/error_codes.h"
+  //#include "utils_inc/util_debug.h"
+  /* Utility include files here */
+
+//Driver includes
+  //#include "drivers_inc/wifi.h"
+  //#include "drivers_inc/bluetooth.h"
+  /* Driver include files here */
+
+//Application includes
+  //#include "app_inc/commander.h"
+  /* Application include files here */
+
+//Third party includes
+  //#include "rtos/osal.h"
+  /* Third party include files here */
+
+//Platform includes
+  //#include "board.h"
+  /* Platform include files here */
+
 
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
