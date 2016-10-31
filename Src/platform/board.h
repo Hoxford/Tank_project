@@ -39,43 +39,43 @@
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-typedef struct tBSP_Camera_Send
+typedef struct BSP_Camera_Send_t
 {
   uint16_t uiBuffLen;
   uint8_t * pBuff;
-}tBSP_Camera_Send;
+}BSP_Camera_Send_t, *pBSP_Camera_Send;
 
-typedef struct tBSP_Camera_Receive
+typedef struct BSP_Camera_Receive_t
 {
   uint16_t uiBuffLen;
   uint8_t * pBuff;
-}tBSP_Camera_Receive;
+}BSP_Camera_Receive_t, * pBSP_Camera_Receive;
 
-typedef struct tBSP_tWifi_Transmit
+typedef struct BSP_Wifi_Transmit_t
 {
   uint8_t * pBuff;
   uint32_t uiBuff_Len;
-}tBSP_tWifi_Transmit;
+}BSP_Wifi_Transmit_t, * pBSP_Wifi_Transmit;
 
-typedef struct tBSP_Wifi_Receive
+typedef struct BSP_Wifi_Receive_t
 {
   uint8_t * pBuff;
   uint32_t uiBuff_Len;
-}tBSP_Wifi_Receive;
+}BSP_Wifi_Receive_t, * pBSP_Wifi_Receive;
 
-typedef struct tBSP_Flash_Read
+typedef struct BSP_Flash_Read_t
 {
   uint8_t * pBuff;
   uint32_t uiBuff_Len;
   uint32_t uiStart_Addr;
   uint32_t uiEnd_Addr;
-}tBSP_Flash_Read;
+}BSP_Flash_Read_t, * pBSP_Flash_Read;
 
-typedef struct tBSP_Flash_Write
+typedef struct BSP_Flash_Write_t
 {
   uint8_t * pBuff;
   uint32_t uiBuff_Len;
-}tBSP_Flash_Write;
+}BSP_Flash_Write_t, * pBSP_Flash_Write;
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,18 +85,32 @@ typedef struct tBSP_Flash_Write
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eBSP_Camera_Intf_Send(tBSP_Camera_Send * pParam);
-ERROR_CODE eBSP_Camera_Intf_Receive(tBSP_Camera_Receive * pParam);
+ERROR_CODE eBSP_Camera_Intf_Send(pBSP_Camera_Send pParam);
+ERROR_CODE eBSP_Camera_Intf_Receive(pBSP_Camera_Receive pParam);
 ERROR_CODE eBSP_Wifi_Rst_Clr(void);
 ERROR_CODE eBSP_Wifi_Rst_Set(void);
 ERROR_CODE eBSP_Wifi_Rst(void);
-ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam);
-ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam);
-ERROR_CODE eBSP_FLASH_READ(tBSP_Flash_Read * pParam);
-ERROR_CODE eBSP_FLASH_WRITE(tBSP_Flash_Write * pParam);
+ERROR_CODE eBSP_Wifi_Intf_Send(pBSP_Wifi_Transmit pParam);
+ERROR_CODE eBSP_Wifi_Intf_Receive(pBSP_Wifi_Receive pParam);
+ERROR_CODE eBSP_FLASH_READ(pBSP_Flash_Read pParam);
+ERROR_CODE eBSP_FLASH_WRITE(pBSP_Flash_Write pParam);
 ERROR_CODE eBSP_FLASH_GET_START_ADDR(uint32_t * pStartAddr);
 ERROR_CODE eBSP_FLASH_ERASE(void);
-ERROR_CODE eBSP_Get_Current_ms_count(uint32_t *uiSystem_total_ms_count);
+ERROR_CODE eBSP_Get_Current_ms_count(uint32_t * uiSystem_total_ms_count);
+
+/******************************************************************************
+* name: eBSP_Board_Init
+*
+* description: Performs low level initialization of the platform interfaces and
+* features required by the project. Call this function after any proprietary
+* Initialization takes place and before task and OS instantiation.
+*
+* param description: void
+*
+* return value description: ERROR_CODE - ER_OK: board init successful
+*                                        ER_FAIL: board init fail
+*
+******************************************************************************/
 ERROR_CODE eBSP_Board_Init(void);
 
 #endif //__FILE_NAME_H__

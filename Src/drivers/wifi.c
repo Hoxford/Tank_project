@@ -131,15 +131,15 @@ typedef struct tWifi_Message_Struct
     WIFI_MSG_ID eMSG;
 }tWifi_Message_Struct;
 
-typedef struct tWifi_Send
+typedef struct Wifi_Send_t
 {
-  tBSP_tWifi_Transmit tBSP_Send;
+  BSP_Wifi_Transmit_t tBSP_Send;
   int32_t iTimeout;
-}tWifi_Send;
+}Wifi_Send_t;
 
 typedef struct tWifi_Receive
 {
-  tBSP_Wifi_Receive tBSP_Receive;
+  BSP_Wifi_Receive_t tBSP_Receive;
   int32_t iTimeout;
   bool bReceive_Until_OK;
 }tWifi_Receive;
@@ -159,7 +159,7 @@ ERROR_CODE eWifi_clear_intf(void);
 ERROR_CODE eWifi_disable_echo(void);
 ERROR_CODE eWifi_rcv_OK(void);
 ERROR_CODE eWifi_AP_connect(void);
-ERROR_CODE eWifi_send(tWifi_Send * pParam);
+ERROR_CODE eWifi_send(Wifi_Send_t * pParam);
 ERROR_CODE eWifi_rcv(tWifi_Receive * pParam);
 void       vWifi_Driver_Task(void * pvParameters);
 
@@ -178,7 +178,7 @@ void       vWifi_Driver_Task(void * pvParameters);
 ERROR_CODE eWifi_Setup(void)
 {
   ERROR_CODE eEC = ER_FAIL;
-  tWifi_Send tSend;
+  Wifi_Send_t tSend;
   int index;
 
   eEC = eWifi_get_ready();
@@ -327,7 +327,7 @@ ERROR_CODE eWifi_clear_intf(void)
 ERROR_CODE eWifi_disable_echo(void)
 {
   ERROR_CODE eEC = ER_FAIL;
-  tWifi_Send tSend;
+  Wifi_Send_t tSend;
   tWifi_Receive  tRcv;
   uint32_t uiCurrent_Tick;
   uint32_t uiStarted_Tick;
@@ -479,7 +479,7 @@ ERROR_CODE eWifi_rcv_OK(void)
 ERROR_CODE eWifi_AP_connect(void)
 {
   ERROR_CODE eEC = ER_FAIL;
-  tWifi_Send tSend;
+  Wifi_Send_t tSend;
   tWifi_Receive  tRcv;
   char * cAP_list = NULL;
   char * cStartAddress = NULL;
@@ -590,12 +590,12 @@ ERROR_CODE eWifi_AP_connect(void)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eWifi_send(tWifi_Send * pParam)
+ERROR_CODE eWifi_send(Wifi_Send_t * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
-  tBSP_tWifi_Transmit tSend;
+  BSP_Wifi_Transmit_t tSend;
 
-  memcpy(&tSend, &pParam->tBSP_Send, sizeof(tBSP_tWifi_Transmit));
+  memcpy(&tSend, &pParam->tBSP_Send, sizeof(BSP_Wifi_Transmit_t));
 
   eEC = eBSP_Wifi_Intf_Send(&tSend);
 
@@ -614,12 +614,12 @@ ERROR_CODE eWifi_rcv(tWifi_Receive * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
   int iTimeout = pParam->iTimeout;
-  tBSP_Wifi_Receive tRcv;
+  BSP_Wifi_Receive_t tRcv;
   int32_t iIndex = 0;
   int32_t iLen = 0;
   uint8_t * pBuff = NULL;
 
-  memcpy(&tRcv, &pParam->tBSP_Receive, sizeof(tBSP_Wifi_Receive));
+  memcpy(&tRcv, &pParam->tBSP_Receive, sizeof(BSP_Wifi_Receive_t));
 
   if(pParam->bReceive_Until_OK == false)
   {
@@ -672,7 +672,7 @@ void vWifi_Driver_Task(void * pvParameters)
   OSAL_Queue_Parameters_t tWifi_Queue_Param;
   pOSAL_Queue_Handle pWifi_Queue_Handle;
   tWifi_Message_Struct tMsg;
-  tWifi_Send tSend;
+  Wifi_Send_t tSend;
 #if (PROJ_CONFIG_USE_DRVR_NVRAM >= 1)
   pWifi_Activity_State pActivity_State;
   tNvram_Request tNVReq;

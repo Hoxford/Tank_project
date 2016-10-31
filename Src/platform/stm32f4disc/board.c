@@ -425,7 +425,7 @@ ERROR_CODE eBSP_SystemClock_Config(void)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eBSP_Camera_Intf_Send(tBSP_Camera_Send * pParam)
+ERROR_CODE eBSP_Camera_Intf_Send(pBSP_Camera_Send pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
 
@@ -440,7 +440,7 @@ ERROR_CODE eBSP_Camera_Intf_Send(tBSP_Camera_Send * pParam)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eBSP_Camera_Intf_Receive(tBSP_Camera_Receive * pParam)
+ERROR_CODE eBSP_Camera_Intf_Receive(pBSP_Camera_Receive pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
 
@@ -508,7 +508,7 @@ ERROR_CODE eBSP_Wifi_Rst(void)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam)
+ERROR_CODE eBSP_Wifi_Intf_Send(pBSP_Wifi_Transmit pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
   HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
@@ -534,7 +534,7 @@ ERROR_CODE eBSP_Wifi_Intf_Send(tBSP_tWifi_Transmit * pParam)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam)
+ERROR_CODE eBSP_Wifi_Intf_Receive(pBSP_Wifi_Receive pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
   HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
@@ -562,7 +562,7 @@ ERROR_CODE eBSP_Wifi_Intf_Receive(tBSP_Wifi_Receive * pParam)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eBSP_FLASH_READ(tBSP_Flash_Read * pParam)
+ERROR_CODE eBSP_FLASH_READ(pBSP_Flash_Read pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
   uint32_t uiReadAddress = pParam->uiStart_Addr;
@@ -586,7 +586,7 @@ ERROR_CODE eBSP_FLASH_READ(tBSP_Flash_Read * pParam)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eBSP_FLASH_WRITE(tBSP_Flash_Write * pParam)
+ERROR_CODE eBSP_FLASH_WRITE(pBSP_Flash_Write pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
   HAL_StatusTypeDef eHAL_EC = HAL_ERROR;
