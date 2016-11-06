@@ -156,30 +156,6 @@ Example_Struct pExample_PrivateFunction(param_1, param_2)
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-/******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name: [put name here]
-* description:
-*   [put description here]
-* parameters: 
-*   type - value: value description (in order from left to right)
-*   example:
-*   bool - true: do action when set to true
-*        - false: do action when set to false
-*   Example_Struct - pStruct:
-*     (int)->iFoo: Structure member description
-*     (uint32_t *)->pFoo: Structure member description
-*     (eEXAMPLE_ENUM)->eFOO: Structure member description
-*     
-* return value description: 
-*   type - value: value description
-*   examples:
-*   bool - true: did function action and result is true
-*        - false: did function action and result is false
-*   int - : integer value description after function action
-*   Example_Struct - *: address of the created object
-*                  - NULL: created object fail
-******************************************************************************/
 bool bFilename_or_abreviation_funciton(param_1, param_2)
 {
   bool bFoo = false;

@@ -49,6 +49,7 @@ typedef enum
     ER_SEND,
     ER_RCV,
     ER_TIMEOUT,
+    ER_BUSY,
     ER_DONE,
     ER_PARAM,
     ER_PARAM1,

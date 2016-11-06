@@ -527,40 +527,39 @@ ERROR_CODE eBSP_Wifi_Intf_Send(pBSP_Wifi_Transmit pParam)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: eBSP_Wifi_Intf_Receive
 ******************************************************************************/
 ERROR_CODE eBSP_Wifi_Intf_Receive(pBSP_Wifi_Receive pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
   HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
 
-//  eHAL_Status = HAL_USART_Receive(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 3000);
-  eHAL_Status = HAL_UART_Receive(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 100);
-  if(eHAL_Status == HAL_OK)
+  if(pParam->bBlocking == true)
   {
-    eEC = ER_OK;
+    eHAL_Status = HAL_UART_Receive(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, pParam->uiTimeout);
+    if(eHAL_Status == HAL_OK)
+      eEC = ER_OK;
+    else if(eHAL_Status == HAL_TIMEOUT)
+      eEC = ER_TIMEOUT;
+    else
+      eEC = ER_FAIL;
   }
-  else if(eHAL_Status == HAL_TIMEOUT)
+  else
   {
-    eEC = ER_TIMEOUT;
+    eHAL_Status = HAL_UART_Receive_IT(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len);
+    if(eHAL_Status == HAL_OK)
+      eEC = ER_OK;
+    else if(eHAL_Status == HAL_BUSY)
+      eEC = ER_TIMEOUT;
+    else
+      eEC = ER_FAIL;
   }
-
 
   return eEC;
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: eBSP_FLASH_READ
 ******************************************************************************/
 ERROR_CODE eBSP_FLASH_READ(pBSP_Flash_Read pParam)
 {
@@ -579,12 +578,7 @@ ERROR_CODE eBSP_FLASH_READ(pBSP_Flash_Read pParam)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: eBSP_FLASH_WRITE
 ******************************************************************************/
 ERROR_CODE eBSP_FLASH_WRITE(pBSP_Flash_Write pParam)
 {
@@ -640,12 +634,7 @@ ERROR_CODE eBSP_FLASH_WRITE(pBSP_Flash_Write pParam)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: eBSP_FLASH_GET_START_ADDR
 ******************************************************************************/
 ERROR_CODE eBSP_FLASH_GET_START_ADDR(uint32_t * pStartAddr)
 {
@@ -661,12 +650,7 @@ ERROR_CODE eBSP_FLASH_GET_START_ADDR(uint32_t * pStartAddr)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: eBSP_FLASH_ERASE
 ******************************************************************************/
 ERROR_CODE eBSP_FLASH_ERASE(void)
 {
@@ -713,12 +697,7 @@ ERROR_CODE eBSP_Inc_ms_count(void)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: eBSP_Get_Current_ms_count
 ******************************************************************************/
 ERROR_CODE eBSP_Get_Current_ms_count(uint32_t * uiSystem_total_ms_count)
 {
@@ -730,12 +709,7 @@ ERROR_CODE eBSP_Get_Current_ms_count(uint32_t * uiSystem_total_ms_count)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
 * name: eBSP_Board_Init
-* description:
-* param description: void
-* return value description: ERROR_CODE - ER_OK: board init good
-*                                        ER_FAIL: board init fail
 ******************************************************************************/
 ERROR_CODE eBSP_Board_Init(void)
 {
