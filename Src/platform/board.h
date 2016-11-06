@@ -35,6 +35,41 @@
 *public enums /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+typedef enum UART_DATA_BITS
+{
+  DATA_BITS_INVALID,
+  DATA_BITS_8,
+  DATA_BITS_7,
+  DATA_BITS_6,
+  DATA_BITS_5,
+  DATA_BITS_LIMIT,
+}UART_DATA_BITS, * pUART_DATA_BITS;
+
+typedef enum UART_PARITY
+{
+  PARITY_INVALID,
+  PARITY_NONE,
+  PARITY_ODD,
+  PARITY_MARK,
+  PARITY_LIMIT,
+}UART_PARITY, * pUART_PARITY;
+
+typedef enum UART_STOP_BITS
+{
+  STOP_BITS_INVALID,
+  STOP_BITS_1,
+  STOP_BITS_2,
+  STOP_BITS_LIMIT,
+}UART_STOP_BITS, * pUART_STOP_BITS;
+
+typedef enum UART_FLOW_CONTROL
+{
+  FLOW_CONTROL_INVALID,
+  FLOW_CONTROL_NONE,
+  FLOW_CONTROL_RTS_CTS,
+  FLOW_CONTROL_LIMIT,
+}UART_FLOW_CONTROL, * pUART_FLOW_CONTROL;
+
 /******************************************************************************
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -51,7 +86,20 @@ typedef struct BSP_Camera_Receive_t
   uint8_t * pBuff;
 }BSP_Camera_Receive_t, * pBSP_Camera_Receive;
 
-typedef struct BSP_Wifi_Transmit_t
+typedef struct UART_Config_t
+{
+  UART_DATA_BITS                      eDataBits;//
+  UART_PARITY                         eParity;//
+  UART_STOP_BITS                      eStopBits;//
+  UART_FLOW_CONTROL                   eControl;//
+  uint32_t                            uiBaud;
+  uint32_t                            uiTimeout;
+  void (* vUART_ISR)                  (void);//ISR to call for UART isr
+  void (* vUART_Rcv_Timeout_ISR)      (void);//ISR to call for data rcv timeout
+  void (* vUART_Send_Timeout_ISR)     (void);//ISR to call for data send timeout
+}UART_Config_t, *pUART_Config;
+
+typedef struct tBSP_tWifi_Transmit
 {
   uint8_t * pBuff;
   uint32_t uiBuff_Len;
@@ -86,11 +134,16 @@ typedef struct BSP_Flash_Write_t
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
 ERROR_CODE eBSP_Camera_Intf_Send(pBSP_Camera_Send pParam);
 ERROR_CODE eBSP_Camera_Intf_Receive(pBSP_Camera_Receive pParam);
 ERROR_CODE eBSP_Wifi_Rst_Clr(void);
 ERROR_CODE eBSP_Wifi_Rst_Set(void);
 ERROR_CODE eBSP_Wifi_Rst(void);
+ERROR_CODE eBSP_Wifi_En_Clr(void);
+ERROR_CODE eBSP_Wifi_En_Set(void);
+ERROR_CODE eBSP_Wifi_Intf_Config(pUART_Config pConfig);
+
 
 /******************************************************************************
 * Name: eBSP_Wifi_Intf_Send
@@ -153,6 +206,8 @@ ERROR_CODE eBSP_Wifi_Intf_Send(pBSP_Wifi_Transmit pParam);
 *            = ER_OK:
 ******************************************************************************/
 ERROR_CODE eBSP_Wifi_Intf_Receive(pBSP_Wifi_Receive pParam);
+
+ERROR_CODE eBSP_Wifi_Intf_Receive_IT(pBSP_Wifi_Receive pParam);
 
 /******************************************************************************
 * Name: eBSP_FLASH_READ
