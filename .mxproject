@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=D:/DDocuments/Workspace/Mini_Panzer/Mini_Panzer/Inc
+HeaderPath=D:/DDocuments/Workspace/Mini_Panzer_00/Inc
 HeaderFiles=FreeRTOSConfig.h;stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;
-SourcePath=D:/DDocuments/Workspace/Mini_Panzer/Mini_Panzer/Src
+SourcePath=D:/DDocuments/Workspace/Mini_Panzer_00/Src
 SourceFiles=FreeRTOSConfig.h;stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;freertos.c;stm32f4xx_it.c;stm32f4xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]

@@ -37,8 +37,12 @@
 #define I2C_ADDRESS            0x30F
 
 //wifi defines
-#define WIFI_TX_BUF_LEN  512
-#define WIFI_RX_BUF_LEN  512
+	#define WIFI_TX_BUF_LEN       512
+	#define WIFI_RX_BUF_LEN       512
+  #define WIFI_UART_HANDLE      huart2
+  #define WIFI_UART_HANDLE_T    UART_HandleTypeDef
+  #define WIFI_INF_IRQ_HANDLER  HAL_UART_RxCpltCallback
+  #define WIFI_INTF_IRQN        USART2_IRQn
 
 //flash defines
 #define FLASH_USER_START_ADDR   ADDR_FLASH_SECTOR_11   /* Start @ of user Flash area */
@@ -62,13 +66,19 @@
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+//wifi variables
+//
 uint8_t uiWifi_TX_Buff[WIFI_TX_BUF_LEN];
 uint8_t uiWifi_RX_Buff[WIFI_RX_BUF_LEN];
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+extern I2C_HandleTypeDef hi2c2;
 
+extern TIM_HandleTypeDef htim4;
+
+extern UART_HandleTypeDef huart2;
 /******************************************************************************
 * enums ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -82,6 +92,7 @@ typedef struct tBSP_Activity_State
   bool bIs_Camera_Intf_Init;
   bool bIs_Wifi_Intf_Init;
   bool bIs_Usb_Intf_Init;
+  void (* vUART_ISR[5])(void);
 }tBSP_Activity_State;
 
 tBSP_Activity_State tBSP_AS =
@@ -89,10 +100,11 @@ tBSP_Activity_State tBSP_AS =
   false,  //bool bIs_Camera_Intf_Init;
   false,  //bool bIs_Wifi_Intf_Init;
   false,  //bool bIs_Usb_Intf_Init;
+  NULL, NULL, NULL, NULL, NULL,
 };
 
 //USART_HandleTypeDef tWifi_UART_Handle;
-UART_HandleTypeDef  tWifi_UART_Handle;
+//UART_HandleTypeDef  tWifi_UART_Handle;
 //TIM_HandleTypeDef   tCamera_Timer_Handle;
 //I2C_HandleTypeDef   tCamera_I2C_Handle;
 
@@ -263,58 +275,58 @@ ERROR_CODE eBSP_Camera_Intf_Init(void)
 ERROR_CODE eBSP_Wifi_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
-  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
-  GPIO_InitTypeDef      tWifi_GPIO_Init;
+//  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+//  GPIO_InitTypeDef      tWifi_GPIO_Init;
 
   if(tBSP_AS.bIs_Wifi_Intf_Init == false)
   {
-//    tWifi_GPIO_Init.Pin       = GPIO_PIN_10 | GPIO_PIN_9;
-    tWifi_GPIO_Init.Pin       = GPIO_PIN_2 | GPIO_PIN_3;
-    tWifi_GPIO_Init.Mode      = GPIO_MODE_AF_PP;//GPIO_MODE_AF_OD;//
-    tWifi_GPIO_Init.Pull      = GPIO_NOPULL;//GPIO_PULLDOWN;//GPIO_PULLUP;//
-    tWifi_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-//    tWifi_GPIO_Init.Alternate = GPIO_AF7_USART1;
-    tWifi_GPIO_Init.Alternate = GPIO_AF7_USART2;
-    HAL_GPIO_Init(GPIOA,&tWifi_GPIO_Init);
-
-//    tWifi_UART_Handle.Init.BaudRate    = 115200;//57600;
-//    tWifi_UART_Handle.Init.WordLength  = USART_WORDLENGTH_8B;
-//    tWifi_UART_Handle.Init.StopBits    = USART_STOPBITS_1;
-//    tWifi_UART_Handle.Init.Parity      = USART_PARITY_NONE;
-//    tWifi_UART_Handle.Init.Mode        = USART_MODE_TX_RX;
-//    tWifi_UART_Handle.Init.CLKPolarity = USART_POLARITY_LOW;//USART_POLARITY_HIGH;//
-//    tWifi_UART_Handle.Init.CLKPhase    = USART_PHASE_1EDGE;//USART_PHASE_2EDGE;//
-//    tWifi_UART_Handle.Init.CLKLastBit  = USART_LASTBIT_DISABLE;//USART_LASTBIT_ENABLE;//
-//    tWifi_UART_Handle.Instance         = USART2;
-//    eHAL_Status = HAL_USART_Init(&tWifi_UART_Handle);
-
-    tWifi_UART_Handle.Init.BaudRate     = 115200;//57600;
-    tWifi_UART_Handle.Init.WordLength   = UART_WORDLENGTH_8B;
-    tWifi_UART_Handle.Init.StopBits     = UART_STOPBITS_1;
-    tWifi_UART_Handle.Init.Parity       = UART_PARITY_NONE;
-    tWifi_UART_Handle.Init.Mode         = UART_MODE_TX_RX;
-    tWifi_UART_Handle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-    tWifi_UART_Handle.Init.OverSampling = UART_OVERSAMPLING_8;
-    tWifi_UART_Handle.Instance          = USART2;
-    eHAL_Status = HAL_UART_Init(&tWifi_UART_Handle);
-
-    if(eHAL_Status == HAL_OK)
-    {
-      eEC = ER_OK;
-      tBSP_AS.bIs_Wifi_Intf_Init = true;
-    }
-    else
-    {
-      eEC = ER_FAIL;
-      tBSP_AS.bIs_Wifi_Intf_Init = false;
-    }
-
-    tWifi_GPIO_Init.Pin    = GPIO_PIN_0;
-    tWifi_GPIO_Init.Mode   = GPIO_MODE_OUTPUT_PP;
-    tWifi_GPIO_Init.Pull   = GPIO_NOPULL;
-    tWifi_GPIO_Init.Speed  = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(GPIOA,&tWifi_GPIO_Init);
-
+////    tWifi_GPIO_Init.Pin       = GPIO_PIN_10 | GPIO_PIN_9;
+//    tWifi_GPIO_Init.Pin       = GPIO_PIN_2 | GPIO_PIN_3;
+//    tWifi_GPIO_Init.Mode      = GPIO_MODE_AF_PP;//GPIO_MODE_AF_OD;//
+//    tWifi_GPIO_Init.Pull      = GPIO_NOPULL;//GPIO_PULLDOWN;//GPIO_PULLUP;//
+//    tWifi_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
+////    tWifi_GPIO_Init.Alternate = GPIO_AF7_USART1;
+//    tWifi_GPIO_Init.Alternate = GPIO_AF7_USART2;
+//    HAL_GPIO_Init(GPIOA,&tWifi_GPIO_Init);
+//
+////    tWifi_UART_Handle.Init.BaudRate    = 115200;//57600;
+////    tWifi_UART_Handle.Init.WordLength  = USART_WORDLENGTH_8B;
+////    tWifi_UART_Handle.Init.StopBits    = USART_STOPBITS_1;
+////    tWifi_UART_Handle.Init.Parity      = USART_PARITY_NONE;
+////    tWifi_UART_Handle.Init.Mode        = USART_MODE_TX_RX;
+////    tWifi_UART_Handle.Init.CLKPolarity = USART_POLARITY_LOW;//USART_POLARITY_HIGH;//
+////    tWifi_UART_Handle.Init.CLKPhase    = USART_PHASE_1EDGE;//USART_PHASE_2EDGE;//
+////    tWifi_UART_Handle.Init.CLKLastBit  = USART_LASTBIT_DISABLE;//USART_LASTBIT_ENABLE;//
+////    tWifi_UART_Handle.Instance         = USART2;
+////    eHAL_Status = HAL_USART_Init(&tWifi_UART_Handle);
+//
+//    tWifi_UART_Handle.Init.BaudRate     = 115200;//57600;
+//    tWifi_UART_Handle.Init.WordLength   = UART_WORDLENGTH_8B;
+//    tWifi_UART_Handle.Init.StopBits     = UART_STOPBITS_1;
+//    tWifi_UART_Handle.Init.Parity       = UART_PARITY_NONE;
+//    tWifi_UART_Handle.Init.Mode         = UART_MODE_TX_RX;
+//    tWifi_UART_Handle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+//    tWifi_UART_Handle.Init.OverSampling = UART_OVERSAMPLING_8;
+//    tWifi_UART_Handle.Instance          = USART2;
+//    eHAL_Status = HAL_UART_Init(&tWifi_UART_Handle);
+//
+//    if(eHAL_Status == HAL_OK)
+//    {
+//      eEC = ER_OK;
+//      tBSP_AS.bIs_Wifi_Intf_Init = true;
+//    }
+//    else
+//    {
+//      eEC = ER_FAIL;
+//      tBSP_AS.bIs_Wifi_Intf_Init = false;
+//    }
+//
+//    tWifi_GPIO_Init.Pin    = GPIO_PIN_0;
+//    tWifi_GPIO_Init.Mode   = GPIO_MODE_OUTPUT_PP;
+//    tWifi_GPIO_Init.Pull   = GPIO_NOPULL;
+//    tWifi_GPIO_Init.Speed  = GPIO_SPEED_HIGH;
+//    HAL_GPIO_Init(GPIOA,&tWifi_GPIO_Init);
+    tBSP_AS.bIs_Wifi_Intf_Init = true;
   }
   else
   {
@@ -459,7 +471,7 @@ ERROR_CODE eBSP_Wifi_Rst_Clr(void)
 {
   ERROR_CODE eEC = ER_OK;
 
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
 
   return eEC;
 }
@@ -476,7 +488,7 @@ ERROR_CODE eBSP_Wifi_Rst_Set(void)
 {
   ERROR_CODE eEC = ER_OK;
 
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
 
   return eEC;
 }
@@ -489,13 +501,65 @@ ERROR_CODE eBSP_Wifi_Rst_Set(void)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eBSP_Wifi_Rst(void)
+ERROR_CODE eBSP_Wifi_En_Clr(void)
 {
   ERROR_CODE eEC = ER_OK;
 
-  eBSP_Wifi_Rst_Set();
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
 
-  eBSP_Wifi_Rst_Clr();
+  return eEC;
+}
+
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_Wifi_En_Set(void)
+{
+  ERROR_CODE eEC = ER_OK;
+
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+
+  return eEC;
+}
+
+/******************************************************************************
+* todo: DESCRIPTION, PARAM, RETURN
+* name: eBSP_Wifi_Intf_Config
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_Wifi_Intf_Config(pUART_Config pConfig)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  if((pConfig->eDataBits) & (pConfig->eParity  ) &
+     (pConfig->eStopBits) & (pConfig->eControl ) &
+     (pConfig->uiBaud   ))
+  {
+    /*config the uart*/
+  }
+
+  if(pConfig->vUART_ISR != NULL)
+  {
+
+  }
+
+  if(pConfig->vUART_Rcv_Timeout_ISR != NULL)
+  {
+
+  }
+
+  if(pConfig->vUART_Send_Timeout_ISR != NULL)
+  {
+
+  }
 
   return eEC;
 }
@@ -514,7 +578,7 @@ ERROR_CODE eBSP_Wifi_Intf_Send(pBSP_Wifi_Transmit pParam)
   HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
 
 //  eHAL_Status = HAL_USART_Transmit(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 3000);
-  eHAL_Status = HAL_UART_Transmit(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 3000);
+  eHAL_Status = HAL_UART_Transmit(&WIFI_UART_HANDLE, pParam->pBuff, pParam->uiBuff_Len, 3000);
 
 //  vDEBUG((char *)pParam->pBuff);
 
@@ -539,8 +603,7 @@ ERROR_CODE eBSP_Wifi_Intf_Receive(pBSP_Wifi_Receive pParam)
   ERROR_CODE eEC = ER_FAIL;
   HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
 
-//  eHAL_Status = HAL_USART_Receive(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 3000);
-  eHAL_Status = HAL_UART_Receive(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 100);
+  eHAL_Status = HAL_UART_Receive(&WIFI_UART_HANDLE, pParam->pBuff, pParam->uiBuff_Len, 100);
   if(eHAL_Status == HAL_OK)
   {
     eEC = ER_OK;
@@ -549,7 +612,37 @@ ERROR_CODE eBSP_Wifi_Intf_Receive(pBSP_Wifi_Receive pParam)
   {
     eEC = ER_TIMEOUT;
   }
+  else
+  {
+    eEC = ER_FAIL;
+  }
 
+  return eEC;
+}
+
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_Wifi_Intf_Receive_IT(pBSP_Wifi_Receive pParam)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+
+  eHAL_Status = HAL_UART_Receive_IT(&WIFI_UART_HANDLE, pParam->pBuff, pParam->uiBuff_Len);
+  if((eHAL_Status == HAL_OK) |
+     (eHAL_Status == HAL_BUSY))
+  {
+    eEC = ER_OK;
+  }
+  else
+  {
+    eEC = ER_FAIL;
+  }
 
   return eEC;
 }
@@ -740,21 +833,6 @@ ERROR_CODE eBSP_Get_Current_ms_count(uint32_t * uiSystem_total_ms_count)
 ERROR_CODE eBSP_Board_Init(void)
 {
   ERROR_CODE eEC = ER_OK;
-
-  HAL_Init();
-
-  eEC = eBSP_SystemClock_Config();
-
-  SystemCoreClock = HAL_RCC_GetHCLKFreq();
-
-  SysTick_Config (SystemCoreClock / 1000);
-
-  __GPIOA_CLK_ENABLE();
-  __GPIOB_CLK_ENABLE();
-  __USART2_CLK_ENABLE();
-//  __I2C1_CLK_ENABLE();
-
-//  __USB_OTG_HS_CLK_ENABLE();
 
 //  eEC = eBSP_Camera_Intf_Init();
 
