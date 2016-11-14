@@ -114,20 +114,6 @@ void vApplicationIdleHook( void )
 
   return;
 }
-/*-----------------------------------------------------------*/
-
-void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
-{
-  ( void ) pcTaskName;
-  ( void ) pxTask;
-
-  /* Run time stack overflow checking is performed if
-  configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
-  function is called if a stack overflow is detected. */
-  taskDISABLE_INTERRUPTS();
-  HardFault_Handler();
-  for( ;; );
-}
 
 void proj_main(void)
 {

@@ -60,7 +60,7 @@
   #include <ti/drivers/GPIO.h>
 #elif (PROJ_CONFIG_OS == PROJ_CONFIG_OS_FREERTOS)
   #include "FreeRTOS.h"
-  #include "task.h"
+//  #include "task.h"
 #endif
 /******************************************************************************
 *public defines ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +93,11 @@
 /******************************************************************************
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+typedef struct OSAL_Task_Handle
+{
+  void * pvTask_Handle;
+}OSAL_Task_Handle_t, *pOSAL_Task_Handle;
+
 typedef struct OSAL_Mailbox_Handle_t
 {
   uint32_t uiWait_time;         //OS wait time before returning
@@ -125,6 +130,27 @@ typedef struct OSAL_Task_Parameters_t
     uint32_t uiTask_Priority;
 }OSAL_Task_Parameters_t, * pOSAL_Task_Parameters;
 
+typedef struct OSAL_Semaphone_Parameters_t
+{
+
+}OSAL_Semaphore_Parameters_t, * pOSAL_Semaphore_Parameters;
+
+typedef struct OSAL_Semaphore_Handle_t
+{
+  void * pHandle;
+  uint32_t uiHandle_Index;
+}OSAL_Semaphore_Handle_t, *pOSAL_Semaphore_Handle;
+
+typedef struct OSAL_Mutex_Parameters
+{
+  uint32_t uiTimeout;
+}OSAL_Mutex_Parameters_t, *pOSAL_Mutex_Parameters;
+
+typedef struct OSAL_Mutex_Handle
+{
+  void * pHandle;
+  uint32_t uiHandle_Intex;
+}OSAL_Mutex_Handle_t, * pOSAL_Mutex_Handle;
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -132,20 +158,473 @@ typedef struct OSAL_Task_Parameters_t
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-ERROR_CODE eOSAL_Task_Param_Init     (OSAL_Task_Parameters_t *pParam);
-ERROR_CODE eOSAL_Task_Create         (OSAL_Task_Parameters_t *pParam);
-ERROR_CODE eOSAL_Task_Delete         (OSAL_Task_Parameters_t *pParam);
-ERROR_CODE eOSAL_OS_start            (void);
-ERROR_CODE eOSAL_Is_OS_Running       (void);
-ERROR_CODE eOSAL_delay               (uint32_t uiDelay, uint32_t * puiMS_Delayed);
-ERROR_CODE eOSAL_Mailbox_Params_Init (OSAL_Mailbox_Handle_t * ptMbox_handle);
-ERROR_CODE eOSAL_Mailbox_Create      (OSAL_Mailbox_Handle_t * ptMbox_handle);
-ERROR_CODE eOSAL_Mailbox_Get_msg     (OSAL_Mailbox_Handle_t * ptMailbox_handle);
-ERROR_CODE eOSAL_Mailbox_Post_msg    (OSAL_Mailbox_Handle_t * ptMailbox_handle);
-ERROR_CODE eOSAL_Queue_Params_Init   (OSAL_Queue_Parameters_t * ptQueue_param);
-ERROR_CODE eOSAL_Queue_Create        (OSAL_Queue_Parameters_t * ptQueue_param, OSAL_Queue_Handle_t ** pQueue_Handle);
-ERROR_CODE eOSAL_Queue_Get_msg       (OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg);
-ERROR_CODE eOSAL_Queue_Post_msg      (OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg);
 
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: eOSAL_Task_Param_Init
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Task_Param_Init         (OSAL_Task_Parameters_t *pParam);
+
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: eOSAL_Task_Create
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Task_Create             (OSAL_Task_Parameters_t *pParam);
+
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: eOSAL_Task_Delete
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Task_Delete             (OSAL_Task_Parameters_t *pParam);
+
+/******************************************************************************
+* name: eOSAL_OS_start
+* description: OSAL start abstraction function. For most operating systems
+*              this function will not return once called. Do not rely on it
+*              to return an error code.
+* param description: none
+* return value description: ERROR_CODE - ER_OK: Most OS's do not return once
+*                                        their OS start function was called.
+*                                        Do not rely on this return value.
+******************************************************************************/
+ERROR_CODE eOSAL_OS_start                (void);
+
+/******************************************************************************
+* name: eOSAL_Is_OS_Running
+* description: determines if the OS is running and returns the corresponding error code
+* param description: none
+* return value description: ERROR_CODE - ER_TRUE: OS is running
+*                                      - ER_FALSE: OS is not running
+******************************************************************************/
+ERROR_CODE eOSAL_Is_OS_Running           (void);
+
+/******************************************************************************
+* name: eOSAL_delay
+* description: delays for <delay parameter> number of milliseconds. Will call
+*              either a hardware or OS delay depending on if the OS is running
+*              or not.
+* param description: uint32_t : the number of milliseconds to delay
+*                    uint32_t - pointer: pointer to variable that will contain
+*                    the number of milliseconds delayed.
+* return value description: ERROR_CODE - ER_OK: delay was successful
+*                           ERROR_CODE - ER_FAIL: delay was not successful
+******************************************************************************/
+ERROR_CODE eOSAL_delay                   (uint32_t uiDelay, uint32_t * puiMS_Delayed);
+
+/******************************************************************************
+* name: eOSAL_Mailbox_Params_Init
+* description: initalizes the OSAL mailbox parameters to the system defaults
+*
+* param description: OSAL_Mailbox_Handle_t - pointer: pointer to the OSAL mailbox handle
+*                    uiWait_time       - OS wait time before returning, default OSAL_MAILBOX_DEFAULT_WAIT_FOREVER
+*                    uiBuff_Size       - size of each mailbox message,  default OSAL_MAILBOX_DEFAULT_BUFF_SIZE
+*                    pvBuff            - Pointer to the mailbox buffer, default NULL
+*                    uiNumber_of_items - number of mailbox messages,    default OSAL_MAILBOX_DEFAULT_MAX_MESSAGES
+*                    pvMailbox_Handle  - OS specific mailbox handle,    default NULL
+*
+* return value description: ERROR_CODE - ER_OK: mailbox parameters successfully initalized
+******************************************************************************/
+ERROR_CODE eOSAL_Mailbox_Params_Init     (OSAL_Mailbox_Handle_t * ptMbox_handle);
+
+/******************************************************************************
+* name: eOSAL_Mailbox_Create
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+*                    typedef struct OSAL_Mailbox_Handle_t
+*                    {
+*                      uint16_t uiWait_time;
+*                      void * pvBuff;
+*                      void * pvMailbox_Handle;
+*                    }OSAL_Mailbox_Handle_t;
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eOSAL_Mailbox_Create          (OSAL_Mailbox_Handle_t * ptMbox_handle);
+ERROR_CODE eOSAL_Mailbox_Get_msg         (OSAL_Mailbox_Handle_t * ptMailbox_handle);
+ERROR_CODE eOSAL_Mailbox_Post_msg        (OSAL_Mailbox_Handle_t * ptMailbox_handle);
+ERROR_CODE eOSAL_Queue_Params_Init       (OSAL_Queue_Parameters_t * ptQueue_param);
+ERROR_CODE eOSAL_Queue_Create            (OSAL_Queue_Parameters_t * ptQueue_param, OSAL_Queue_Handle_t ** pQueue_Handle);
+ERROR_CODE eOSAL_Queue_Get_msg           (OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg);
+ERROR_CODE eOSAL_Queue_Post_msg          (OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Semaphore_Params_Init   (pOSAL_Semaphore_Parameters pParameters);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Semaphore_Create(pOSAL_Semaphore_Parameters pParameters, pOSAL_Semaphore_Handle * pSemaphore_Handle);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Semaphore_Wait          (pOSAL_Semaphore_Handle pSemaphore_Handle);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Semaphore_Wait_Timeout  (pOSAL_Semaphore_Handle pSemaphore_Handle, uint32_t uiTimeout);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Semaphore_Post          (pOSAL_Semaphore_Handle pSemaphore_Handle);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Mutex_Create(pOSAL_Mutex_Parameters pParameters, pOSAL_Mutex_Handle *pMutex_Handle);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Mutex_Get(pOSAL_Mutex_Handle pHandle);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Mutex_Return(pOSAL_Mutex_Handle pHandle);
 #endif //PROJ_CONFIG_USE_UTIL_OSAL
 #endif //__FILE_NAME_H__

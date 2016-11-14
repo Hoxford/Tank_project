@@ -258,6 +258,7 @@ ERROR_CODE eOSAL_Queue_Get_msg   (OSAL_Queue_Handle_t * ptQueue_handle)
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "semphr.h"
 
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -272,6 +273,10 @@ ERROR_CODE eOSAL_Queue_Get_msg   (OSAL_Queue_Handle_t * ptQueue_handle)
 #define QUEUE_HANDLE             QueueHandle_t
 #define QUEUE_MAX_NUM            configQUEUE_REGISTRY_SIZE
 #define QUEUE_WAIT_FOREVER       portMAX_DELAY
+
+#define SEMAPHORE_HANDLE         SemaphoreHandle_t
+#define SEMAPHORE_MAX_NUM        configQUEUE_REGISTRY_SIZE
+#define SEMAPHORE_WAIT_FOREVER   portMAX_DELAY
 
 #define OSAL_MAILBOX_DEFAULT_WAIT_FOREVER 0xFFFFFFFF
 #define OSAL_MAILBOX_DEFAULT_BUFF_SIZE    256
@@ -293,27 +298,29 @@ ERROR_CODE eOSAL_Queue_Get_msg   (OSAL_Queue_Handle_t * ptQueue_handle)
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-typedef struct tOSAL_Activity_State
+typedef struct OSAL_Activity_State_t
 {
   bool bIs_Task_Desc_Init;
   bool bIs_Queue_Desc_Init;
+  bool bIs_Semaphore_Desc_Init;
   bool bIs_OS_running;
-}tOSAL_Activity_State;
+}OSAL_Activity_State_t;
 
-tOSAL_Activity_State tOSAL_AS =
+OSAL_Activity_State_t OSAL_AS_t =
 {
-  false,  //bool bIs_Task_Desc_Init;
-  false,  //bool bIs_Queue_Desc_Init;
-  false,  //bool bIs_OS_running;
+  .bIs_Task_Desc_Init      = false,
+  .bIs_Queue_Desc_Init     = false,
+  .bIs_Semaphore_Desc_Init = false,
+  .bIs_OS_running          = false,
 };
 
-typedef struct tOSAL_Task_Descriptor
+typedef struct OSAL_Task_Descriptor_t
 {
   OSAL_Task_Parameters_t tTask_Param;
   TASK_HANDLE tTask_Handle;
-}tOSAL_Task_Descriptor;
+}OSAL_Task_Descriptor_t;
 
-tOSAL_Task_Descriptor tOSAL_Task_Desc[TASK_MAX_NUM];
+OSAL_Task_Descriptor_t tOSAL_Task_Desc[TASK_MAX_NUM];
 
 typedef struct tOSAL_Queue_Descriptor
 {
@@ -322,6 +329,13 @@ typedef struct tOSAL_Queue_Descriptor
 }tOSAL_Queue_Descriptor;
 
 tOSAL_Queue_Descriptor tOSAL_Queue_Desc[QUEUE_MAX_NUM];
+
+typedef struct OSAL_Semaphore_Descriptor
+{
+  OSAL_Semaphore_Handle_t  Sem_Handle_t;
+}OSAL_Semaphore_Descriptor_t, * pOSAL_Semaphore_Descriptor;
+
+OSAL_Semaphore_Descriptor_t OSAL_Sem_Desc_t[SEMAPHORE_MAX_NUM];
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -330,11 +344,14 @@ tOSAL_Queue_Descriptor tOSAL_Queue_Desc[QUEUE_MAX_NUM];
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t * pParam, tOSAL_Task_Descriptor ** pOSAL_Reg_Desciptor);
-ERROR_CODE eOSAL_Unregister_Task(tOSAL_Task_Descriptor * pOSAL_Reg_Desciptor);
+ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t * pParam, OSAL_Task_Descriptor_t ** pOSAL_Reg_Desciptor);
+ERROR_CODE eOSAL_Unregister_Task(OSAL_Task_Descriptor_t * pOSAL_Reg_Desciptor);
 
 ERROR_CODE eOSAL_Register_Queue(OSAL_Queue_Parameters_t * pParam, tOSAL_Queue_Descriptor ** pQueue_Desc);
 ERROR_CODE eOSAL_Unregister_Queue(tOSAL_Queue_Descriptor * pQueue_Descriptor);
+
+ERROR_CODE eOSAL_Register_Semaphore(pOSAL_Semaphore_Descriptor * pSem_Desc);
+ERROR_CODE eOSAL_Unregister_Semaphore(pOSAL_Semaphore_Handle pSem_Handle);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -347,12 +364,12 @@ ERROR_CODE eOSAL_Unregister_Queue(tOSAL_Queue_Descriptor * pQueue_Descriptor);
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t *pParam, tOSAL_Task_Descriptor ** pOSAL_Reg_Desciptor)
+ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t *pParam, OSAL_Task_Descriptor_t ** pOSAL_Reg_Desciptor)
 {
   ERROR_CODE eEC = ER_FAIL;
   int i = 0;
-
-  if(tOSAL_AS.bIs_Task_Desc_Init == false)
+  //todo test
+  if(OSAL_AS_t.bIs_Task_Desc_Init == false)
   {
     for(i = 0; i < TASK_MAX_NUM; i++)
     {
@@ -363,7 +380,7 @@ ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t *pParam, tOSAL_Task_Descri
       tOSAL_Task_Desc[i].tTask_Param.uiTask_Priority = TASK_MIN_PRIORITY;
       tOSAL_Task_Desc[i].tTask_Handle = NULL;
     }
-    tOSAL_AS.bIs_Task_Desc_Init = true;
+    OSAL_AS_t.bIs_Task_Desc_Init = true;
   }
 
   for(i = 0; i < TASK_MAX_NUM; i++)
@@ -396,10 +413,10 @@ ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t *pParam, tOSAL_Task_Descri
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eOSAL_Unregister_Task(tOSAL_Task_Descriptor * pOSAL_Reg_Desciptor)
+ERROR_CODE eOSAL_Unregister_Task(OSAL_Task_Descriptor_t * pOSAL_Reg_Desciptor)
 {
   ERROR_CODE eEC = ER_FAIL;
-
+  //todo finish & test
   if(pOSAL_Reg_Desciptor == NULL)
   {
     eEC = ER_PARAM;
@@ -418,8 +435,8 @@ ERROR_CODE eOSAL_Register_Queue(OSAL_Queue_Parameters_t * pParam, tOSAL_Queue_De
 {
   ERROR_CODE eEC = ER_FAIL;
   int i = 0;
-
-  if(tOSAL_AS.bIs_Queue_Desc_Init == false)
+  //todo test
+  if(OSAL_AS_t.bIs_Queue_Desc_Init == false)
   {
     for(i = 0; i < QUEUE_MAX_NUM; i++)
     {
@@ -430,7 +447,7 @@ ERROR_CODE eOSAL_Register_Queue(OSAL_Queue_Parameters_t * pParam, tOSAL_Queue_De
       tOSAL_Queue_Desc[i].tQueue_Param.iTimeout = 0;
     }
 
-    tOSAL_AS.bIs_Queue_Desc_Init = true;
+    OSAL_AS_t.bIs_Queue_Desc_Init = true;
   }
 
   for(i = 0; i < QUEUE_MAX_NUM; i++)
@@ -473,8 +490,80 @@ ERROR_CODE eOSAL_Register_Queue(OSAL_Queue_Parameters_t * pParam, tOSAL_Queue_De
 ERROR_CODE eOSAL_Unregister_Queue(tOSAL_Queue_Descriptor * pQueue_Descriptor)
 {
   ERROR_CODE eEC = ER_FAIL;
+  //todo finish & test
+  return eEC;
+}
+
+ERROR_CODE eOSAL_Register_Semaphore(pOSAL_Semaphore_Descriptor * pSem_Desc)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  int i = 0;
+  //todo finish & test
+  if(OSAL_AS_t.bIs_Semaphore_Desc_Init == false)
+  {
+    for(i = 0; i < SEMAPHORE_MAX_NUM; i++)
+    {
+      OSAL_Sem_Desc_t[i].Sem_Handle_t.pHandle = NULL;
+      OSAL_Sem_Desc_t[i].Sem_Handle_t.uiHandle_Index = i;
+    }
+
+    OSAL_AS_t.bIs_Semaphore_Desc_Init = true;
+  }
+
+  for(i = 0; i < SEMAPHORE_MAX_NUM; i++)
+  {
+    if(OSAL_Sem_Desc_t[i].Sem_Handle_t.pHandle == NULL)
+    {
+      OSAL_Sem_Desc_t[i].Sem_Handle_t.uiHandle_Index = i;
+      *pSem_Desc = &OSAL_Sem_Desc_t[i];
+      eEC = ER_OK;
+      break;
+    }
+    else
+    {
+      eEC = ER_FULL;
+    }
+  }
+  return eEC;
+}
+
+ERROR_CODE eOSAL_Unregister_Semaphore(pOSAL_Semaphore_Handle pSem_Handle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  int i = 0;
+  //todo finish
+  for(i = 0; i < SEMAPHORE_MAX_NUM; i++)
+  {
+//    if(OSAL_Sem_Desc_t[i].Sem_Handle_t == pSem_Handle)
+//    {
+//      OSAL_Sem_Desc_t[i].Sem_Handle_t.pHandle = NULL;
+//      OSAL_Sem_Desc_t[i].Sem_Handle_t.uiHandle_Index = i;
+//
+//      eEC = ER_OK;
+//      break;
+//    }
+//    else
+//    {
+//      eEC = ER_NONE;
+//    }
+  }
 
   return eEC;
+}
+
+void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
+{
+  extern void HardFault_Handler(void);
+  ( void ) pcTaskName;
+  ( void ) pxTask;
+
+  /* Run time stack overflow checking is performed if
+  configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
+  function is called if a stack overflow is detected. */
+  taskDISABLE_INTERRUPTS();
+  HardFault_Handler();
+  for( ;; );
 }
 
 /******************************************************************************
@@ -482,12 +571,7 @@ ERROR_CODE eOSAL_Unregister_Queue(tOSAL_Queue_Descriptor * pQueue_Descriptor)
 ******************************************************************************/
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: eOSAL_Task_Param_Init
 ******************************************************************************/
 ERROR_CODE eOSAL_Task_Param_Init(OSAL_Task_Parameters_t *pParam)
 {
@@ -503,18 +587,13 @@ ERROR_CODE eOSAL_Task_Param_Init(OSAL_Task_Parameters_t *pParam)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: eOSAL_Task_Create
 ******************************************************************************/
 ERROR_CODE eOSAL_Task_Create(OSAL_Task_Parameters_t *pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
   uint32_t uiRC = 0;
-  tOSAL_Task_Descriptor * pTask_Desciptor = NULL;
+  OSAL_Task_Descriptor_t * pTask_Desciptor = NULL;
 
   eEC = eOSAL_Register_Task(pParam, &pTask_Desciptor);
 
@@ -543,12 +622,7 @@ ERROR_CODE eOSAL_Task_Create(OSAL_Task_Parameters_t *pParam)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: eOSAL_Task_Delete
 ******************************************************************************/
 ERROR_CODE eOSAL_Task_Delete(OSAL_Task_Parameters_t *pParam)
 {
@@ -559,19 +633,12 @@ ERROR_CODE eOSAL_Task_Delete(OSAL_Task_Parameters_t *pParam)
 
 /******************************************************************************
 * name: eOSAL_OS_start
-* description: OSAL start abstraction function. For most operating systems
-*              this function will not return once called. Do not rely on it
-*              to return an error code.
-* param description: none
-* return value description: ERROR_CODE - ER_OK: Most OS's do not return once
-*                                        their OS start function was called.
-*                                        Do not rely on this return value.
 ******************************************************************************/
 ERROR_CODE eOSAL_OS_start(void)
 {
   ERROR_CODE eEC = ER_OK;
 
-  tOSAL_AS.bIs_OS_running = true;
+  OSAL_AS_t.bIs_OS_running = true;
 
   //Start the FREE-RTOS, will not return
   //
@@ -584,16 +651,12 @@ ERROR_CODE eOSAL_OS_start(void)
 
 /******************************************************************************
 * name: eOSAL_Is_OS_Running
-* description: determines if the OS is running and returns the corresponding error code
-* param description: none
-* return value description: ERROR_CODE - ER_TRUE: OS is running
-*                                      - ER_FALSE: OS is not running
 ******************************************************************************/
 ERROR_CODE eOSAL_Is_OS_Running(void)
 {
   ERROR_CODE eEC = ER_FALSE;
 
-  if(tOSAL_AS.bIs_OS_running == true)
+  if(OSAL_AS_t.bIs_OS_running == true)
   {
     eEC = ER_TRUE;
   }
@@ -606,21 +669,13 @@ ERROR_CODE eOSAL_Is_OS_Running(void)
 
 /******************************************************************************
 * name: eOSAL_delay
-* description: delays for <delay parameter> number of milliseconds. Will call
-*              either a hardware or OS delay depending on if the OS is running
-*              or not.
-* param description: uint32_t : the number of milliseconds to delay
-*                    uint32_t - pointer: pointer to variable that will contain
-*                    the number of milliseconds delayed.
-* return value description: ERROR_CODE - ER_OK: delay was successful
-*                           ERROR_CODE - ER_FAIL: delay was not successful
 ******************************************************************************/
 ERROR_CODE eOSAL_delay(uint32_t uiDelay, uint32_t * puiMS_Delayed)
 {
   uint32_t i = 0;
   ERROR_CODE eEC = ER_FAIL;
 
-  if(tOSAL_AS.bIs_OS_running == true)
+  if(OSAL_AS_t.bIs_OS_running == true)
   {
     vTaskDelay(uiDelay);
     i = uiDelay;
@@ -650,16 +705,6 @@ ERROR_CODE eOSAL_delay(uint32_t uiDelay, uint32_t * puiMS_Delayed)
 
 /******************************************************************************
 * name: eOSAL_Mailbox_Params_Init
-* description: initalizes the OSAL mailbox parameters to the system defaults
-*
-* param description: OSAL_Mailbox_Handle_t - pointer: pointer to the OSAL mailbox handle
-*                    uiWait_time       - OS wait time before returning, default OSAL_MAILBOX_DEFAULT_WAIT_FOREVER
-*                    uiBuff_Size       - size of each mailbox message,  default OSAL_MAILBOX_DEFAULT_BUFF_SIZE
-*                    pvBuff            - Pointer to the mailbox buffer, default NULL
-*                    uiNumber_of_items - number of mailbox messages,    default OSAL_MAILBOX_DEFAULT_MAX_MESSAGES
-*                    pvMailbox_Handle  - OS specific mailbox handle,    default NULL
-*
-* return value description: ERROR_CODE - ER_OK: mailbox parameters successfully initalized
 ******************************************************************************/
 ERROR_CODE eOSAL_Mailbox_Params_Init (OSAL_Mailbox_Handle_t * ptMbox_handle)
 {
@@ -676,16 +721,6 @@ ERROR_CODE eOSAL_Mailbox_Params_Init (OSAL_Mailbox_Handle_t * ptMbox_handle)
 
 /******************************************************************************
 * name: eOSAL_Mailbox_Create
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-*                    typedef struct OSAL_Mailbox_Handle_t
-*                    {
-*                      uint16_t uiWait_time;
-*                      void * pvBuff;
-*                      void * pvMailbox_Handle;
-*                    }OSAL_Mailbox_Handle_t;
-* return value description: type - value: value description
 ******************************************************************************/
 ERROR_CODE eOSAL_Mailbox_Create  (OSAL_Mailbox_Handle_t * ptMbox_handle)
 {
@@ -696,10 +731,6 @@ ERROR_CODE eOSAL_Mailbox_Create  (OSAL_Mailbox_Handle_t * ptMbox_handle)
 
 /******************************************************************************
 * name: eOSAL_Get_Mailbox_msg
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
 ******************************************************************************/
 ERROR_CODE eOSAL_Mailbox_Get_msg (OSAL_Mailbox_Handle_t * ptMailbox_handle)
 {
@@ -710,10 +741,6 @@ ERROR_CODE eOSAL_Mailbox_Get_msg (OSAL_Mailbox_Handle_t * ptMailbox_handle)
 
 /******************************************************************************
 * name: eOSAL_Queue_Params_Init
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
 ******************************************************************************/
 ERROR_CODE eOSAL_Queue_Params_Init(OSAL_Queue_Parameters_t * ptQueue_param)
 {
@@ -727,10 +754,6 @@ ERROR_CODE eOSAL_Queue_Params_Init(OSAL_Queue_Parameters_t * ptQueue_param)
 
 /******************************************************************************
 * name: eOSAL_Queue_Create
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
 ******************************************************************************/
 ERROR_CODE eOSAL_Queue_Create(OSAL_Queue_Parameters_t * ptQueue_param, OSAL_Queue_Handle_t ** pQueue_Handle)
 {
@@ -758,10 +781,6 @@ ERROR_CODE eOSAL_Queue_Create(OSAL_Queue_Parameters_t * ptQueue_param, OSAL_Queu
 
 /******************************************************************************
 * name: eOSAL_Queue_Get_msg
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
 ******************************************************************************/
 ERROR_CODE eOSAL_Queue_Get_msg(OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg)
 {
@@ -783,10 +802,6 @@ ERROR_CODE eOSAL_Queue_Get_msg(OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg
 
 /******************************************************************************
 * name: eOSAL_Queue_Post_msg
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
 ******************************************************************************/
 ERROR_CODE eOSAL_Queue_Post_msg(OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg)
 {
@@ -804,6 +819,92 @@ ERROR_CODE eOSAL_Queue_Post_msg(OSAL_Queue_Handle_t * ptQueue_handle, void * pMs
     eEC = ER_OK;
   }
 
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Semaphore_Params_Init
+******************************************************************************/
+ERROR_CODE eOSAL_Semaphore_Params_Init(pOSAL_Semaphore_Parameters pParameters)
+{
+  return ER_OK;
+}
+
+/******************************************************************************
+* name: eOSAL_Semaphore_Create
+******************************************************************************/
+ERROR_CODE eOSAL_Semaphore_Create(pOSAL_Semaphore_Parameters pParameters, pOSAL_Semaphore_Handle * pSemaphore_Handle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  pOSAL_Semaphore_Descriptor pSem_Desc;
+
+  eEC = eOSAL_Register_Semaphore(&pSem_Desc);
+
+  pSem_Desc->Sem_Handle_t.pHandle = xSemaphoreCreateBinary();
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Semaphore_Wait
+******************************************************************************/
+ERROR_CODE eOSAL_Semaphore_Wait(pOSAL_Semaphore_Handle pSemaphore_Handle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  //todo finish
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Semaphore_Wait_Timeout
+******************************************************************************/
+ERROR_CODE eOSAL_Semaphore_Wait_Timeout(pOSAL_Semaphore_Handle pSemaphore_Handle, uint32_t uiTimeout)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  //todo finish
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Semaphore_Post
+******************************************************************************/
+ERROR_CODE eOSAL_Semaphore_Post(pOSAL_Semaphore_Handle pSemaphore_Handle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  //todo finish
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Mutex_Create
+******************************************************************************/
+ERROR_CODE eOSAL_Mutex_Create(pOSAL_Mutex_Parameters pParameters, pOSAL_Mutex_Handle *pMutex_Handle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  xSemaphoreCreateMutex();
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Mutex_Create
+******************************************************************************/
+ERROR_CODE eOSAL_Mutex_Get(pOSAL_Mutex_Handle pHandle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  xSemaphoreTake(pHandle->pHandle, 1);
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Mutex_Return
+******************************************************************************/
+ERROR_CODE eOSAL_Mutex_Return(pOSAL_Mutex_Handle pHandle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  xSemaphoreGive(pHandle->pHandle);
   return eEC;
 }
 
