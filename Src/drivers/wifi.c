@@ -80,6 +80,8 @@ typedef enum WIFI_STATE
   WIFI_STATE_INIT,
   WIFI_STATE_INIT_GET_READY,
   WIFI_STATE_INIT_ECHO,
+  WIFI_STATE_INIT_MODE,
+  WIFI_STATE_LIMIT,
 
 }WIFI_STATE, * pWIFI_STATE;
 
@@ -90,22 +92,24 @@ typedef enum WIFI_STATE
 //tWifi activity state for command, control and status of the task
 typedef struct Wifi_Activity_State_t
 {
-  bool     bIs_Wifi_Ready;
-  bool     bIs_Wifi_Task_Ready;
-  WIFI_STATE eSTATE;
-  uint32_t uiSendLen;
-  uint8_t  uiSendBuff[WIFI_SEND_BUF_LEN];
-  uint32_t uiRcvLen;
-  bool     bRcvCycle;
-  uint8_t  uiRcvBuff[WIFI_RCV_BUF_LEN];
-  uint8_t  uiIP_Address[4];
-  char     cIP_Address[16];
-  uint8_t  uiMAC_Address[6];
-  char     cMAC_Address[18];
-  uint32_t uiWifi_NVID;
+  bool         bIs_Wifi_Ready;
+  bool         bIs_Wifi_Task_Ready;
+  WIFI_STATE   eSTATE;
+  uint32_t     uiSendLen;
+  uint8_t      uiSendBuff[WIFI_SEND_BUF_LEN];
+  uint32_t     uiRcvLen;
+  uint8_t      uiISR_RcvBuff;
+  uint8_t *    pRcvBuff;
+  bool         bISR_Rcv;
+  uint8_t      uiRcvBuff[WIFI_RCV_BUF_LEN];
+  uint8_t      uiIP_Address[4];
+  char         cIP_Address[16];
+  uint8_t      uiMAC_Address[6];
+  char         cMAC_Address[18];
+  uint32_t     uiWifi_NVID;
 }Wifi_Activity_State_t, * pWifi_Activity_State;
 
-Wifi_Activity_State_t Wifi_AS_t =
+static Wifi_Activity_State_t Wifi_AS_t =
 {
   .bIs_Wifi_Ready      = false,
   .bIs_Wifi_Task_Ready = false,
@@ -119,7 +123,9 @@ Wifi_Activity_State_t Wifi_AS_t =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
   },
   .uiRcvLen            = 0,
-  .bRcvCycle           = false,
+  .uiISR_RcvBuff       = 0,
+  .pRcvBuff            = Wifi_AS_t.uiRcvBuff,
+  .bISR_Rcv            = false,
   .uiRcvBuff           =
   {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -153,9 +159,10 @@ typedef struct tWifi_Message_Struct
 
 typedef struct Wifi_Send_t
 {
-  BSP_Wifi_Transmit_t tBSP_Send;
-  int32_t iTimeout;
-}Wifi_Send_t;
+  BSP_Wifi_Transmit_t BSP_Send_t;
+  bool                bAT_OK_Resp;
+  int32_t             iTimeout;
+}Wifi_Send_t, * pWifi_Send;
 
 typedef struct Wifi_Receive_t
 {
@@ -180,6 +187,8 @@ ERROR_CODE eWifi_disable_echo        (void);
 ERROR_CODE eWifi_rcv_OK              (void);
 ERROR_CODE eWifi_AP_connect          (void);
 ERROR_CODE eWifi_send                (Wifi_Send_t * pParam);
+ERROR_CODE eWifi_AT_Send             (pWifi_Send pSend);
+ERROR_CODE eWIFI_Rcv_Init            (void);
 ERROR_CODE eWifi_rcv                 (pWifi_Receive pParam);
 void       vWifi_Intf_isr_callback   (void);
 void       vWifi_Driver_Rcv_Task     (void * pvParameters);
@@ -200,27 +209,34 @@ void       vWifi_Driver_Task         (void * pvParameters);
 ERROR_CODE eWifi_Setup(void)
 {
   ERROR_CODE eEC = ER_FAIL;
-  Wifi_Send_t tSend;
+  Wifi_Send_t Send_t;
   int index;
 
+  Wifi_AS_t.eSTATE = WIFI_STATE_INIT;
+  eWIFI_Rcv_Init();
+
+  Wifi_AS_t.eSTATE = WIFI_STATE_INIT_GET_READY;
   eEC = eWifi_get_ready();
   if(eEC == ER_OK)
   {
+    Wifi_AS_t.eSTATE = WIFI_STATE_INIT_ECHO;
     //Disable echo
     eEC = eWifi_disable_echo();
   }
 
   if(eEC == ER_OK)
   {
+    Wifi_AS_t.eSTATE = WIFI_STATE_INIT_MODE;
     //Set wifi mode
-    tSend.tBSP_Send.pBuff = Wifi_AS_t.uiSendBuff;
-    index = tSend.tBSP_Send.uiBuff_Len = snprintf((char *)tSend.tBSP_Send.pBuff, WIFI_SEND_BUF_LEN, AT_CMD_SET_WIFI_MODE, AT_CMD_WIFI_MODE);
-    tSend.tBSP_Send.pBuff[index] = 0;
+    Send_t.BSP_Send_t.pBuff = Wifi_AS_t.uiSendBuff;
+    index = Send_t.BSP_Send_t.uiBuff_Len = snprintf((char *)Send_t.BSP_Send_t.pBuff, WIFI_SEND_BUF_LEN, AT_CMD_SET_WIFI_MODE, AT_CMD_WIFI_MODE);
+    Send_t.BSP_Send_t.pBuff[index] = 0;
+    Send_t.bAT_OK_Resp = true;
 
-    eEC = eWifi_send(&tSend);
+//    eWifi_rcv_OK();
+    eEC = eWifi_send(&Send_t);
     WIFI_SEND_ASSERT();
 
-    eEC = eWifi_rcv_OK();
   }
 
 //  todo: get mac address
@@ -264,7 +280,7 @@ ERROR_CODE eWifi_get_ready(void)
 //  char cHello[] = "valhalla is awesome!";
 
   Wifi_Receive_t  Rcv_t;
-//  tWifi_Send     tSend;
+//  tWifi_Send     Send_t;
 
 //  memset(cReady, 0x00, 8);
 
@@ -274,8 +290,7 @@ ERROR_CODE eWifi_get_ready(void)
 //  Rcv_t.iTimeout = WIFI_XMIT_1S_TIMEOUT;
   bRcv = false;
   Wifi_AS_t.uiRcvLen = 7;
-  Wifi_AS_t.bRcvCycle = true;
-  eEC = eWifi_rcv(&Rcv_t);
+//  eEC = eWifi_rcv(&Rcv_t);
 
   eBSP_Wifi_En_Clr();
   eOSAL_delay(50, NULL);
@@ -420,7 +435,7 @@ ERROR_CODE eWifi_clear_intf(void)
 ERROR_CODE eWifi_disable_echo(void)
 {
   ERROR_CODE eEC = ER_FAIL;
-  Wifi_Send_t tSend;
+  Wifi_Send_t Send_t;
   Wifi_Receive_t  Rcv_t;
   uint32_t uiCurrent_Tick;
   uint32_t uiStarted_Tick;
@@ -431,41 +446,18 @@ ERROR_CODE eWifi_disable_echo(void)
   memset(Wifi_AS_t.uiSendBuff, 0x00, WIFI_SEND_BUF_LEN);
   memset(Wifi_AS_t.uiRcvBuff, 0x00, WIFI_RCV_BUF_LEN);
 
-  //todo: change this to a state set and check
-  Wifi_AS_t.bRcvCycle = false;
-  Wifi_AS_t.uiRcvLen = 1;
-
-  //prep send
-  tSend.tBSP_Send.uiBuff_Len = 1;
-  memcpy(Wifi_AS_t.uiSendBuff, AT_CMD_TEST, strlen(AT_CMD_TEST));
-  tSend.tBSP_Send.pBuff = Wifi_AS_t.uiSendBuff;
-
   //prep receive
   Rcv_t.tBSP_Receive.uiBuff_Len = 1;//strlen(AT_CMD_TEST) + strlen(AT_OK);
   Rcv_t.tBSP_Receive.pBuff = (uint8_t *)&Wifi_AS_t.uiRcvBuff;
   Rcv_t.tBSP_Receive.bBlocking = false;
 
-  eEC = eWifi_rcv(&Rcv_t);
-  eEC = eWifi_send(&tSend);
-
-  eOSAL_delay(1,NULL);
-
-  //test interface to determine if echo is on
-  //
-  //prep send
-  tSend.tBSP_Send.uiBuff_Len = strlen(AT_CMD_TEST);
-  memset(Wifi_AS_t.uiSendBuff, 0x00, WIFI_SEND_BUF_LEN);
+  //prep to send AT command test
+  Send_t.BSP_Send_t.uiBuff_Len = strlen(AT_CMD_TEST);
   memcpy(Wifi_AS_t.uiSendBuff, AT_CMD_TEST, strlen(AT_CMD_TEST));
-  tSend.tBSP_Send.pBuff = Wifi_AS_t.uiSendBuff;
-
-  //prep receive
-  Rcv_t.tBSP_Receive.uiBuff_Len = strlen(AT_CMD_TEST) + strlen(AT_OK);
-  Rcv_t.tBSP_Receive.pBuff = (uint8_t *)&Wifi_AS_t.uiRcvBuff;
-  Rcv_t.tBSP_Receive.bBlocking = false;
+  Send_t.BSP_Send_t.pBuff = Wifi_AS_t.uiSendBuff;
 
   eEC = eWifi_rcv(&Rcv_t);
-  eEC = eWifi_send(&tSend);
-  WIFI_SEND_ASSERT();
+  eEC = eWifi_send(&Send_t);
 
   eBSP_Get_Current_ms_count(&uiStarted_Tick);
   do
@@ -482,8 +474,8 @@ ERROR_CODE eWifi_disable_echo(void)
     if(strstr(pBuff, AT_CMD_TEST) != NULL)
     {
       bIs_Echo_On = true;
-      eWifi_clear_intf();
-      break;
+//      eWifi_clear_intf();
+//      break;
     }
   }while(strstr(pBuff, AT_OK) == NULL);
 
@@ -493,15 +485,15 @@ ERROR_CODE eWifi_disable_echo(void)
     Rcv_t.tBSP_Receive.uiBuff_Len = strlen(AT_ECHO_OFF) + strlen(AT_OK);
     Rcv_t.tBSP_Receive.pBuff = pBuff;
 
-    tSend.tBSP_Send.uiBuff_Len = strlen(AT_ECHO_OFF);
+    Send_t.BSP_Send_t.uiBuff_Len = strlen(AT_ECHO_OFF);
     memset(Wifi_AS_t.uiSendBuff, 0x00, WIFI_SEND_BUF_LEN);
     memcpy(Wifi_AS_t.uiSendBuff, AT_ECHO_OFF, strlen(AT_ECHO_OFF));
-    tSend.tBSP_Send.pBuff = Wifi_AS_t.uiSendBuff;
+    Send_t.BSP_Send_t.pBuff = Wifi_AS_t.uiSendBuff;
 
     eBSP_Get_Current_ms_count(&uiStarted_Tick);
 
     eEC = eWifi_rcv(&Rcv_t);
-    eEC = eWifi_send(&tSend);
+    eEC = eWifi_send(&Send_t);
     WIFI_SEND_ASSERT();
 
     do
@@ -534,32 +526,64 @@ ERROR_CODE eWifi_rcv_OK(void)
   ERROR_CODE eEC = ER_FAIL;
   Wifi_Receive_t  Rcv_t;
 
-  memset(Wifi_AS_t.uiSendBuff, 0x00, strlen(AT_ERROR)+1);
-  Rcv_t.tBSP_Receive.uiBuff_Len = strlen(AT_OK) + 1;
-  Rcv_t.tBSP_Receive.pBuff = Wifi_AS_t.uiSendBuff;
-  Rcv_t.iTimeout = WIFI_XMIT_1S_TIMEOUT * 10;
-
-  eEC =  eWifi_rcv(&Rcv_t);
-  if(eEC == ER_OK)
+  if(Wifi_AS_t.bISR_Rcv == true)
   {
-    if(strstr((char *)Rcv_t.tBSP_Receive.pBuff, AT_OK) == NULL)
+    while(strstr((char *)Wifi_AS_t.uiRcvBuff, AT_OK) == NULL)
     {
-      Rcv_t.tBSP_Receive.uiBuff_Len = 1;
-      Rcv_t.tBSP_Receive.pBuff = &Wifi_AS_t.uiSendBuff[strlen(AT_OK)];
-      Rcv_t.iTimeout = WIFI_XMIT_1S_TIMEOUT;
-      eEC = eWifi_rcv(&Rcv_t);
-      if(strstr((char *)Rcv_t.tBSP_Receive.pBuff, AT_ERROR) == NULL)
+      if(strstr((char *)Rcv_t.tBSP_Receive.pBuff, AT_ERROR) != NULL)
       {
-        vDEBUG_ASSERT("eWifi_rcv_OK non OK ERROR resp", 0);
+        vDEBUG_ASSERT("eWifi_rcv_OK ERROR!", 0);
       }
       else
       {
-        eEC = ER_FAIL;
+        eOSAL_delay(1, NULL);
+        eEC = ER_OK;
       }
     }
-    else
+  }
+  else
+  {
+    vDEBUG_ASSERT("Currently broken", 0);
+    memset(Wifi_AS_t.uiRcvBuff, 0x00, strlen(AT_ERROR)+1);
+  //  Rcv_t.tBSP_Receive.uiBuff_Len = strlen(AT_OK) + 1;
+    Rcv_t.tBSP_Receive.uiBuff_Len = strlen(AT_ERROR) + 1;
+  //  Rcv_t.tBSP_Receive.pBuff = Wifi_AS_t.uiRcvBuff;
+  //  Rcv_t.iTimeout = WIFI_XMIT_1S_TIMEOUT * 10;
+    eEC =  eWifi_rcv(&Rcv_t);
+    if(eEC == ER_OK)
     {
-      eEC = ER_OK;
+      while(strstr((char *)Wifi_AS_t.uiRcvBuff, AT_OK) == NULL)
+      {
+        if(strstr((char *)Rcv_t.tBSP_Receive.pBuff, AT_ERROR) != NULL)
+        {
+          vDEBUG_ASSERT("eWifi_rcv_OK non OK ERROR resp", 0);
+        }
+        else
+        {
+          eOSAL_delay(1, NULL);
+          eEC = ER_OK;
+        }
+      }
+
+  //    if(strstr((char *)Rcv_t.tBSP_Receive.pBuff, AT_OK) == NULL)
+  //    {
+  //      Rcv_t.tBSP_Receive.uiBuff_Len = 1;
+  //      Rcv_t.tBSP_Receive.pBuff = &Wifi_AS_t.uiSendBuff[strlen(AT_OK)];
+  //      Rcv_t.iTimeout = WIFI_XMIT_1S_TIMEOUT;
+  //      eEC = eWifi_rcv(&Rcv_t);
+  //      if(strstr((char *)Rcv_t.tBSP_Receive.pBuff, AT_ERROR) == NULL)
+  //      {
+  //        vDEBUG_ASSERT("eWifi_rcv_OK non OK ERROR resp", 0);
+  //      }
+  //      else
+  //      {
+  //        eEC = ER_FAIL;
+  //      }
+  //    }
+  //    else
+  //    {
+  //      eEC = ER_OK;
+  //    }
     }
   }
 
@@ -577,7 +601,7 @@ ERROR_CODE eWifi_rcv_OK(void)
 ERROR_CODE eWifi_AP_connect(void)
 {
   ERROR_CODE eEC = ER_FAIL;
-  Wifi_Send_t tSend;
+  Wifi_Send_t Send_t;
   Wifi_Receive_t  Rcv_t;
   char * cAP_list = NULL;
   char * cStartAddress = NULL;
@@ -591,10 +615,10 @@ ERROR_CODE eWifi_AP_connect(void)
 
   //list AP's
   //setup the send buffer
-  index = tSend.tBSP_Send.uiBuff_Len = strlen(AT_CMD_LST_AP);
-  tSend.tBSP_Send.pBuff = Wifi_AS_t.uiSendBuff;
-  memcpy(tSend.tBSP_Send.pBuff, AT_CMD_LST_AP, tSend.tBSP_Send.uiBuff_Len);
-  tSend.tBSP_Send.pBuff[index] = 0;
+  index = Send_t.BSP_Send_t.uiBuff_Len = strlen(AT_CMD_LST_AP);
+  Send_t.BSP_Send_t.pBuff = Wifi_AS_t.uiSendBuff;
+  memcpy(Send_t.BSP_Send_t.pBuff, AT_CMD_LST_AP, Send_t.BSP_Send_t.uiBuff_Len);
+  Send_t.BSP_Send_t.pBuff[index] = 0;
 
   //setup the receive buffer
   Rcv_t.tBSP_Receive.uiBuff_Len = 1024 * 3;
@@ -605,7 +629,7 @@ ERROR_CODE eWifi_AP_connect(void)
   Rcv_t.tBSP_Receive.pBuff = (uint8_t *)cAP_list;
 
   //send the AP list command
-  eEC = eWifi_send(&tSend);
+  eEC = eWifi_send(&Send_t);
   WIFI_SEND_ASSERT();
 
   //receive the AP list
@@ -633,11 +657,11 @@ ERROR_CODE eWifi_AP_connect(void)
   if(eEC == ER_OK)
   {
     //connect to the AP
-    tSend.tBSP_Send.pBuff = Wifi_AS_t.uiSendBuff;
-    index = tSend.tBSP_Send.uiBuff_Len = snprintf((char *)tSend.tBSP_Send.pBuff, WIFI_SEND_BUF_LEN, AT_CMD_JOIN_AP, GET_AP_ID(), GET_AP_PW());
-    tSend.tBSP_Send.pBuff[index] = 0;
+    Send_t.BSP_Send_t.pBuff = Wifi_AS_t.uiSendBuff;
+    index = Send_t.BSP_Send_t.uiBuff_Len = snprintf((char *)Send_t.BSP_Send_t.pBuff, WIFI_SEND_BUF_LEN, AT_CMD_JOIN_AP, GET_AP_ID(), GET_AP_PW());
+    Send_t.BSP_Send_t.pBuff[index] = 0;
 
-    eEC = eWifi_send(&tSend);
+    eEC = eWifi_send(&Send_t);
     WIFI_SEND_ASSERT();
 
     eEC = eWifi_rcv_OK();
@@ -646,10 +670,10 @@ ERROR_CODE eWifi_AP_connect(void)
   if(eEC == ER_OK)
   {
     //Get the IP address
-    tSend.tBSP_Send.pBuff = Wifi_AS_t.uiSendBuff;
-    index = tSend.tBSP_Send.uiBuff_Len = strlen(AT_CMD_GET_IP_ADD);
-    memcpy(tSend.tBSP_Send.pBuff, AT_CMD_GET_IP_ADD, index);
-    tSend.tBSP_Send.pBuff[index] = 0;
+    Send_t.BSP_Send_t.pBuff = Wifi_AS_t.uiSendBuff;
+    index = Send_t.BSP_Send_t.uiBuff_Len = strlen(AT_CMD_GET_IP_ADD);
+    memcpy(Send_t.BSP_Send_t.pBuff, AT_CMD_GET_IP_ADD, index);
+    Send_t.BSP_Send_t.pBuff[index] = 0;
 
     Rcv_t.tBSP_Receive.uiBuff_Len = WIFI_RCV_BUF_LEN;
     iTimeout = WIFI_XMIT_1S_TIMEOUT * 3;
@@ -658,7 +682,7 @@ ERROR_CODE eWifi_AP_connect(void)
     Rcv_t.tBSP_Receive.pBuff = Wifi_AS_t.uiRcvBuff;
     memset(Rcv_t.tBSP_Receive.pBuff, 0x00, WIFI_RCV_BUF_LEN);
 
-    eEC = eWifi_send(&tSend);
+    eEC = eWifi_send(&Send_t);
     WIFI_SEND_ASSERT();
 
     eEC = eWifi_rcv(&Rcv_t);
@@ -691,11 +715,40 @@ ERROR_CODE eWifi_AP_connect(void)
 ERROR_CODE eWifi_send(Wifi_Send_t * pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
-  BSP_Wifi_Transmit_t tSend;
+  BSP_Wifi_Transmit_t Send_t;
 
-  memcpy(&tSend, &pParam->tBSP_Send, sizeof(BSP_Wifi_Transmit_t));
+  memcpy(&Send_t, &pParam->BSP_Send_t, sizeof(BSP_Wifi_Transmit_t));
 
-  eEC = eBSP_Wifi_Intf_Send(&tSend);
+  if(pParam->bAT_OK_Resp == true)
+  {
+    Wifi_AS_t.uiRcvLen = strlen(AT_OK);
+    Wifi_AS_t.pRcvBuff = Wifi_AS_t.uiRcvBuff;
+  }
+  eEC = eBSP_Wifi_Intf_Send(&Send_t);
+
+  return eEC;
+}
+
+//todo: AT send with expected AT_OK response
+ERROR_CODE eWifi_AT_Send(pWifi_Send pSend)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  vDEBUG_ASSERT("eWifi_AT_Send not implemented yet", eEC == ER_OK);
+  return eEC;
+}
+
+ERROR_CODE eWIFI_Rcv_Init(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  BSP_Wifi_Receive_t Bsp_Rcv_t;
+
+  Bsp_Rcv_t.bBlocking = false;
+  Bsp_Rcv_t.pBuff = &Wifi_AS_t.uiISR_RcvBuff;
+  Bsp_Rcv_t.uiBuff_Len = 1;
+
+  Wifi_AS_t.bISR_Rcv = true;
+
+  eEC = eBSP_Wifi_Intf_Receive(&Bsp_Rcv_t);
 
   return eEC;
 }
@@ -719,41 +772,52 @@ ERROR_CODE eWifi_rcv(pWifi_Receive pParam)
 
   memcpy(&Bsp_Rcv_t, &pParam->tBSP_Receive, sizeof(BSP_Wifi_Receive_t));
 
-  if(pParam->bReceive_Until_OK == false)
+  if(Wifi_AS_t.bISR_Rcv == true)
   {
-//    do
-//    {
-      eEC = eBSP_Wifi_Intf_Receive(&Bsp_Rcv_t);
-//      iTimeout--;
-//      if(iTimeout <= 0)
-//      {
-//        break;
-//      }
-//    }while(eEC == ER_TIMEOUT);
+    Wifi_AS_t.uiRcvLen = pParam->tBSP_Receive.uiBuff_Len;
+    Wifi_AS_t.pRcvBuff = Wifi_AS_t.uiRcvBuff;
+    eEC = ER_OK;
+
   }
   else
   {
-    iLen = Bsp_Rcv_t.uiBuff_Len;
-    iIndex = 0;
-    pBuff = Bsp_Rcv_t.pBuff;
-    do
+    if(pParam->bReceive_Until_OK == false)
     {
-      Bsp_Rcv_t.pBuff = &pBuff[iIndex];
-      Bsp_Rcv_t.uiBuff_Len = 1;
-      iIndex++;
-      if(iIndex == iLen)
+  //    do
+  //    {
+        eEC = eBSP_Wifi_Intf_Receive(&Bsp_Rcv_t);
+  //      iTimeout--;
+  //      if(iTimeout <= 0)
+  //      {
+  //        break;
+  //      }
+  //    }while(eEC == ER_TIMEOUT);
+    }
+    else
+    {
+      iLen = Bsp_Rcv_t.uiBuff_Len;
+      iIndex = 0;
+      pBuff = Bsp_Rcv_t.pBuff;
+      do
       {
-        eEC = ER_LEN;
-        break;
-      }
-      eEC = eBSP_Wifi_Intf_Receive(&Bsp_Rcv_t);
-      if(strstr((char *)pBuff, AT_OK) != NULL)
-      {
-        eEC = ER_OK;
-        break;
-      }
-    }while(eEC == ER_OK);
+        Bsp_Rcv_t.pBuff = &pBuff[iIndex];
+        Bsp_Rcv_t.uiBuff_Len = 1;
+        iIndex++;
+        if(iIndex == iLen)
+        {
+          eEC = ER_LEN;
+          break;
+        }
+        eEC = eBSP_Wifi_Intf_Receive(&Bsp_Rcv_t);
+        if(strstr((char *)pBuff, AT_OK) != NULL)
+        {
+          eEC = ER_OK;
+          break;
+        }
+      }while(eEC == ER_OK);
+    }
   }
+
 
   return eEC;
 }
@@ -761,10 +825,65 @@ ERROR_CODE eWifi_rcv(pWifi_Receive pParam)
 void vWifi_Intf_isr_callback(void)
 {
   Wifi_Receive_t  Rcv_t;
-  if(Wifi_AS_t.bRcvCycle == true)
+  int i;
+  static int x = 0;
+
+  if(Wifi_AS_t.eSTATE == WIFI_STATE_INIT_GET_READY)
   {
-    memcpy(&Wifi_AS_t.uiRcvBuff[0], &Wifi_AS_t.uiRcvBuff[1], Wifi_AS_t.uiRcvLen);
-    Rcv_t.tBSP_Receive.pBuff = &Wifi_AS_t.uiRcvBuff[Wifi_AS_t.uiRcvLen];
+    i = 6;
+    if(Wifi_AS_t.uiRcvBuff[i] == 0)
+    {
+      if(Wifi_AS_t.uiRcvBuff[0] == 0)
+      {
+        Wifi_AS_t.uiRcvBuff[0] = Wifi_AS_t.uiISR_RcvBuff;
+      }
+      else
+      {
+        for(i = 6; i > 0; i--)
+        {
+          if(Wifi_AS_t.uiRcvBuff[i - 1] != 0)
+          {
+            Wifi_AS_t.uiRcvBuff[i] = Wifi_AS_t.uiISR_RcvBuff;
+            break;
+          }
+        }
+      }
+    }
+    else
+    {
+      memcpy(&Wifi_AS_t.uiRcvBuff[0], &Wifi_AS_t.uiRcvBuff[1], 7);
+      Wifi_AS_t.uiRcvBuff[6] = Wifi_AS_t.uiISR_RcvBuff;
+    }
+    Wifi_AS_t.uiISR_RcvBuff = 0;
+
+    Rcv_t.tBSP_Receive.pBuff = &Wifi_AS_t.uiISR_RcvBuff;
+    Rcv_t.tBSP_Receive.bBlocking = false;
+    Rcv_t.tBSP_Receive.uiBuff_Len = 1;
+    eBSP_Wifi_Intf_Receive(&Rcv_t.tBSP_Receive);
+//    eWifi_rcv(&Rcv_t);
+  }
+  else if(Wifi_AS_t.eSTATE == WIFI_STATE_INIT_ECHO)
+  {
+//    x++;
+//    if(x == 2)
+//    {
+//      x = 2;
+//    }
+    *Wifi_AS_t.pRcvBuff++ = Wifi_AS_t.uiISR_RcvBuff;
+
+    Wifi_AS_t.uiISR_RcvBuff = 0;
+    Rcv_t.tBSP_Receive.pBuff = &Wifi_AS_t.uiISR_RcvBuff;
+    Rcv_t.tBSP_Receive.bBlocking = false;
+    Rcv_t.tBSP_Receive.uiBuff_Len = 1;
+    eBSP_Wifi_Intf_Receive(&Rcv_t.tBSP_Receive);
+//    eWifi_rcv(&Rcv_t);
+  }
+  else
+  {
+    *Wifi_AS_t.pRcvBuff++ = Wifi_AS_t.uiISR_RcvBuff;
+
+    Wifi_AS_t.uiISR_RcvBuff = 0;
+    Rcv_t.tBSP_Receive.pBuff = &Wifi_AS_t.uiISR_RcvBuff;
     Rcv_t.tBSP_Receive.bBlocking = false;
     Rcv_t.tBSP_Receive.uiBuff_Len = 1;
     eWifi_rcv(&Rcv_t);
@@ -784,16 +903,13 @@ void vWifi_Driver_Task(void * pvParameters)
   OSAL_Queue_Parameters_t tWifi_Queue_Param;
   pOSAL_Queue_Handle pWifi_Queue_Handle;
   tWifi_Message_Struct tMsg;
-  Wifi_Send_t tSend;
+  Wifi_Send_t Send_t;
 #if (PROJ_CONFIG_USE_DRVR_NVRAM >= 1)
   pWifi_Activity_State pActivity_State;
   tNvram_Request tNVReq;
 #endif //PROJ_CONFIG_USE_DRVR_WIFI
 
   char cHelloWorld[] = "HELLO WORLD";
-//  Wifi_Receive_t  Rcv_t;
-
-
 
   eOSAL_Queue_Params_Init(&tWifi_Queue_Param);
   tWifi_Queue_Param.uiNum_Of_Queue_Elements = 3;
@@ -850,9 +966,9 @@ void vWifi_Driver_Task(void * pvParameters)
 //  eEC = eOSAL_Queue_Post_msg(pWifi_Queue_Handle, &tMsg);
 //  vDEBUG_ASSERT("vWifi_Driver_Task msg post fail", eEC != ER_OK);
 
-  tSend.iTimeout = 1000;
-  tSend.tBSP_Send.pBuff = (uint8_t *)cHelloWorld;
-  tSend.tBSP_Send.uiBuff_Len = strlen(cHelloWorld);
+  Send_t.iTimeout = 1000;
+  Send_t.BSP_Send_t.pBuff = (uint8_t *)cHelloWorld;
+  Send_t.BSP_Send_t.uiBuff_Len = strlen(cHelloWorld);
   memset(&tMsg, 0x00, sizeof(tWifi_Message_Struct));
 
   Wifi_AS_t.bIs_Wifi_Task_Ready = true;

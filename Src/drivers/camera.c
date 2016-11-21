@@ -22,7 +22,6 @@
 #if (PROJ_CONFIG_USE_DRVR_CAMERA == 0)
   //Camera driver not implemented
 #else
-  #include "proj_inc/project_main.h"
 
 //Utility includes
   #include "utils_inc/error_codes.h"
@@ -132,17 +131,17 @@ ERROR_CODE eCamera_Setup(void)
 void vCamera_Task(void * pvParameters)
 {
   ERROR_CODE eEC = ER_FAIL;
-  tOSAL_Queue_Parameters  tCamera_Queue_Param;
-  tOSAL_Queue_Handle    * pCamera_Queue_Handle;
+  OSAL_Queue_Parameters_t  Camera_Queue_Param_t;
+  pOSAL_Queue_Handle       pCamera_Queue_Handle;
   tCamera_Message_Struct  tMsg;
 
-  eOSAL_Queue_Params_Init(&tCamera_Queue_Param);
-  tCamera_Queue_Param.uiNum_Of_Queue_Elements = 3;
-  tCamera_Queue_Param.uiSize_Of_Queue_Element = sizeof(tCamera_Message_Struct);
-  tCamera_Queue_Param.pMsgBuff                = &tMsg;
-  tCamera_Queue_Param.iTimeout                = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
+  eOSAL_Queue_Params_Init(&Camera_Queue_Param_t);
+  Camera_Queue_Param_t.uiNum_Of_Queue_Elements = 3;
+  Camera_Queue_Param_t.uiSize_Of_Queue_Element = sizeof(tCamera_Message_Struct);
+  Camera_Queue_Param_t.pMsgBuff                = &tMsg;
+  Camera_Queue_Param_t.iTimeout                = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
 
-  eEC = eOSAL_Queue_Create(&tCamera_Queue_Param, &pCamera_Queue_Handle);
+  eEC = eOSAL_Queue_Create(&Camera_Queue_Param_t, &pCamera_Queue_Handle);
   vDEBUG_ASSERT("vCamera_Task queue create fail", eEC == ER_OK);
 
   tCamera_AS.bIs_Camera_Ready = true;

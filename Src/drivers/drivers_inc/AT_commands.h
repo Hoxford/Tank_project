@@ -93,7 +93,7 @@
 #define AT_CMD_GET_IP_ADD   "AT+CIFSR\r\n"
 #define AT_CMD_TST_IP_ADD   "AT+CIFSR=?\r\n"
 
-//set mutiple connection;TCP/IP; AT+ CIPMUX=<mode>; AT+ CIPMUX?;0 for single connection 1 for multiple connection
+//set multiple connection;TCP/IP; AT+ CIPMUX=<mode>; AT+ CIPMUX?;0 for single connection 1 for multiple connection
 #define AT_CMD_SET_MCONN    "AT+CIPMUX=%s"
     #define AT_CMD_MCONN_SINGLE  0
     #define AT_CMD_MCONN_MULTI   1

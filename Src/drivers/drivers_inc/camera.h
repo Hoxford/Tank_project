@@ -58,11 +58,11 @@ typedef enum CAMERA_REQUEST_ID
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-typedef struct tCamera_Request
+typedef struct Camera_Request
 {
   CAMERA_REQUEST_ID eRequestID;
-  tOSAL_Task_Parameters * pCamera_Task_Param;
-}tCamera_Request;
+  pOSAL_Task_Parameters pCamera_Task_Param;
+}Camera_Request_t, *pCamera_Request;
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,8 +72,8 @@ typedef struct tCamera_Request
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eCamera_Request_Param_Init(tCamera_Request * pParam);
-ERROR_CODE eCamera_Request(tCamera_Request * pRequest);
+ERROR_CODE eCamera_Request_Param_Init(pCamera_Request pParam);
+ERROR_CODE eCamera_Request(pCamera_Request pRequest);
 
 #endif //PROJ_CONFIG_USE_DRVR_CAMERA
 #endif //__CAMERA_H__

@@ -185,11 +185,11 @@ void proj_main(void)
 #if (PROJ_CONFIG_USE_DRVR_CAMERA >= 1)
 
   //create Camera task
-  eCamera_Request_Param_Init(&tCamera_Req);
+  eCamera_Request_Param_Init(&Camera_Req_t);
   eOSAL_Task_Param_Init(&OSAL_Task_Param_t);
-  tCamera_Req.eRequestID = CAMERA_REQUEST_TASK_PARAM;
-  tCamera_Req.pCamera_Task_Param = &OSAL_Task_Param_t;
-  eEC = eCamera_Request(&tCamera_Req);
+  Camera_Req_t.eRequestID = CAMERA_REQUEST_TASK_PARAM;
+  Camera_Req_t.pCamera_Task_Param = &OSAL_Task_Param_t;
+  eEC = eCamera_Request(&Camera_Req_t);
 
   if(eEC == ER_OK)
   {
