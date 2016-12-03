@@ -52,7 +52,7 @@ typedef enum CAMERA_REQUEST_ID
   CAMERA_REQUEST_START_CONTINUOUS_IMAGE_CAPTURE,
   CAMERA_REQUEST_STOP_CONTINUOUS_IMAGE_CAPTURE,
   CAMERA_REQUEST_LIMIT,
-}CAMERA_REQUEST_ID;
+}CAMERA_REQUEST_ID, * pCAMERA_REQUEST_ID;
 
 /******************************************************************************
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

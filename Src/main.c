@@ -54,6 +54,7 @@ I2C_HandleTypeDef hi2c2;
 
 TIM_HandleTypeDef htim4;
 
+UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
@@ -72,6 +73,7 @@ static void MX_I2C2_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
+static void MX_UART4_Init(void);
 void StartDefaultTask(void const * argument);
                                     
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
@@ -107,6 +109,7 @@ int main(void)
   MX_TIM4_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
+  MX_UART4_Init();
 
   /* USER CODE BEGIN 2 */
   GPIO_InitTypeDef      Wifi_GPIO_Init_t;
@@ -271,6 +274,25 @@ static void MX_TIM4_Init(void)
 
 }
 
+/* UART4 init function */
+static void MX_UART4_Init(void)
+{
+
+  huart4.Instance = UART4;
+  huart4.Init.BaudRate = 115200;
+  huart4.Init.WordLength = UART_WORDLENGTH_8B;
+  huart4.Init.StopBits = UART_STOPBITS_1;
+  huart4.Init.Parity = UART_PARITY_NONE;
+  huart4.Init.Mode = UART_MODE_TX_RX;
+  huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart4.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+}
+
 /* USART2 init function */
 static void MX_USART2_UART_Init(void)
 {
@@ -353,6 +375,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PC12 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PD0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
   /*Configure GPIO pins : PB4 PB5 */
   GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -368,6 +403,9 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4|GPIO_PIN_5, GPIO_PIN_RESET);

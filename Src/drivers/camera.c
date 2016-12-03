@@ -28,6 +28,9 @@
   #include "utils_inc/util_debug.h"
   #include "utils_inc/clock.h"
 
+//Third party includes
+  #include "ThirdParty_inc/osal.h"
+
 //Driver includes
   #include "drivers_inc/wifi.h"
   #include "drivers_inc/bluetooth.h"
@@ -35,9 +38,6 @@
 
 //Application includes
   #include "app_inc/commander.h"
-
-//Third party includes
-  #include "ThirdParty_inc/osal.h"
 
 //Platform includes
   #include "board.h"
@@ -187,11 +187,11 @@ void vCamera_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eCamera_Request_Param_Init(tCamera_Request * pParam)
+ERROR_CODE eCamera_Request_Param_Init(pCamera_Request pParam)
 {
   ERROR_CODE eEC = ER_OK;
 
-  memset(pParam, 0x00, sizeof(tCamera_Request));
+  memset(pParam, 0x00, sizeof(Camera_Request_t));
 
   pParam->eRequestID = CAMERA_REQUEST_NONE;
 
@@ -205,7 +205,7 @@ ERROR_CODE eCamera_Request_Param_Init(tCamera_Request * pParam)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eCamera_Request(tCamera_Request * pRequest)
+ERROR_CODE eCamera_Request(pCamera_Request pRequest)
 {
   ERROR_CODE eEC = ER_OK;
 

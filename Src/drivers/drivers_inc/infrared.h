@@ -1,11 +1,11 @@
 /******************************************************************************
 *
-* bluetooth.h - include file for the bluetooth driver module
+* infrared.h - infrared driver header file
 * Copyright (c) notice
 *
 ******************************************************************************/
-#ifndef __BLUETOOTH_H__
-#define __BLUETOOTH_H__
+#ifndef __INFRARED_H__
+#define __INFRARED_H__
 /******************************************************************************
 * includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -19,48 +19,42 @@
 
 //Project specific includes
   #include "proj_inc/project_config.h"
-#if (PROJ_CONFIG_USE_DRVR_BLUETOOTH == 0)
-  #warning "Bluetooth driver not implemented"
-
-#define eBluetooth_Request_Param_Init(p)   ER_NOT_ENABLED
-#define eBluetooth_Request(p)              ER_NOT_ENABLED
-
-#define Bluetooth_Request_t                void *//
+#if (PROJ_CONFIG_USE_DRVR_IR_DETECTION == 0)
+  #warning "IR driver not implemented"
 #else
-
 /******************************************************************************
 *public defines ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+//#def EXAMPLE_DEF  value  //def description
 
 /******************************************************************************
 *public variables /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+//int iExample_var;  //variable description
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+//extern int iExample_extern_var;  //external variable description
 
 /******************************************************************************
 *public enums /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-//Bluetooth request IDs
-typedef enum BLUETOOTH_REQUEST_ID
+//eExample_enum description
+typedef enum IR_REQUEST_ID
 {
-  BLUETOOTH_REQUEST_NONE = 0,
-  BLUETOOTH_REQUEST_TASK_PARAMETERS,
-  BLUETOOTH_REQUEST_CONNECT,
-  BLUETOOTH_REQUEST_LIMIT,
-}BLUETOOTH_REQUEST_ID, * pBLUETOOTH_REQUEST_ID;
+  IR_REQUEST_NONE = 0,
+  IR_REQUEST_LIMIT,
+}IR_REQUEST_ID, * pIR_REQUEST_ID;
 
 /******************************************************************************
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-//Bluetooth_Request structure
-typedef struct Bluetooth_Request
+//tExample_struct description
+typedef struct IR_Request
 {
-  BLUETOOTH_REQUEST_ID eRequestID;
-  pOSAL_Task_Parameters pBluetooth_Task_Param;
-}Bluetooth_Request_t, * pBluetooth_Request;
+  IR_REQUEST_ID eRequestID;;
+}IR_Request_t, * pIR_Request_t;
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,9 +63,8 @@ typedef struct Bluetooth_Request
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+ERROR_CODE eIR_Request_Param_Init(pIR_Request_t pParam);
+ERROR_CODE eIR_Request(pIR_Request_t pRequest);
 
-ERROR_CODE eBluetooth_Request_Param_Init(pBluetooth_Request pParam);
-ERROR_CODE eBluetooth_Request(pBluetooth_Request pRequest);
-
-#endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH
-#endif //__BLUETOOTH_H__
+#endif //PROJ_CONFIG_USE_DRVR_USB
+#endif //__USB_H__

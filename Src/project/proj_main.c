@@ -30,6 +30,7 @@
   #include "drivers_inc/nvram.h"
   #include "drivers_inc/wifi.h"
   #include "drivers_inc/usb.h"
+  #include "drivers_inc/bluetooth.h"
 
 //Application includes
   #include "app_inc/commander.h"
@@ -52,7 +53,6 @@ static uint32_t uiCurrent_Tick = 0;
 OSAL_Task_Parameters_t OSAL_Task_Param_t;
 Wifi_Request_t        Wifi_Req_t;
 tNvram_Request        tNVReq;
-tUsb_Request          tUsb_Req;
 Camera_Request_t      Camera_Req_t;
 
 extern void HardFault_Handler();
@@ -150,6 +150,22 @@ void proj_main(void)
   }
 #endif //#if (PROJ_CONFIG_USE_APP_COMMANDER >= 1)
 
+#if (PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
+  Bluetooth_Request_t BT_Req_t;
+
+  //create bluetooth task
+  eBluetooth_Request_Param_Init(&BT_Req_t);
+  eOSAL_Task_Param_Init(&OSAL_Task_Param_t);
+  BT_Req_t.eRequestID = BLUETOOTH_REQUEST_TASK_PARAMETERS;
+  BT_Req_t.pBluetooth_Task_Param = &OSAL_Task_Param_t;
+  eEC = eBluetooth_Request(&BT_Req_t);
+  if(eEC == ER_OK)
+  {
+    eEC = eOSAL_Task_Create(&OSAL_Task_Param_t);
+  }
+
+#endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH
+
 #if (PROJ_CONFIG_USE_DRVR_WIFI >= 1)
 
   //create wifi task
@@ -167,7 +183,7 @@ void proj_main(void)
 #endif  //#if (PROJ_CONFIG_USE_DRVR_WIFI >= 1)
 
 #if (PROJ_CONFIG_USE_DRVR_USB >= 1)
-
+  tUsb_Request          tUsb_Req;
   //create USB task
   eUSB_Request_Param_Init(&tUsb_Req);
   eOSAL_Task_Param_Init(&OSAL_Task_Param_t);
@@ -197,6 +213,9 @@ void proj_main(void)
   }
 
 #endif //#if (PROJ_CONFIG_USE_DRVR_CAMERA >= 1)
+
+#if (PROJ_CONFIG_USE_DRVR_IR_DETECTION >= 1)
+#endif
 
   if(eEC == ER_OK)
   {

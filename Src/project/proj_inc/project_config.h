@@ -24,7 +24,7 @@
   #define PROJ_CONFIG_USE_DRVR_BLUETOOTH        0
   #define PROJ_CONFIG_USE_DRVR_USB              0
   #define PROJ_CONFIG_USE_DRVR_IR_DETECTION     0
-  #define PROJ_CONFIG_USE_DRVR_CAMERA           1
+  #define PROJ_CONFIG_USE_DRVR_CAMERA           0
 //Project driver configuration defines END
 
 

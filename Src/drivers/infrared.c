@@ -1,11 +1,11 @@
 /******************************************************************************
 *
-* bluetooth.c - Bluetooth driver source code.
+* infrared.c - Infrared driver source code.
 * Copyright (c) notice
 *
 ******************************************************************************/
-#ifndef __BLUETOOTH_C__
-#define __BLUETOOTH_C__
+#ifndef __INFRARED_C__
+#define __INFRARED_C__
 /******************************************************************************
 * includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -19,8 +19,9 @@
 
 //Project specific includes
   #include "proj_inc/project_config.h"
-#if (PROJ_CONFIG_USE_DRVR_BLUETOOTH == 0)
+#if (PROJ_CONFIG_USE_DRVR_IR_DETECTION == 0)
 #else
+  /* Project specific include files here */
 
 //Utility includes
   #include "utils_inc/error_codes.h"
@@ -32,7 +33,7 @@
   /* Third party include files here */
 
 //Driver includes
-  #include "drivers_inc/bluetooth.h"
+  #include "drivers_inc/infrared.h"
   /* Driver include files here */
 
 //Application includes
@@ -59,79 +60,110 @@
 /******************************************************************************
 * enums ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-//Bluetooth message identifiers
-typedef enum BLUETOOTH_MSG_ID
+typedef enum IR_MSG_ID
 {
-  BLUETOOTH_MSG_NONE,
-  BLUETOOTH_MSG_LIMIT,
-}BLUETOOTH_MSG_ID, * pBLUETOOTH_MSG_ID;
+  IR_MSG_NONE,
+  IR_MSG_LIMIT,
+}IR_MSG_ID, * pIR_MSG_ID;
 
-typedef enum BLUETOOTH_STATE
+typedef enum IR_STATE
 {
-  BLUETOOTH_STATE_NONE,
-  BLUETOOTH_STATE_LIMIT,
-}BLUETOOTH_STATE, * pBLUETOOTH_STATE;
+  IR_STATE_NONE,
+  IR_STATE_LIMIT,
+}IR_STATE, * pIR_STATE;
 
 /******************************************************************************
 * structures //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-//tExample_struct description
-typedef struct Bluetooth_Activity_State
+typedef struct IR_Activity_State
 {
-  BLUETOOTH_STATE eState;
-}Bluetooth_Activity_State_t, * pBluetooth_Activity_State;
+  IR_STATE  eState;
+}IR_Activity_State_t, * pIR_Activity_State;
 
-Bluetooth_Activity_State_t BT_AS_t =
+IR_Activity_State_t IR_AS_t =
 {
-  .eState = BLUETOOTH_STATE_NONE,
+  .eState =
 };
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-
+extern int external_example_function(param); //short external function description
 /******************************************************************************
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+bool           bExample_PrivateFunction(param_1, param_2); //short function declaration description
+int            iExample_PrivateFunction(param_1, param_2); //short function declaration description
+Example_Struct pExample_PrivateFunction(param_1, param_2); //short function declaration description
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-
-void vWifi_Driver_Task(void * pvParameters)
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name: [put name here]
+* description:
+*   [put description here]
+* parameters:
+*   type - value: value description (in order from left to right)
+*   example:
+*   bool - true: do action when set to true
+*        - false: do action when set to false
+*   Example_Struct - pStruct:
+*     (int)->iFoo: Structure member description
+*     (uint32_t *)->pFoo: Structure member description
+*     (eEXAMPLE_ENUM)->eFOO: Structure member description
+*
+* return value description:
+*   type - value: value description
+*   examples:
+*   bool - true: did function action and result is true
+*        - false: did function action and result is false
+*   uint32_t - : integer value after function action
+*   Example_Struct - *: address of the created object
+*                  - NULL: created object fail
+******************************************************************************/
+bool bExample_PrivateFunction(param_1, param_2)
 {
-  while(1)
-  {
-    eOSAL_delay(1, NULL);
-  }
-
-  return;
+  bool bFoo = false;
+  return bFoo;
+}
+/**/
+int iExample_PrivateFunction(param_1, param_2)
+{
+  int iFoo = 0;
+  return iFoo;
+}
+/**/
+Example_Struct pExample_PrivateFunction(param_1, param_2)
+{
+  Example_Struct pStruct = NULL;
+  pStruct = malloc(sizeof(tExample_Struct, ));
+  return pStruct;
 }
 
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-ERROR_CODE eBluetooth_Request_Param_Init(pBluetooth_Request pParam)
+
+bool bFilename_or_abreviation_funciton(param_1, param_2)
 {
-  ERROR_CODE eEC = ER_FAIL;
-  if(pParam == NULL)
-  {
-    eEC = ER_PARAM;
-  }
-  else
-  {
-    memset(pParam, 0x00, sizeof(Bluetooth_Request_t));
-    eEC = ER_OK;
-  }
-  return eEC;
+  bool bFoo = false;
+  return bFoo;
+}
+/**/
+int iFilename_or_abreviation_funciton(param_1, param_2)
+{
+  int iFoo = 0;
+  return iFoo;
+}
+/**/
+Example_Struct pFilename_or_abreviation_funciton(param_1, param_2)
+{
+  Example_Struct pStruct = NULL;
+  pStruct = malloc(sizeof(tExample_Struct, ));
+  return pStruct;
 }
 
-ERROR_CODE eBluetooth_Request(pBluetooth_Request pRequest)
-{
-  ERROR_CODE eEC = ER_FAIL;
-
-  return eEC;
-}
-
-#endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH
+#endif //PROJ_CONFIG_USE_DRVR_IR_DETECTION
 #endif //__FILE_NAME_C__

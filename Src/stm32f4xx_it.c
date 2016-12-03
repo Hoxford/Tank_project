@@ -165,12 +165,15 @@ void SysTick_Handler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-  extern void vWifi_Intf_isr_callback(void);
+
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
   HAL_NVIC_ClearPendingIRQ(USART2_IRQn);
+#if(PROJ_CONFIG_USE_DRVR_WIFI >= 1)
+  extern void vWifi_Intf_isr_callback(void);
   vWifi_Intf_isr_callback();
+#endif
   /* USER CODE END USART2_IRQn 1 */
 }
 

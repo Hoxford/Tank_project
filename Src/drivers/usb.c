@@ -9,21 +9,40 @@
 /******************************************************************************
 * includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-#include <proj_inc/proj_main.h>
 
-#if (PROJ_CONFIG_USE_DRVR_USB >= 1)
+//Standard includes
+  #include <stdint.h>
+  #include <stdbool.h>
+  #include <string.h>
+  #include <stdlib.h>
+  #include <stdio.h>
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
+//Project specific includes
+  #include "proj_inc/project_config.h"
+#if (PROJ_CONFIG_USE_DRVR_USB == 0)
+#else
 
-#include "utils_inc/error_codes.h"
-#include "utils_inc/osal.h"
-#include "utils_inc/proj_debug.h"
+//Utility includes
+  #include "utils_inc/error_codes.h"
+  #include "utils_inc/util_debug.h"
+  /* Utility include files here */
 
-#include "drivers_inc/usb.h"
+//Third party includes
+  #include "ThirdParty_inc/osal.h"
+  /* Third party include files here */
+
+//Driver includes
+  #include "drivers_inc/usb.h"
+  /* Driver include files here */
+
+//Application includes
+  #include "app_inc/commander.h"
+  /* Application include files here */
+
+//Platform includes
+  #include "board.h"
+  /* Platform include files here */
+
 #include "usbd_def.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
@@ -36,7 +55,6 @@
   #warning NO USB CLASS DEFINED
 #endif
 #include "usbd_cdc_interface.h"
-#include "board.h"
 
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -358,6 +376,6 @@ ERROR_CODE eUSB_Request(tUsb_Request * pRequest)
   return eEC;
 }
 
-#endif //#if (PROJ_CONFIG_USE_DRVR_WIFI >= 1)
+#endif //#if (PROJ_CONFIG_USE_DRVR_USB >= 1)
 
 #endif //__USB_C__

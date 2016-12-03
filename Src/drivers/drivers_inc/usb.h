@@ -10,6 +10,18 @@
 * includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+//Standard includes
+  #include <stdint.h>
+  #include <stdbool.h>
+  #include <string.h>
+  #include <stdlib.h>
+  #include <stdio.h>
+
+//Project specific includes
+  #include "proj_inc/project_config.h"
+#if (PROJ_CONFIG_USE_DRVR_USB == 0)
+  #warning "USB driver not implemented"
+#else
 /******************************************************************************
 *public defines ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -63,4 +75,5 @@ typedef struct tUsb_Request
 ERROR_CODE eUSB_Request_Param_Init(tUsb_Request * pRequest);
 ERROR_CODE eUSB_Request(tUsb_Request * pRequest);
 
-#endif //__FILE_NAME_H__
+#endif //PROJ_CONFIG_USE_DRVR_USB
+#endif //__USB_H__
