@@ -23,13 +23,29 @@
   //commander not implemented
 #else
 
-#include "utils_inc/error_codes.h"
-#include "ThirdParty_inc/osal.h"
-#include "utils_inc/util_debug.h"
+//Utility includes
+  #include "utils_inc/error_codes.h"
+  #include "utils_inc/util_debug.h"
+  /* Utility include files here */
 
-#include "drivers_inc/wifi.h"
-#include "drivers_inc/nvram.h"
-#include "app_inc/commander.h"
+//Third party includes
+  #include "ThirdParty_inc/osal.h"
+  /* Third party include files here */
+
+//Driver includes
+  #include "drivers_inc/wifi.h"
+  #include "drivers_inc/bluetooth.h"
+  #include "drivers_inc/bluetooth_HC-05.h"
+  #include "drivers_inc/nvram.h"
+  /* Driver include files here */
+
+//Application includes
+  #include "app_inc/commander.h"
+  /* Application include files here */
+
+//Platform includes
+  #include "board.h"
+  /* Platform include files here */
 
 /******************************************************************************
 * defines /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +79,7 @@ typedef enum COMMAND_MSG_ID
   COMMAND_MSG_OFF_TO_UNCONNECTED,
   COMMAND_MSG_UNCONNECTED_TO_CONNECTED,
   COMMAND_MSG_CONNECTED_TO_PLAY,
+  COMMAND_MSG_PROVISION,
   COMMAND_MSG_INTERFACE_CONNECT,
   COMMAND_MSG_LIMIT,
 }COMMAND_MSG_ID, * pCOMMAND_MSG_ID;
@@ -137,7 +154,8 @@ void vCommander_Task(void * pvParameters)
   ERROR_CODE eEC = ER_FAIL;
   OSAL_Queue_Parameters_t tCommander_Queue_Param;
   OSAL_Queue_Handle_t * pCommander_Queue_Handle;
-  Commander_Message_Struct_t tMsg;
+  Commander_Message_Struct_t Msg_t;
+  Bluetooth_Request_t BT_Req_t;
 #if (PROJ_CONFIG_USE_DRVR_WIFI >= 1)
   Wifi_Request_t WifiReq_t;
 #endif //PROJ_CONFIG_USE_DRVR_WIFI
@@ -147,7 +165,7 @@ void vCommander_Task(void * pvParameters)
   vDEBUG_ASSERT("Commander Queue params init fail", eEC == ER_OK);
   tCommander_Queue_Param.uiNum_Of_Queue_Elements = 3;
   tCommander_Queue_Param.uiSize_Of_Queue_Element = sizeof(Commander_Message_Struct_t);
-  tCommander_Queue_Param.pMsgBuff = &tMsg;
+  tCommander_Queue_Param.pMsgBuff = &Msg_t;
   tCommander_Queue_Param.iTimeout = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
   eEC = eOSAL_Queue_Create(&tCommander_Queue_Param, &pCommander_Queue_Handle);
   vDEBUG_ASSERT("vCommander_Task queue create fail", eEC == ER_OK);
@@ -175,16 +193,24 @@ void vCommander_Task(void * pvParameters)
     free(pActivity_State);
   }
 #else //PROJ_CONFIG_USE_DRVR_NVRAM == 0
-  Command_AS_t.bIs_Command_Provisioned = true;
+  Command_AS_t.bIs_Command_Provisioned = false;
   Command_AS_t.bAuto_Interface_Connect = true;
 #endif //PROJ_CONFIG_USE_DRVR_NVRAM
 
   //check if auto connect is enabled
-  if(Command_AS_t.bAuto_Interface_Connect == true)
+  if(Command_AS_t.bIs_Command_Provisioned == true)
   {
-    tMsg.eMSG = COMMAND_MSG_INTERFACE_CONNECT;
-    eEC = eOSAL_Queue_Post_msg(pCommander_Queue_Handle, &tMsg);
+    //
+    Msg_t.eMSG = COMMAND_MSG_INTERFACE_CONNECT;
+    eEC = eOSAL_Queue_Post_msg(pCommander_Queue_Handle, &Msg_t);
     vDEBUG_ASSERT("vCommander_Task msg post fail", eEC == ER_OK);
+  }
+  else
+  {
+    //clear stored wifi info
+
+    Msg_t.eMSG = COMMAND_MSG_PROVISION;
+    eEC = eOSAL_Queue_Post_msg(pCommander_Queue_Handle, &Msg_t);
   }
 
   //just before the task loop mark commander task ready
@@ -192,11 +218,13 @@ void vCommander_Task(void * pvParameters)
 
   while(1)
   {
-    eOSAL_delay(1000, NULL);
-    if(eOSAL_Queue_Get_msg(pCommander_Queue_Handle, &tMsg) == ER_OK)
+    if(eOSAL_Queue_Get_msg(pCommander_Queue_Handle, &Msg_t) == ER_OK)
     {
-      switch(tMsg.eMSG)
+      switch(Msg_t.eMSG)
       {
+        case COMMAND_MSG_PROVISION:
+          BT_Req_t.eRequestID = BLUETOOTH_REQUEST_PROVISION;
+          break;
         case COMMAND_MSG_INTERFACE_CONNECT:
 #if (PROJ_CONFIG_USE_DRVR_WIFI >= 1)
           eWifi_Request_Param_Init(&WifiReq_t);

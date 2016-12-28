@@ -10,22 +10,36 @@
 * includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
+//Standard includes
+  #include <stdint.h>
+  #include <stdbool.h>
+  #include <string.h>
+  #include <stdlib.h>
+  #include <stdio.h>
 
-#include "utils_inc/error_codes.h"
-#include "ThirdParty_inc/osal.h"
-#include "utils_inc/util_debug.h"
+//Project specific includes
+  #include "proj_inc/project_config.h"
+#if (PROJ_CONFIG_PLATFORM == PROJ_CONFIG_PLATFORM_STM32F4DISC)
 
-#include "board.h"
+//Utility includes
+  #include "utils_inc/error_codes.h"
+  #include "utils_inc/util_debug.h"
+  /* Utility include files here */
 
-//STM32F4 specific includes
-//#include "stm32f4xx.h"
-#include "stm32f4xx_hal.h"
-#include "core_cm4.h"
+//Third party includes
+  #include "ThirdParty_inc/osal.h"
+  /* Third party include files here */
+
+//Platform includes
+  #include "board.h"
+  //STM32F4 specific includes
+  //#include "stm32f4xx.h"
+  #include "stm32f4xx_hal.h"
+  #include "core_cm4.h"
+  /* Platform include files here */
+
+
+
 
 
 /******************************************************************************
@@ -35,6 +49,14 @@
 #define CAMERA_TIMER_INSTANCE  TIM4
 #define CAMERA_I2C_INSTANCE    I2C2
 #define I2C_ADDRESS            0x30F
+
+//bluetooth defines
+  #define BT_TX_BUF_LEN         512
+  #define BT_RX_BUF_LEN       512
+  #define BT_UART_HANDLE      huart4
+  #define BT_UART_HANDLE_T    UART_HandleTypeDef
+  #define BT_INF_IRQ_HANDLER  HAL_UART_RxCpltCallback
+  #define BT_INTF_IRQN        USART4_IRQn
 
 //wifi defines
 	#define WIFI_TX_BUF_LEN       512
@@ -79,6 +101,8 @@ extern I2C_HandleTypeDef hi2c2;
 extern TIM_HandleTypeDef htim4;
 
 extern UART_HandleTypeDef huart2;
+
+extern UART_HandleTypeDef huart4;
 /******************************************************************************
 * enums ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -126,10 +150,13 @@ tBSP_Activity_State tBSP_AS =
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eBSP_Camera_Intf_Init(void);
-ERROR_CODE eBSP_Wifi_Intf_Init(void);
-ERROR_CODE eBSP_Usb_Intf_Init(void);
-ERROR_CODE eBSP_SystemClock_Config(void);
+static ERROR_CODE eBSP_Wifi_Intf_Init(void);
+static ERROR_CODE eBSP_Usb_Intf_Init(void);
+static uint32_t   uiGetUartBits(UART_DATA_BITS eDataBits);
+static uint32_t   uiGetUartParity(UART_PARITY eParity);
+static uint32_t   uiGetUartStopBits(UART_STOP_BITS eStopBits);
+static uint32_t   uiGetUartFlowControl(UART_FLOW_CONTROL eControl);
+static uint32_t   uiGetUartMode(UART_MODE eMode);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,144 +170,7 @@ ERROR_CODE eBSP_SystemClock_Config(void);
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eBSP_Camera_Intf_Init(void)
-{
-  ERROR_CODE eEC = ER_FAIL;
-//  GPIO_InitTypeDef      tCamera_GPIO_Init;
-//  uint32_t uwPrescalerValue;
-//
-//  if(tBSP_AS.bIs_Camera_Intf_Init == false)
-//  {
-//    //camera gpio init
-//    //
-//    //Config camera reset and power down pins to GPIO
-//    __GPIOB_CLK_ENABLE();
-//    tCamera_GPIO_Init.Pin   = GPIO_PIN_4 | GPIO_PIN_5;
-//    tCamera_GPIO_Init.Mode  = GPIO_MODE_OUTPUT_PP;
-//    tCamera_GPIO_Init.Pull  = GPIO_NOPULL;
-//    tCamera_GPIO_Init.Speed = GPIO_SPEED_HIGH;
-//    HAL_GPIO_Init(GPIOB,&tCamera_GPIO_Init);
-//
-//    //config camera control interface pins to I2C
-//    __GPIOB_CLK_ENABLE();
-//    tCamera_GPIO_Init.Pin       = GPIO_PIN_10 | GPIO_PIN_11;
-//    tCamera_GPIO_Init.Mode      = GPIO_MODE_AF_PP;
-//    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
-//    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-//    tCamera_GPIO_Init.Alternate = GPIO_AF4_I2C2;
-//    HAL_GPIO_Init(GPIOB,&tCamera_GPIO_Init);
-//    __I2C2_CLK_ENABLE();
-//
-//    //I2C init
-//    tCamera_I2C_Handle.Instance             = CAMERA_I2C_INSTANCE;
-//    tCamera_I2C_Handle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-//    tCamera_I2C_Handle.Init.ClockSpeed      = 400000;
-//    tCamera_I2C_Handle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-//    tCamera_I2C_Handle.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
-//    tCamera_I2C_Handle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-//    tCamera_I2C_Handle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
-//    tCamera_I2C_Handle.Init.OwnAddress1     = I2C_ADDRESS;
-//    tCamera_I2C_Handle.Init.OwnAddress2     = 0;
-//
-//    if(HAL_I2C_Init(&tCamera_I2C_Handle) != HAL_OK)
-//    {
-//      /* Initialization Error */
-//      eEC = ER_FAIL;
-//    }
-//
-//    //config camera pixel(PCLK) and system (XCLK) pins to output timers
-//    __GPIOD_CLK_ENABLE();
-//    tCamera_GPIO_Init.Pin       = GPIO_PIN_14 | GPIO_PIN_15;
-//    tCamera_GPIO_Init.Mode      = GPIO_MODE_AF_PP;
-//    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
-//    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-//    tCamera_GPIO_Init.Alternate = GPIO_AF2_TIM4;
-//    HAL_GPIO_Init(GPIOD,&tCamera_GPIO_Init);
-//    __TIM4_CLK_ENABLE();
-//
-//    //Timer init
-//    /* Compute the prescaler value to have TIM4 counter clock equal to 10 MHz */
-//    uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 10000000) - 1;
-//
-//    /* Set TIMx instance */
-//    tCamera_Timer_Handle.Instance = CAMERA_TIMER_INSTANCE;
-//
-//    /* Initialize TIM4 peripheral as follow:
-//         + Period = uwPrescalerValue/2
-//         + Prescaler = ((SystemCoreClock/2)/10000000) - 1
-//         + ClockDivision = 0
-//         + Counter direction = Up
-//    */
-//    tCamera_Timer_Handle.Init.Period = uwPrescalerValue/2;
-//    tCamera_Timer_Handle.Init.Prescaler = uwPrescalerValue;
-//    tCamera_Timer_Handle.Init.ClockDivision = 0;
-//    tCamera_Timer_Handle.Init.CounterMode = TIM_COUNTERMODE_UP;
-//    if(HAL_TIM_Base_Init(&tCamera_Timer_Handle) != HAL_OK)
-//    {
-//      eEC = ER_FAIL;
-//    }
-//
-//    HAL_TIM_Base_Start(&tCamera_Timer_Handle);
-//
-//    //config Digital Camera Interface pins
-//    __GPIOC_CLK_ENABLE();
-//                                  //DCMI 0, 1, 2, 3
-//    tCamera_GPIO_Init.Pin       = GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9;
-//    tCamera_GPIO_Init.Mode      = GPIO_MODE_INPUT;
-//    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
-//    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-//    tCamera_GPIO_Init.Alternate = 0;
-//    HAL_GPIO_Init(GPIOC, &tCamera_GPIO_Init);
-//                                  //DCMI 4, 7
-//    __GPIOE_CLK_ENABLE();
-//    tCamera_GPIO_Init.Pin       = GPIO_PIN_4 | GPIO_PIN_7;
-//    tCamera_GPIO_Init.Mode      = GPIO_MODE_INPUT;
-//    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
-//    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-//    tCamera_GPIO_Init.Alternate = 0;
-//    HAL_GPIO_Init(GPIOE, &tCamera_GPIO_Init);
-//                                  //DCMI 5, 6
-//    __GPIOB_CLK_ENABLE();
-//    tCamera_GPIO_Init.Pin       = GPIO_PIN_6 | GPIO_PIN_8;
-//    tCamera_GPIO_Init.Mode      = GPIO_MODE_INPUT;
-//    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
-//    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-//    tCamera_GPIO_Init.Alternate = 0;
-//    HAL_GPIO_Init(GPIOB, &tCamera_GPIO_Init);
-//
-//    //config HREF horizontal timing VSYNC vertical timing pins
-//    __GPIOE_CLK_ENABLE();
-//    tCamera_GPIO_Init.Pin       = GPIO_PIN_12 | GPIO_PIN_13;
-//    tCamera_GPIO_Init.Mode      = GPIO_MODE_IT_RISING;
-//    tCamera_GPIO_Init.Pull      = GPIO_NOPULL;
-//    tCamera_GPIO_Init.Speed     = GPIO_SPEED_HIGH;
-//    tCamera_GPIO_Init.Alternate = 0;
-//    HAL_GPIO_Init(GPIOE, &tCamera_GPIO_Init);
-//
-//    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0x0F, 0);
-//    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-//
-//    eEC = ER_OK;
-//
-//    tBSP_AS.bIs_Camera_Intf_Init = true;
-//  }
-//  else
-//  {
-//    eEC = ER_OK;
-//  }
-
-  return eEC;
-}
-
-/******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name: Filename_or_abreviation_funciton
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
-******************************************************************************/
-ERROR_CODE eBSP_Wifi_Intf_Init(void)
+static ERROR_CODE eBSP_Wifi_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
 //  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
@@ -351,7 +241,7 @@ ERROR_CODE eBSP_Wifi_Intf_Init(void)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eBSP_Usb_Intf_Init(void)
+static ERROR_CODE eBSP_Usb_Intf_Init(void)
 {
   ERROR_CODE eEC = ER_FAIL;
 
@@ -366,71 +256,85 @@ ERROR_CODE eBSP_Usb_Intf_Init(void)
   return eEC;
 }
 
-/******************************************************************************
-* todo: DESCRIPTION
-* name: eBSP_SystemClock_Config
-* description:
-* param description: none
-* return value description: ERROR_CODE - ER_OK: System clock configured
-*                                      - ER_FAIL: System clock configuration process failed
-******************************************************************************/
-ERROR_CODE eBSP_SystemClock_Config(void)
+static uint32_t uiGetUartBits(UART_DATA_BITS eDataBits)
 {
-
-  ERROR_CODE eEC = ER_FAIL;
-  HAL_StatusTypeDef eHAL_STATUS = HAL_ERROR;
-
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-
-  /* Enable Power Control clock */
-  __HAL_RCC_PWR_CLK_ENABLE();
-
-  /* The voltage scaling allows optimizing the power consumption when the device is
-     clocked below the maximum system frequency, to update the voltage scaling value
-     regarding system frequency refer to product datasheet.  */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-
-  /* Enable HSE Oscillator and activate PLL with HSE as source */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 336;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 7;
-  eHAL_STATUS = HAL_RCC_OscConfig(&RCC_OscInitStruct);
-
-  if(eHAL_STATUS == HAL_OK)
+  uint32_t uiBits = 0xFFFFFFFF;
+  if((DATA_BITS_INVALID < eDataBits)&(eDataBits < DATA_BITS_LIMIT))
   {
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
-   clocks dividers */
-    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
-    eHAL_STATUS = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
+    if(eDataBits == DATA_BITS_9)
+      uiBits = UART_WORDLENGTH_9B;
+    else if(eDataBits == DATA_BITS_8)
+      uiBits = UART_WORDLENGTH_8B;
   }
 
-  if(eHAL_STATUS == HAL_OK)
+  return uiBits;
+}
+
+static uint32_t uiGetUartParity(UART_PARITY eParity)
+{
+  uint32_t uiParity = 0xFFFFFFFF;
+  if((PARITY_INVALID < eParity)&(eParity < PARITY_LIMIT))
   {
-    /* STM32F405x/407x/415x/417x Revision Z devices: prefetch is supported  */
-    if (HAL_GetREVID() == 0x1001)
-    {
-      /* Enable the Flash prefetch */
-      __HAL_FLASH_PREFETCH_BUFFER_ENABLE();
-    }
+    if(eParity == PARITY_NONE)
+      uiParity = UART_PARITY_NONE;
+    else if(eParity == PARITY_EVEN)
+      uiParity = UART_PARITY_EVEN;
+    else if(eParity == PARITY_ODD)
+      uiParity = UART_PARITY_ODD;
+    else if(eParity == PARITY_MARK)
+      uiParity = UART_PARITY_NONE;
   }
 
-  if(eHAL_STATUS == HAL_OK)
+  return uiParity;
+}
+
+static uint32_t uiGetUartStopBits(UART_STOP_BITS eStopBits)
+{
+  uint32_t uiStopBits = 0xFFFFFFFF;
+  if((STOP_BITS_INVALID < eStopBits)&(eStopBits < STOP_BITS_LIMIT))
   {
-    eEC = ER_OK;
+    if(eStopBits == STOP_BITS_1)
+      uiStopBits = UART_STOPBITS_1;
+    else if(eStopBits == STOP_BITS_2)
+      uiStopBits = UART_STOPBITS_2;
   }
 
-  return eEC;
+  return uiStopBits;
+}
 
+static uint32_t   uiGetUartFlowControl(UART_FLOW_CONTROL eControl)
+{
+  uint32_t uiFlowControl = 0xFFFFFFFF;
+
+  if((FLOW_CONTROL_INVALID < eControl)&(eControl < FLOW_CONTROL_LIMIT))
+  {
+    if(eControl == FLOW_CONTROL_NONE)
+      uiFlowControl = UART_HWCONTROL_NONE;
+    else if(eControl == FLOW_CONTROL_RTS)
+      uiFlowControl = UART_HWCONTROL_RTS;
+    else if(eControl == FLOW_CONTROL_CTS)
+      uiFlowControl = UART_HWCONTROL_CTS;
+    else if(eControl == FLOW_CONTROL_RTS_CTS)
+      uiFlowControl = UART_HWCONTROL_RTS_CTS;
+  }
+  return uiFlowControl;
+}
+
+static uint32_t uiGetUartMode(UART_MODE eMode)
+{
+  uint32_t uiMode = 0xFFFFFFFF;
+
+  if((MODE_NONE < eMode)&(eMode < MODE_LIMIT))
+  {
+    if(eMode == MODE_TX)
+      uiMode = UART_MODE_TX;
+    else if(eMode == MODE_RX)
+      uiMode = UART_MODE_RX;
+    else if(eMode == MODE_TX_RX)
+      uiMode = UART_MODE_TX_RX;
+  }
+
+  return uiMode;
 }
 
 /******************************************************************************
@@ -463,6 +367,108 @@ ERROR_CODE eBSP_Camera_Intf_Send(pBSP_Camera_Send pParam)
 ERROR_CODE eBSP_Camera_Intf_Receive(pBSP_Camera_Receive pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
+
+  return eEC;
+}
+
+ERROR_CODE eBSP_BT_INTF_SEND(pBSP_BT_Send pParam)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+
+//  eHAL_Status = HAL_USART_Transmit(&tWifi_UART_Handle, pParam->pBuff, pParam->uiBuff_Len, 3000);
+  eHAL_Status = HAL_UART_Transmit(&BT_UART_HANDLE, pParam->pBuff, pParam->uiLen, 3000);
+
+//  vDEBUG((char *)pParam->pBuff);
+
+  if(eHAL_Status == HAL_OK)
+  {
+    eEC = ER_OK;
+  }
+
+  return eEC;
+}
+
+ERROR_CODE eBSP_BT_INTF_RCV(pBSP_BT_Rcv pParam)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+
+  eHAL_Status = HAL_UART_Receive_IT(&BT_UART_HANDLE, pParam->pBuff, pParam->uiLen);
+  if(eHAL_Status == HAL_OK)
+    eEC = ER_OK;
+  else if(eHAL_Status == HAL_BUSY)
+    eEC = ER_TIMEOUT;
+  else
+    eEC = ER_FAIL;
+
+  return eEC;
+}
+
+ERROR_CODE eBSP_BT_INTF_CONFIG(pUART_Config pParam)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  ERROR_CODE eEC_MX = ER_NONE;
+  ERROR_CODE eEC_CB = ER_NONE;
+  ERROR_CODE eEC_RCV_TO_CB = ER_NONE;
+  ERROR_CODE eEC_SEND_TO_CB = ER_NONE;
+  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+  extern UART_HandleTypeDef BT_UART_HANDLE;
+
+  if(((DATA_BITS_INVALID    < pParam->eDataBits)&(pParam->eDataBits < DATA_BITS_LIMIT   )) &
+     ((PARITY_INVALID       < pParam->eParity  )&(pParam->eParity   < PARITY_LIMIT      )) &
+     ((STOP_BITS_INVALID    < pParam->eStopBits)&(pParam->eStopBits < STOP_BITS_LIMIT   )) &
+     ((FLOW_CONTROL_INVALID < pParam->eControl )&(pParam->eControl  < FLOW_CONTROL_LIMIT)) &
+     ((MODE_NONE            < pParam->eMode    )&(pParam->eMode < MODE_LIMIT            )) &
+      (                   0 < pParam->uiBaud))
+  {
+    BT_UART_HANDLE.Init.WordLength = uiGetUartBits       (pParam->eDataBits);
+    BT_UART_HANDLE.Init.Parity     = uiGetUartParity     (pParam->eParity);
+    BT_UART_HANDLE.Init.StopBits   = uiGetUartStopBits   (pParam->eStopBits);
+    BT_UART_HANDLE.Init.HwFlowCtl  = uiGetUartFlowControl(pParam->eControl);
+    BT_UART_HANDLE.Init.Mode       = uiGetUartMode       (pParam->eMode);
+    BT_UART_HANDLE.Init.BaudRate   = pParam->uiBaud;
+    eHAL_Status = HAL_UART_Init(&BT_UART_HANDLE);
+
+    if(eHAL_Status == HAL_OK)
+      eEC_MX = ER_OK;
+    else
+      eEC_MX = ER_FAIL;
+  }
+
+  if(pParam->vUART_ISR != NULL)
+  {
+
+  }
+
+  if(pParam->vUART_Rcv_Timeout_ISR != NULL)
+  {
+
+  }
+
+  if(pParam->vUART_Send_Timeout_ISR != NULL)
+  {
+
+  }
+
+  if(((eEC_MX == ER_NONE)        |(eEC_MX == ER_OK))        &
+     ((eEC_CB == ER_NONE)        |(eEC_CB == ER_OK))        &
+     ((eEC_RCV_TO_CB == ER_NONE) |(eEC_RCV_TO_CB == ER_OK)) &
+     ((eEC_SEND_TO_CB == ER_NONE)|(eEC_SEND_TO_CB == ER_OK)))
+  {
+    eEC = ER_OK;
+  }
+  else
+  {
+    if(eEC_MX == ER_FAIL)
+      eEC = ER_PARAM;
+    else if(eEC_CB == ER_FAIL)
+      eEC = ER_PARAM1;
+    else if(eEC_RCV_TO_CB == ER_FAIL)
+      eEC = ER_PARAM2;
+    else if(eEC_SEND_TO_CB == ER_FAIL)
+      eEC = ER_PARAM3;
+  }
 
   return eEC;
 }
@@ -752,6 +758,73 @@ ERROR_CODE eBSP_FLASH_ERASE(void)
 }
 
 /******************************************************************************
+* todo: DESCRIPTION
+* name: eBSP_SystemClock_Config
+* description:
+* param description: none
+* return value description: ERROR_CODE - ER_OK: System clock configured
+*                                      - ER_FAIL: System clock configuration process failed
+******************************************************************************/
+ERROR_CODE eBSP_SystemClock_Config(void)
+{
+
+  ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_STATUS = HAL_ERROR;
+
+  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_OscInitTypeDef RCC_OscInitStruct;
+
+  /* Enable Power Control clock */
+  __HAL_RCC_PWR_CLK_ENABLE();
+
+  /* The voltage scaling allows optimizing the power consumption when the device is
+     clocked below the maximum system frequency, to update the voltage scaling value
+     regarding system frequency refer to product datasheet.  */
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+  /* Enable HSE Oscillator and activate PLL with HSE as source */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 336;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 7;
+  eHAL_STATUS = HAL_RCC_OscConfig(&RCC_OscInitStruct);
+
+  if(eHAL_STATUS == HAL_OK)
+  {
+  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
+   clocks dividers */
+    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+    eHAL_STATUS = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
+  }
+
+  if(eHAL_STATUS == HAL_OK)
+  {
+    /* STM32F405x/407x/415x/417x Revision Z devices: prefetch is supported  */
+    if (HAL_GetREVID() == 0x1001)
+    {
+      /* Enable the Flash prefetch */
+      __HAL_FLASH_PREFETCH_BUFFER_ENABLE();
+    }
+  }
+
+  if(eHAL_STATUS == HAL_OK)
+  {
+    eEC = ER_OK;
+  }
+
+  return eEC;
+
+}
+
+/******************************************************************************
 * todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
@@ -802,4 +875,5 @@ ERROR_CODE eBSP_Board_Init(void)
   return eEC;
 }
 
-#endif //__FILE_NAME_C__
+#endif //PROJ_CONFIG_PLATFORM_STM32F4DISC
+#endif //__BOARD_C__

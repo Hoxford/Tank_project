@@ -38,10 +38,8 @@
 typedef enum UART_DATA_BITS
 {
   DATA_BITS_INVALID,
+  DATA_BITS_9,
   DATA_BITS_8,
-  DATA_BITS_7,
-  DATA_BITS_6,
-  DATA_BITS_5,
   DATA_BITS_LIMIT,
 }UART_DATA_BITS, * pUART_DATA_BITS;
 
@@ -49,6 +47,7 @@ typedef enum UART_PARITY
 {
   PARITY_INVALID,
   PARITY_NONE,
+  PARITY_EVEN,
   PARITY_ODD,
   PARITY_MARK,
   PARITY_LIMIT,
@@ -66,10 +65,20 @@ typedef enum UART_FLOW_CONTROL
 {
   FLOW_CONTROL_INVALID,
   FLOW_CONTROL_NONE,
+  FLOW_CONTROL_RTS,
+  FLOW_CONTROL_CTS,
   FLOW_CONTROL_RTS_CTS,
   FLOW_CONTROL_LIMIT,
 }UART_FLOW_CONTROL, * pUART_FLOW_CONTROL;
 
+typedef enum UART_MODE
+{
+  MODE_NONE,
+  MODE_TX,
+  MODE_RX,
+  MODE_TX_RX,
+  MODE_LIMIT,
+}UART_MODE, * pUART_MODE;
 /******************************************************************************
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -86,17 +95,30 @@ typedef struct BSP_Camera_Receive_t
   uint8_t * pBuff;
 }BSP_Camera_Receive_t, * pBSP_Camera_Receive;
 
+typedef struct BSP_BT_Send
+{
+  uint32_t  uiLen;
+  uint8_t * pBuff;
+}BSP_BT_Send_t, * pBSP_BT_Send;
+
+typedef struct BSP_BT_Rcv
+{
+  uint32_t  uiLen;
+  uint8_t * pBuff;
+}BSP_BT_Rcv_t, * pBSP_BT_Rcv;
+
 typedef struct UART_Config_t
 {
-  UART_DATA_BITS                      eDataBits;//
-  UART_PARITY                         eParity;//
-  UART_STOP_BITS                      eStopBits;//
-  UART_FLOW_CONTROL                   eControl;//
-  uint32_t                            uiBaud;
-  uint32_t                            uiTimeout;
-  void (* vUART_ISR)                  (void);//ISR to call for UART isr
-  void (* vUART_Rcv_Timeout_ISR)      (void);//ISR to call for data rcv timeout
-  void (* vUART_Send_Timeout_ISR)     (void);//ISR to call for data send timeout
+  UART_DATA_BITS                    eDataBits;//
+  UART_PARITY                       eParity;//
+  UART_STOP_BITS                    eStopBits;//
+  UART_FLOW_CONTROL                 eControl;//
+  UART_MODE                         eMode;
+  uint32_t                          uiBaud;
+  uint32_t                          uiTimeout;
+  void (* vUART_ISR)                (void);//ISR to call for UART isr
+  void (* vUART_Rcv_Timeout_ISR)    (void);//ISR to call for data rcv timeout
+  void (* vUART_Send_Timeout_ISR)   (void);//ISR to call for data send timeout
 }UART_Config_t, *pUART_Config;
 
 typedef struct tBSP_tWifi_Transmit
@@ -137,13 +159,15 @@ typedef struct BSP_Flash_Write_t
 
 ERROR_CODE eBSP_Camera_Intf_Send(pBSP_Camera_Send pParam);
 ERROR_CODE eBSP_Camera_Intf_Receive(pBSP_Camera_Receive pParam);
+ERROR_CODE eBSP_BT_INTF_SEND(pBSP_BT_Send pParam);
+ERROR_CODE eBSP_BT_INTF_RCV(pBSP_BT_Rcv pParam);
+ERROR_CODE eBSP_BT_INTF_CONFIG(pUART_Config pParam);
 ERROR_CODE eBSP_Wifi_Rst_Clr(void);
 ERROR_CODE eBSP_Wifi_Rst_Set(void);
 ERROR_CODE eBSP_Wifi_Rst(void);
 ERROR_CODE eBSP_Wifi_En_Clr(void);
 ERROR_CODE eBSP_Wifi_En_Set(void);
 ERROR_CODE eBSP_Wifi_Intf_Config(pUART_Config pConfig);
-
 
 /******************************************************************************
 * Name: eBSP_Wifi_Intf_Send
@@ -318,6 +342,16 @@ ERROR_CODE eBSP_FLASH_GET_START_ADDR(uint32_t * pStartAddr);
 * }
 ******************************************************************************/
 ERROR_CODE eBSP_FLASH_ERASE(void);
+
+/******************************************************************************
+* todo: NAME, DESCRIPTION, PARAM, RETURN
+* name:
+* description:
+* param description: type - value: value description (in order from left to right)
+*                    bool - true: do action when set to true
+* return value description: type - value: value description
+******************************************************************************/
+ERROR_CODE eBSP_SystemClock_Config(void);
 
 /******************************************************************************
 * Name: eBSP_Get_Current_ms_count

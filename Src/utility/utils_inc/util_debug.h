@@ -63,7 +63,7 @@
 #endif
 
 #if (DEBUG_CFG_ASSERT == 0)
-  #define vDEBUG_ASSERT(a, x) ((void)(x))
+  #define vDEBUG_ASSERT(a, x)
 #elif (DEBUG_CFG_ASSERT == 1)
 #else
   #error "DEBUG_ASSERT invalid value, default 0"

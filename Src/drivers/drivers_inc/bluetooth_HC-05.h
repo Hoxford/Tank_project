@@ -1,39 +1,29 @@
 /******************************************************************************
 *
-* proj_debug_config.h - Project debug utility configuration file.
+* bluetooth_HC-05.h - Bluetooth module specific interface file.
 * Copyright (c) notice
 *
 ******************************************************************************/
-#ifndef __PROJ_DEBUG_CONFIG_H__
-#define __PROJ_DEBUG_CONFIG_H__
+#ifndef __BLUETOOTH_HC05_H__
+#define __BLUETOOTH_HC05_H__
 /******************************************************************************
 * includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+//Standard includes
+  #include <stdint.h>
+  #include <stdbool.h>
+  #include <string.h>
+  #include <stdlib.h>
+  #include <stdio.h>
+
+//Project specific includes
+  #include "proj_inc/project_config.h"
+#if(PROJ_CONFIG_PLATFORM_BT != PROJ_CONFIG_PLATFORM_BT_HC05)
+#else
 
 /******************************************************************************
 *public defines ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-#define DEBUG_CFG_LOG_LEVEL            0
-#define DEBUG_CFG_PERSISTANT_SETTINGS  0
-#define DEBUG_CFG_DEBUG_OUT            1
-#define DEBUG_CFG_DEBUG_IN             1
-#define DEBUG_CFG_ASSERT               1
-#define DEBUG_CFG_DEBUGGER_DETECT      0
-#define DEBUG_CFG_GPIO_A               0
-#define DEBUG_CFG_GPIO_B               0
-#define DEBUG_CFG_GPIO_C               0
-#define DEBUG_CFG_GPIO_D               0
-
-/* USER CODE BEGIN DEBUG_PROJECT_NAME */
-#define DEBUG_PROJECT_NAME             "Panzer"
-/* USER CODE END DEBUG_PROJECT_NAME */
-
-/* USER CODE BEGIN VERSION */
-#define DEBUG_FW_VERSION_LEN     8
-#define DEBUG_VERSION_MAJOR    0
-#define DEBUG_VERSION_MINOR    0
-#define DEBUG_VERSION_PATCH    0
-/* USER CODE END VERSION */
 
 /******************************************************************************
 *public variables /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +36,13 @@
 /******************************************************************************
 *public enums /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+//PUB_EXAMPLE_ENUM description
+typedef enum PUB_EXAMPLE_ENUM
+{
+    PUB_ENUM_A,
+    PUB_ENUM_B,
+    PUB_ENUM_C,
+}PUB_EXAMPLE_ENUM, * pPUB_EXAMPLE_ENUM;
 
 /******************************************************************************
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,5 +55,36 @@
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+void   vBluetooth_HC05_intf_isr_callback (void);
 
-#endif //__PROJ_DEBUG_CONFIG_H__
+/******************************************************************************
+* Name: eBluetooth_HC05_setup
+* Description:
+*   Performs bluetooth module specific setup. When this function is called the
+*   module will be reset to factory defaults and initialized to project
+*   requirements.
+*
+* Parameters:
+*   none
+*
+* Returns:
+*   (ERROR_CODE): description
+*     = ER_OK: Bluetooth setup success
+*     = ER_FAIL: Bluetooth setup failure
+* Example:
+* void Bluetooth_Hardware_Setup(void)
+* {
+*   ERROR_CODE eEC = ER_FAIL;
+*   //Function usage
+*   eEC = eBluetooth_HC05_setup();
+*   ASSERT(eEC == ER_OK);
+* }
+******************************************************************************/
+ERROR_CODE eBluetooth_HC05_setup(void);
+
+#endif //PROJ_CONFIG_PLATFORM_BT_HC05
+#endif //__BLUETOOTH_HC05_H__
+
+
+
+

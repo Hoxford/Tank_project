@@ -37,10 +37,12 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
-
+//Project specific includes
+  #include "proj_inc/project_config.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart2;
 
 /******************************************************************************/
@@ -175,6 +177,23 @@ void USART2_IRQHandler(void)
   vWifi_Intf_isr_callback();
 #endif
   /* USER CODE END USART2_IRQn 1 */
+}
+
+/**
+* @brief This function handles UART4 global interrupt.
+*/
+void UART4_IRQHandler(void)
+{
+  /* USER CODE BEGIN UART4_IRQn 0 */
+
+  /* USER CODE END UART4_IRQn 0 */
+  HAL_UART_IRQHandler(&huart4);
+  /* USER CODE BEGIN UART4_IRQn 1 */
+#if(PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
+  extern void vBluetooth_HC05_intf_isr_callback(void);
+  vBluetooth_HC05_intf_isr_callback();
+#endif
+  /* USER CODE END UART4_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

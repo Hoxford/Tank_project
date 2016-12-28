@@ -124,7 +124,7 @@ typedef struct OSAL_Queue_Handle_t
 typedef struct OSAL_Task_Parameters_t
 {
     void (* pTaskFcn)(void * param);
-    char * pName;
+    const char * pName;
     uint32_t uiStack_Size;
     void * pParameters;
     uint32_t uiTask_Priority;
