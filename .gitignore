@@ -5,3 +5,4 @@ project/gcc/.settings/org.eclipse.cdt.codan.core.prefs
 /Debug
 project/gcc/Debug/
 .settings/language.settings.xml
+.mxproject

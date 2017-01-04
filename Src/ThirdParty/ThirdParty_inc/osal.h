@@ -144,13 +144,27 @@ typedef struct OSAL_Semaphore_Handle_t
 typedef struct OSAL_Mutex_Parameters
 {
   uint32_t uiTimeout;
-}OSAL_Mutex_Parameters_t, *pOSAL_Mutex_Parameters;
+}OSAL_Mutex_Parameters_t, * pOSAL_Mutex_Parameters;
 
 typedef struct OSAL_Mutex_Handle
 {
   void * pHandle;
-  uint32_t uiHandle_Intex;
+  uint32_t uiHandle_Index;
 }OSAL_Mutex_Handle_t, * pOSAL_Mutex_Handle;
+
+typedef struct OSAL_Data_Mutex_Parameters
+{
+  uint32_t uiObject_Size;
+  uint32_t uiTimeout;
+}OSAL_Data_Mutex_Parameters_t, * pOSAL_Data_Mutex_Parameters;
+
+typedef struct OSAL_Data_Mutex_Handle
+{
+  void * pHandle;
+  void * pData;
+  uint32_t uiHandle_Index;
+}OSAL_Data_Mutex_Handle_t, * pOSAL_Data_Mutex_Handle;
+
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -626,5 +640,55 @@ ERROR_CODE eOSAL_Mutex_Get(pOSAL_Mutex_Handle pHandle);
 * }
 ******************************************************************************/
 ERROR_CODE eOSAL_Mutex_Return(pOSAL_Mutex_Handle pHandle);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Data_Mutex_Create(pOSAL_Data_Mutex_Parameters pParameters, pOSAL_Mutex_Handle *pMutex_Handle);
+ERROR_CODE eOSAL_Data_Mutex_Get(pOSAL_Mutex_Handle pHandle);
+ERROR_CODE eOSAL_Data_Mutex_Return(pOSAL_Mutex_Handle pHandle);
+
+
 #endif //PROJ_CONFIG_USE_UTIL_OSAL
 #endif //__FILE_NAME_H__

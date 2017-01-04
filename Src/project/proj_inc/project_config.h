@@ -21,7 +21,7 @@
 //Project driver configuration defines BEGIN
   #define PROJ_CONFIG_USE_DRVR_NVRAM            0
   #define PROJ_CONFIG_USE_DRVR_WIFI             0
-  #define PROJ_CONFIG_USE_DRVR_BLUETOOTH        1
+  #define PROJ_CONFIG_USE_DRVR_BLUETOOTH        0
   #define PROJ_CONFIG_USE_DRVR_USB              0
   #define PROJ_CONFIG_USE_DRVR_IR_DETECTION     0
   #define PROJ_CONFIG_USE_DRVR_CAMERA           0

@@ -680,11 +680,6 @@ ERROR_CODE eOSAL_delay(uint32_t uiDelay, uint32_t * puiMS_Delayed)
     vTaskDelay(uiDelay);
     i = uiDelay;
   }
-  else
-  {
-    //todo: hardware delay
-    i = uiDelay;
-  }
 
   if(i == uiDelay)
   {
@@ -905,6 +900,42 @@ ERROR_CODE eOSAL_Mutex_Return(pOSAL_Mutex_Handle pHandle)
 {
   ERROR_CODE eEC = ER_FAIL;
   xSemaphoreGive(pHandle->pHandle);
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Data_Mutex_Create
+******************************************************************************/
+ERROR_CODE eOSAL_Data_Mutex_Create(pOSAL_Data_Mutex_Parameters pParameters, pOSAL_Mutex_Handle *pMutex_Handle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  vDEBUG_ASSERT("", false);
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Data_Mutex_Create
+******************************************************************************/
+ERROR_CODE eOSAL_Data_Mutex_Get(pOSAL_Mutex_Handle pHandle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  vDEBUG_ASSERT("", false);
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Data_Mutex_Create
+******************************************************************************/
+ERROR_CODE eOSAL_Data_Mutex_Return(pOSAL_Mutex_Handle pHandle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  vDEBUG_ASSERT("", false);
+
   return eEC;
 }
 

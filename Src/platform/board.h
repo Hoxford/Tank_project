@@ -159,6 +159,10 @@ typedef struct BSP_Flash_Write_t
 
 ERROR_CODE eBSP_Camera_Intf_Send(pBSP_Camera_Send pParam);
 ERROR_CODE eBSP_Camera_Intf_Receive(pBSP_Camera_Receive pParam);
+ERROR_CODE eBSP_BT_POWER_ENABLE(void);
+ERROR_CODE eBSP_BT_POWER_DISABLE(void);
+ERROR_CODE eBSP_BT_WAKE(void);
+ERROR_CODE eBSP_BT_SLEEP(void);
 ERROR_CODE eBSP_BT_INTF_SEND(pBSP_BT_Send pParam);
 ERROR_CODE eBSP_BT_INTF_RCV(pBSP_BT_Rcv pParam);
 ERROR_CODE eBSP_BT_INTF_CONFIG(pUART_Config pParam);

@@ -155,7 +155,9 @@ void vCommander_Task(void * pvParameters)
   OSAL_Queue_Parameters_t tCommander_Queue_Param;
   OSAL_Queue_Handle_t * pCommander_Queue_Handle;
   Commander_Message_Struct_t Msg_t;
+#if (PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
   Bluetooth_Request_t BT_Req_t;
+#endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH
 #if (PROJ_CONFIG_USE_DRVR_WIFI >= 1)
   Wifi_Request_t WifiReq_t;
 #endif //PROJ_CONFIG_USE_DRVR_WIFI
@@ -223,7 +225,9 @@ void vCommander_Task(void * pvParameters)
       switch(Msg_t.eMSG)
       {
         case COMMAND_MSG_PROVISION:
+#if (PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
           BT_Req_t.eRequestID = BLUETOOTH_REQUEST_PROVISION;
+#endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH
           break;
         case COMMAND_MSG_INTERFACE_CONNECT:
 #if (PROJ_CONFIG_USE_DRVR_WIFI >= 1)

@@ -371,6 +371,46 @@ ERROR_CODE eBSP_Camera_Intf_Receive(pBSP_Camera_Receive pParam)
   return eEC;
 }
 
+ERROR_CODE eBSP_BT_POWER_ENABLE(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_14, GPIO_PIN_SET);
+  eEC = ER_OK;
+
+  return eEC;
+}
+
+ERROR_CODE eBSP_BT_POWER_DISABLE(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_14, GPIO_PIN_RESET);
+  eEC = ER_OK;
+
+  return eEC;
+}
+
+ERROR_CODE eBSP_BT_WAKE(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_SET);
+  eEC = ER_OK;
+
+  return eEC;
+}
+
+ERROR_CODE eBSP_BT_SLEEP(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_SET);
+  eEC = ER_OK;
+
+  return eEC;
+}
+
 ERROR_CODE eBSP_BT_INTF_SEND(pBSP_BT_Send pParam)
 {
   ERROR_CODE eEC = ER_FAIL;

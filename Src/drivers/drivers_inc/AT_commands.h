@@ -112,11 +112,34 @@
 #define RCV_DATA "+IPD"
 
 //change baud
-#define AT_CMD_SET_BAUD  "AT+CIOBAUD=%s\r\n"
-    #define AT_CMD_BAUD115200  "115200"
-    #define AT_CMD_BAUD57600   "57600"
-    #define AT_CMD_BAUD9600    "9600"
-  #define AT_CMD_BAUD  AT_CMD_BAUD115200
+#define AT_CMD_SET_CIO_BAUD  "AT+CIOBAUD=%s\r\n"
+    #define AT_CMD_CIO_BAUD_115K  "115200"
+    #define AT_CMD_CIO_BAUD_57K   "57600"
+    #define AT_CMD_CIO_BAUD_9K    "9600"
+  #define AT_CMD_CIO_BAUD  AT_CMD_CIO_BAUD_115K
+
+//AT+UART=<Param>,<Param2>,<Param3> OK  Param1: Baud Param2: Stop bit Param3: Parity
+//AT+UART?  +UART=<Param>,<Param2>, <Param3> OK Param1: Baud Param2: Stop bit Param3: Parity
+#define AT_CMD_SET_UART  "AT+UART=%s,%s,%s\r\n"
+  //param1 uart baud
+    #define AT_CMD_SET_UART_BAUD_1382K   "1382400"
+    #define AT_CMD_SET_UART_BAUD_921K    "921600"
+    #define AT_CMD_SET_UART_BAUD_460K    "460800"
+    #define AT_CMD_SET_UART_BAUD_230K    "230400"
+    #define AT_CMD_SET_UART_BAUD_115K    "115200"
+    #define AT_CMD_SET_UART_BAUD_57K     "57600"
+    #define AT_CMD_SET_UART_BAUD_9K      "9600"
+  //param2 stop bit
+    #define AT_CMD_SET_UART_STOP_BIT_1   "1"
+    #define AT_CMD_SET_UART_STOP_BIT_2   "2"
+  //param3 parity
+    #define AT_CMD_SET_UART_PARITY_NONE  "0"
+    #define AT_CMD_SET_UART_PARITY_ODD   "1"
+    #define AT_CMD_SET_UART_PARITY_EVEN  "2"
+    #define AT_CMD_SET_UART_PARITY_MARK  "3"
+
+#define AT_CMD_GET_UART_BAUD  "AT+UART?"
+
 
 //set echo
 #define AT_ECHO_OFF       "ATE0\r\n"
