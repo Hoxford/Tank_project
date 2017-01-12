@@ -90,7 +90,9 @@ typedef enum
     ER_NOT_READY,
     ER_NONE,
     ER_FOUND,
-    ER_NOT_FOUND
+    ER_NOT_FOUND,
+    ER_CREATE,
+    ER_MAKE,
 }ERROR_CODE;
 
 //*****************************************************************************

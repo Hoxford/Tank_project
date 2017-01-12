@@ -66,16 +66,16 @@
 *public defines ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-#define OSAL_SEM_WAIT_TIMEOUT_WAITFOREVER  BIOS_WAIT_FOREVER
-#define OSAL_SEM_WAIT_TIMEOUT_NO_WAIT      BIOS_NO_WAIT
-#define OSAL_SEM_WAIT_TIMEOUT_1TICK        1
-#define OSAL_SEM_WAIT_TIMEOUT_1SECOND      100000
+#define OSAL_SEM_WAIT_TIMEOUT_WAITFOREVER    BIOS_WAIT_FOREVER
+#define OSAL_SEM_WAIT_TIMEOUT_NO_WAIT        BIOS_NO_WAIT
+#define OSAL_SEM_WAIT_TIMEOUT_1TICK          1
+#define OSAL_SEM_WAIT_TIMEOUT_1SECOND        100000
 
-#define OSAL_MBOX_WAIT_TIMEOUT_WAITFOREVER  BIOS_WAIT_FOREVER
-#define OSAL_MBOX_WAIT_TIMEOUT_NO_WAIT      BIOS_NO_WAIT
+#define OSAL_MBOX_WAIT_TIMEOUT_WAITFOREVER   BIOS_WAIT_FOREVER
+#define OSAL_MBOX_WAIT_TIMEOUT_NO_WAIT       BIOS_NO_WAIT
 
-#define OSAL_QUEUE_TIMEOUT_WAITFOREVER  -1
-#define OSAL_QUEUE_TIMEOUT_NO_WAIT      0
+#define OSAL_QUEUE_TIMEOUT_WAITFOREVER       -1
+#define OSAL_QUEUE_TIMEOUT_NO_WAIT           0
 
 /******************************************************************************
 *public variables /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,6 @@ typedef struct OSAL_Data_Mutex_Parameters
 typedef struct OSAL_Data_Mutex_Handle
 {
   void * pHandle;
-  void * pData;
   uint32_t uiHandle_Index;
 }OSAL_Data_Mutex_Handle_t, * pOSAL_Data_Mutex_Handle;
 
@@ -270,6 +269,9 @@ ERROR_CODE eOSAL_Mailbox_Get_msg         (OSAL_Mailbox_Handle_t * ptMailbox_hand
 ERROR_CODE eOSAL_Mailbox_Post_msg        (OSAL_Mailbox_Handle_t * ptMailbox_handle);
 ERROR_CODE eOSAL_Queue_Params_Init       (OSAL_Queue_Parameters_t * ptQueue_param);
 ERROR_CODE eOSAL_Queue_Create            (OSAL_Queue_Parameters_t * ptQueue_param, OSAL_Queue_Handle_t ** pQueue_Handle);
+
+ERROR_CODE eOSAL_Queue_Delete(OSAL_Queue_Handle_t * ptQueue_handle);
+
 ERROR_CODE eOSAL_Queue_Get_msg           (OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg);
 ERROR_CODE eOSAL_Queue_Post_msg          (OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg);
 
@@ -364,6 +366,52 @@ ERROR_CODE eOSAL_Semaphore_Params_Init   (pOSAL_Semaphore_Parameters pParameters
 * }
 ******************************************************************************/
 ERROR_CODE eOSAL_Semaphore_Create(pOSAL_Semaphore_Parameters pParameters, pOSAL_Semaphore_Handle * pSemaphore_Handle);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Semaphore_Delete(pOSAL_Semaphore_Handle pSemaphore_Handle);
 
 /******************************************************************************
 *todo: Name: [put name here]
@@ -685,9 +733,145 @@ ERROR_CODE eOSAL_Mutex_Return(pOSAL_Mutex_Handle pHandle);
 *   iFilename_or_abreviation_funciton()
 * }
 ******************************************************************************/
-ERROR_CODE eOSAL_Data_Mutex_Create(pOSAL_Data_Mutex_Parameters pParameters, pOSAL_Mutex_Handle *pMutex_Handle);
-ERROR_CODE eOSAL_Data_Mutex_Get(pOSAL_Mutex_Handle pHandle);
-ERROR_CODE eOSAL_Data_Mutex_Return(pOSAL_Mutex_Handle pHandle);
+ERROR_CODE eOSAL_Data_Mutex_Create(pOSAL_Data_Mutex_Parameters pParameters, OSAL_Data_Mutex_Handle_t ** pHandle);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Data_Mutex_Delete(pOSAL_Data_Mutex_Handle pHandle);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Data_Mutex_Get(pOSAL_Data_Mutex_Handle pHandle, void ** pData);
+
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Data_Mutex_Return(pOSAL_Data_Mutex_Handle pHandle, void ** pData);
 
 
 #endif //PROJ_CONFIG_USE_UTIL_OSAL

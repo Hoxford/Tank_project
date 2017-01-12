@@ -80,6 +80,7 @@ typedef enum COMMAND_MSG_ID
   COMMAND_MSG_UNCONNECTED_TO_CONNECTED,
   COMMAND_MSG_CONNECTED_TO_PLAY,
   COMMAND_MSG_PROVISION,
+  COMMAND_MSG_TEST_DATA_MUTEX,
   COMMAND_MSG_INTERFACE_CONNECT,
   COMMAND_MSG_LIMIT,
 }COMMAND_MSG_ID, * pCOMMAND_MSG_ID;
@@ -121,6 +122,13 @@ typedef struct Commander_Message_Struct_t
     COMMAND_MSG_ID eMSG;
 }Commander_Message_Struct_t, *pCommander_Message_Struct;
 
+typedef struct Commander_Mutex_Data
+{
+  int32_t i32Data;
+  int16_t i16DataA;
+  int16_t i16DataB;
+  uint8_t uiDataArray[32];
+}Commander_Mutex_Data_t, * pCommander_Mutex_Data;
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -154,13 +162,22 @@ void vCommander_Task(void * pvParameters)
   ERROR_CODE eEC = ER_FAIL;
   OSAL_Queue_Parameters_t tCommander_Queue_Param;
   OSAL_Queue_Handle_t * pCommander_Queue_Handle;
+  OSAL_Data_Mutex_Parameters_t Commander_Data_Mutex_Param_t;
+  pOSAL_Data_Mutex_Handle pCommander_Data_Mutex_Handle;
   Commander_Message_Struct_t Msg_t;
+//  pCommander_Mutex_Data pMutex_Data;
+//  pCommander_Mutex_Data pOther_Mutex_Data;
 #if (PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
   Bluetooth_Request_t BT_Req_t;
 #endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH
 #if (PROJ_CONFIG_USE_DRVR_WIFI >= 1)
   Wifi_Request_t WifiReq_t;
 #endif //PROJ_CONFIG_USE_DRVR_WIFI
+
+  Commander_Data_Mutex_Param_t.uiObject_Size = sizeof(Commander_Mutex_Data_t);
+  Commander_Data_Mutex_Param_t.uiTimeout = 1000;
+  eEC = eOSAL_Data_Mutex_Create(&Commander_Data_Mutex_Param_t, &pCommander_Data_Mutex_Handle);
+  vDEBUG_ASSERT("Commander data mutex create fail", eEC == ER_OK);
 
   //create the commanders message queue
   eEC = eOSAL_Queue_Params_Init(&tCommander_Queue_Param);
@@ -215,6 +232,9 @@ void vCommander_Task(void * pvParameters)
     eEC = eOSAL_Queue_Post_msg(pCommander_Queue_Handle, &Msg_t);
   }
 
+//  Msg_t.eMSG = COMMAND_MSG_TEST_DATA_MUTEX;
+//  eEC = eOSAL_Queue_Post_msg(pCommander_Queue_Handle, &Msg_t);
+
   //just before the task loop mark commander task ready
   Command_AS_t.bIs_Command_Task_Ready = true;
 
@@ -224,6 +244,10 @@ void vCommander_Task(void * pvParameters)
     {
       switch(Msg_t.eMSG)
       {
+//        case COMMAND_MSG_TEST_DATA_MUTEX:
+//          eOSAL_Data_Mutex_Get(pCommander_Data_Mutex_Handle, (void **)&pMutex_Data);
+//          eOSAL_Data_Mutex_Return(pCommander_Data_Mutex_Handle, (void **)&pMutex_Data);
+//          break;
         case COMMAND_MSG_PROVISION:
 #if (PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
           BT_Req_t.eRequestID = BLUETOOTH_REQUEST_PROVISION;

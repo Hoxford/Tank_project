@@ -161,13 +161,13 @@ static ERROR_CODE eHC05_Check_Set_Baud(void)
 
     memcpy(HC05_AS_t.pSetupSendBuff, AT_CMD_TEST, strlen(AT_CMD_TEST));
     BT_Send_t.pBuff = (uint8_t *)HC05_AS_t.pSetupSendBuff;
-    BT_Send_t.uiLen = strlen(HC05_AS_t.pSetupSendBuff);
+    BT_Send_t.uiLen = strlen((char *)HC05_AS_t.pSetupSendBuff);
     uiWait = 0;
     eEC = eBSP_BT_INTF_SEND(&BT_Send_t);
 
     while(1)
     {
-      if(strstr(HC05_AS_t.pSetupRcvBuff, "OK\r\n") != NULL)
+      if(strstr((char *)HC05_AS_t.pSetupRcvBuff, "OK\r\n") != NULL)
       {
         eEC = ER_OK;
         break;
@@ -222,7 +222,7 @@ static ERROR_CODE eHC05_Check_Set_Baud(void)
   //check if the HC-05's baud current baud rate was found and if it needs to be set to the project
   if((eEC == ER_OK)&(bUartBaudSetNeeded == true))
   {
-    BT_Send_t.uiLen = snprintf(HC05_AS_t.pSetupSendBuff, SETUP_SEND_BUFF_SIZE, AT_CMD_SET_UART, AT_CMD_SET_UART_BAUD_921K, AT_CMD_SET_UART_STOP_BIT_1,AT_CMD_SET_UART_PARITY_NONE);
+    BT_Send_t.uiLen = snprintf((char *)HC05_AS_t.pSetupSendBuff, SETUP_SEND_BUFF_SIZE, AT_CMD_SET_UART, AT_CMD_SET_UART_BAUD_921K, AT_CMD_SET_UART_STOP_BIT_1,AT_CMD_SET_UART_PARITY_NONE);
     BT_Send_t.pBuff = (uint8_t *)HC05_AS_t.pSetupSendBuff;
     eEC = eBSP_BT_INTF_SEND(&BT_Send_t);
 
@@ -242,13 +242,13 @@ static ERROR_CODE eHC05_Check_Set_Baud(void)
 
       memcpy(HC05_AS_t.pSetupSendBuff, AT_CMD_TEST, strlen(AT_CMD_TEST));
       BT_Send_t.pBuff = (uint8_t *)HC05_AS_t.pSetupSendBuff;
-      BT_Send_t.uiLen = strlen(HC05_AS_t.pSetupSendBuff);
+      BT_Send_t.uiLen = strlen((char *)HC05_AS_t.pSetupSendBuff);
       uiWait = 0;
       eEC = eBSP_BT_INTF_SEND(&BT_Send_t);
 
       while(1)
       {
-        if(strstr(HC05_AS_t.pSetupRcvBuff, "OK\r\n") != NULL)
+        if(strstr((char *)HC05_AS_t.pSetupRcvBuff, "OK\r\n") != NULL)
         {
           eEC = ER_OK;
           break;

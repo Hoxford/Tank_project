@@ -16,10 +16,10 @@
 
 //Project specific includes
   #include "proj_inc/project_config.h"
-
 #if (PROJ_CONFIG_USE_UTIL_OSAL == 0)
   //OSAL not implemented
 #else
+  #include "proj_inc/osal_config.h"
 
 //Utility includes
   #include "utils_inc/error_codes.h"
@@ -278,6 +278,8 @@ ERROR_CODE eOSAL_Queue_Get_msg   (OSAL_Queue_Handle_t * ptQueue_handle)
 #define SEMAPHORE_MAX_NUM        configQUEUE_REGISTRY_SIZE
 #define SEMAPHORE_WAIT_FOREVER   portMAX_DELAY
 
+#define DATA_MUTEX_MAX_NUM
+
 #define OSAL_MAILBOX_DEFAULT_WAIT_FOREVER 0xFFFFFFFF
 #define OSAL_MAILBOX_DEFAULT_BUFF_SIZE    256
 #define OSAL_MAILBOX_DEFAULT_MAX_MESSAGES 3
@@ -303,15 +305,17 @@ typedef struct OSAL_Activity_State_t
   bool bIs_Task_Desc_Init;
   bool bIs_Queue_Desc_Init;
   bool bIs_Semaphore_Desc_Init;
+  bool bIs_Data_Mutex_Desc_Init;
   bool bIs_OS_running;
 }OSAL_Activity_State_t;
 
 OSAL_Activity_State_t OSAL_AS_t =
 {
-  .bIs_Task_Desc_Init      = false,
-  .bIs_Queue_Desc_Init     = false,
-  .bIs_Semaphore_Desc_Init = false,
-  .bIs_OS_running          = false,
+  .bIs_Task_Desc_Init       = false,
+  .bIs_Queue_Desc_Init      = false,
+  .bIs_Semaphore_Desc_Init  = false,
+  .bIs_OS_running           = false,
+  .bIs_Data_Mutex_Desc_Init = false,
 };
 
 typedef struct OSAL_Task_Descriptor_t
@@ -332,10 +336,21 @@ tOSAL_Queue_Descriptor tOSAL_Queue_Desc[QUEUE_MAX_NUM];
 
 typedef struct OSAL_Semaphore_Descriptor
 {
-  OSAL_Semaphore_Handle_t  Sem_Handle_t;
+  OSAL_Semaphore_Handle_t   Sem_Handle_t;
+  void *                    pMutex_Data;
+  uint32_t                  ui32Mutex_Data_Size;
 }OSAL_Semaphore_Descriptor_t, * pOSAL_Semaphore_Descriptor;
 
 OSAL_Semaphore_Descriptor_t OSAL_Sem_Desc_t[SEMAPHORE_MAX_NUM];
+
+typedef struct OSAL_Data_Mutex_Descriptor
+{
+  OSAL_Data_Mutex_Handle_t   Data_Mutex_Handle_t;
+  void *                     pMutex_Data;
+  uint32_t                   ui32Mutex_Data_Size;
+}OSAL_Data_Mutex_Descriptor_t, * pOSAL_Data_Mutex_Descriptor;
+
+OSAL_Data_Mutex_Descriptor_t OSAL_Data_Mutex_desc_t[5];
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -344,14 +359,18 @@ OSAL_Semaphore_Descriptor_t OSAL_Sem_Desc_t[SEMAPHORE_MAX_NUM];
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t * pParam, OSAL_Task_Descriptor_t ** pOSAL_Reg_Desciptor);
-ERROR_CODE eOSAL_Unregister_Task(OSAL_Task_Descriptor_t * pOSAL_Reg_Desciptor);
+static ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t * pParam, OSAL_Task_Descriptor_t ** pOSAL_Reg_Desciptor);
+static ERROR_CODE eOSAL_Unregister_Task(OSAL_Task_Descriptor_t * pOSAL_Reg_Desciptor);
 
-ERROR_CODE eOSAL_Register_Queue(OSAL_Queue_Parameters_t * pParam, tOSAL_Queue_Descriptor ** pQueue_Desc);
-ERROR_CODE eOSAL_Unregister_Queue(tOSAL_Queue_Descriptor * pQueue_Descriptor);
+static ERROR_CODE eOSAL_Register_Queue(OSAL_Queue_Parameters_t * pParam, tOSAL_Queue_Descriptor ** pQueue_Desc);
+static ERROR_CODE eOSAL_Unregister_Queue(tOSAL_Queue_Descriptor * pQueue_Descriptor);
 
-ERROR_CODE eOSAL_Register_Semaphore(pOSAL_Semaphore_Descriptor * pSem_Desc);
-ERROR_CODE eOSAL_Unregister_Semaphore(pOSAL_Semaphore_Handle pSem_Handle);
+static ERROR_CODE eOSAL_Register_Semaphore(pOSAL_Semaphore_Descriptor * pSem_Desc);
+static ERROR_CODE eOSAL_Unregister_Semaphore(pOSAL_Semaphore_Handle pSem_Handle);
+
+static ERROR_CODE eOSAL_Register_Data_Mutex(pOSAL_Data_Mutex_Descriptor * pDesc);
+static ERROR_CODE eOSAL_Unregister_Data_Mutex(pOSAL_Data_Mutex_Handle pHandle);
+static ERROR_CODE eOSAL_Get_Mutex_Desc(pOSAL_Data_Mutex_Handle pHandle, OSAL_Data_Mutex_Descriptor_t ** pDesc);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -364,7 +383,7 @@ ERROR_CODE eOSAL_Unregister_Semaphore(pOSAL_Semaphore_Handle pSem_Handle);
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t *pParam, OSAL_Task_Descriptor_t ** pOSAL_Reg_Desciptor)
+static ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t *pParam, OSAL_Task_Descriptor_t ** pOSAL_Reg_Desciptor)
 {
   ERROR_CODE eEC = ER_FAIL;
   int i = 0;
@@ -413,9 +432,10 @@ ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t *pParam, OSAL_Task_Descrip
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eOSAL_Unregister_Task(OSAL_Task_Descriptor_t * pOSAL_Reg_Desciptor)
+static ERROR_CODE eOSAL_Unregister_Task(OSAL_Task_Descriptor_t * pOSAL_Reg_Desciptor)
 {
   ERROR_CODE eEC = ER_FAIL;
+  vDEBUG_ASSERT("",false);
   //todo finish & test
   if(pOSAL_Reg_Desciptor == NULL)
   {
@@ -431,7 +451,7 @@ ERROR_CODE eOSAL_Unregister_Task(OSAL_Task_Descriptor_t * pOSAL_Reg_Desciptor)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eOSAL_Register_Queue(OSAL_Queue_Parameters_t * pParam, tOSAL_Queue_Descriptor ** pQueue_Desc)
+static ERROR_CODE eOSAL_Register_Queue(OSAL_Queue_Parameters_t * pParam, tOSAL_Queue_Descriptor ** pQueue_Desc)
 {
   ERROR_CODE eEC = ER_FAIL;
   int i = 0;
@@ -487,24 +507,27 @@ ERROR_CODE eOSAL_Register_Queue(OSAL_Queue_Parameters_t * pParam, tOSAL_Queue_De
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eOSAL_Unregister_Queue(tOSAL_Queue_Descriptor * pQueue_Descriptor)
+static ERROR_CODE eOSAL_Unregister_Queue(tOSAL_Queue_Descriptor * pQueue_Descriptor)
 {
   ERROR_CODE eEC = ER_FAIL;
   //todo finish & test
+  vDEBUG_ASSERT("",false);
   return eEC;
 }
 
-ERROR_CODE eOSAL_Register_Semaphore(pOSAL_Semaphore_Descriptor * pSem_Desc)
+static ERROR_CODE eOSAL_Register_Semaphore(pOSAL_Semaphore_Descriptor * pSem_Desc)
 {
   ERROR_CODE eEC = ER_FAIL;
 
   int i = 0;
   //todo finish & test
+  vDEBUG_ASSERT("",false);
   if(OSAL_AS_t.bIs_Semaphore_Desc_Init == false)
   {
     for(i = 0; i < SEMAPHORE_MAX_NUM; i++)
     {
-      OSAL_Sem_Desc_t[i].Sem_Handle_t.pHandle = NULL;
+      memset(&OSAL_Sem_Desc_t[i], 0x00, sizeof(OSAL_Semaphore_Descriptor_t));
+
       OSAL_Sem_Desc_t[i].Sem_Handle_t.uiHandle_Index = i;
     }
 
@@ -528,11 +551,12 @@ ERROR_CODE eOSAL_Register_Semaphore(pOSAL_Semaphore_Descriptor * pSem_Desc)
   return eEC;
 }
 
-ERROR_CODE eOSAL_Unregister_Semaphore(pOSAL_Semaphore_Handle pSem_Handle)
+static ERROR_CODE eOSAL_Unregister_Semaphore(pOSAL_Semaphore_Handle pSem_Handle)
 {
   ERROR_CODE eEC = ER_FAIL;
   int i = 0;
   //todo finish
+  vDEBUG_ASSERT("",false);
   for(i = 0; i < SEMAPHORE_MAX_NUM; i++)
   {
 //    if(OSAL_Sem_Desc_t[i].Sem_Handle_t == pSem_Handle)
@@ -549,6 +573,76 @@ ERROR_CODE eOSAL_Unregister_Semaphore(pOSAL_Semaphore_Handle pSem_Handle)
 //    }
   }
 
+  return eEC;
+}
+
+static ERROR_CODE eOSAL_Register_Data_Mutex(pOSAL_Data_Mutex_Descriptor * pDesc)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  int i = 0;
+  //todo finish & test
+  if(OSAL_AS_t.bIs_Data_Mutex_Desc_Init == false)
+  {
+    for(i = 0; i < 5; i++)
+    {
+      OSAL_Data_Mutex_desc_t[i].Data_Mutex_Handle_t.pHandle = NULL;
+      OSAL_Data_Mutex_desc_t[i].Data_Mutex_Handle_t.uiHandle_Index = i;
+    }
+
+    OSAL_AS_t.bIs_Data_Mutex_Desc_Init = true;
+  }
+
+  for(i = 0; i < 5; i++)
+  {
+    if(OSAL_Data_Mutex_desc_t[i].Data_Mutex_Handle_t.pHandle == NULL)
+    {
+      OSAL_Data_Mutex_desc_t[i].Data_Mutex_Handle_t.uiHandle_Index = i;
+      *pDesc = &OSAL_Data_Mutex_desc_t[i];
+      eEC = ER_OK;
+      break;
+    }
+    else
+    {
+      eEC = ER_FULL;
+    }
+  }
+
+  return eEC;
+}
+
+static ERROR_CODE eOSAL_Unregister_Data_Mutex(pOSAL_Data_Mutex_Handle pHandle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  //todo finish & test
+  vDEBUG_ASSERT("",false);
+  return eEC;
+}
+
+static ERROR_CODE eOSAL_Get_Mutex_Desc(pOSAL_Data_Mutex_Handle pHandle, OSAL_Data_Mutex_Descriptor_t ** pDesc)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  pOSAL_Data_Mutex_Descriptor pDM_Desc;
+
+  if(OSAL_AS_t.bIs_Data_Mutex_Desc_Init == false)
+  {
+    eEC = ER_NOT_READY;
+  }
+  else
+  {
+    pDM_Desc = &OSAL_Data_Mutex_desc_t[pHandle->uiHandle_Index];
+    if(pDM_Desc->Data_Mutex_Handle_t.pHandle != pHandle->pHandle)
+    {
+      *pDesc = NULL;
+      eEC = ER_INVALID;
+    }
+    else
+    {
+      *pDesc = pDM_Desc;
+      eEC = ER_OK;
+    }
+  }
+//  vDEBUG_ASSERT("",false);
   return eEC;
 }
 
@@ -627,7 +721,9 @@ ERROR_CODE eOSAL_Task_Create(OSAL_Task_Parameters_t *pParam)
 ERROR_CODE eOSAL_Task_Delete(OSAL_Task_Parameters_t *pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
-
+  //todo finish & test
+  vDEBUG_ASSERT("",false);
+  eOSAL_Unregister_Task(NULL);
   return eEC;
 }
 
@@ -775,6 +871,18 @@ ERROR_CODE eOSAL_Queue_Create(OSAL_Queue_Parameters_t * ptQueue_param, OSAL_Queu
 }
 
 /******************************************************************************
+* name: eOSAL_Queue_Delete
+******************************************************************************/
+ERROR_CODE eOSAL_Queue_Delete(OSAL_Queue_Handle_t * ptQueue_handle)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  //todo finish & test
+    vDEBUG_ASSERT("",false);
+  eOSAL_Unregister_Queue(NULL);
+  return eEC;
+}
+
+/******************************************************************************
 * name: eOSAL_Queue_Get_msg
 ******************************************************************************/
 ERROR_CODE eOSAL_Queue_Get_msg(OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg)
@@ -831,7 +939,6 @@ ERROR_CODE eOSAL_Semaphore_Params_Init(pOSAL_Semaphore_Parameters pParameters)
 ERROR_CODE eOSAL_Semaphore_Create(pOSAL_Semaphore_Parameters pParameters, pOSAL_Semaphore_Handle * pSemaphore_Handle)
 {
   ERROR_CODE eEC = ER_FAIL;
-
   pOSAL_Semaphore_Descriptor pSem_Desc;
 
   eEC = eOSAL_Register_Semaphore(&pSem_Desc);
@@ -841,13 +948,24 @@ ERROR_CODE eOSAL_Semaphore_Create(pOSAL_Semaphore_Parameters pParameters, pOSAL_
   return eEC;
 }
 
+ERROR_CODE eOSAL_Semaphore_Delete(pOSAL_Semaphore_Handle pSemaphore_Handle)
+{
+  ERROR_CODE  eEC = ER_FAIL;
+  //todo finish & test
+  vDEBUG_ASSERT("",false);
+  eOSAL_Unregister_Semaphore(NULL);
+  return eEC;
+}
+
+
 /******************************************************************************
 * name: eOSAL_Semaphore_Wait
 ******************************************************************************/
 ERROR_CODE eOSAL_Semaphore_Wait(pOSAL_Semaphore_Handle pSemaphore_Handle)
 {
   ERROR_CODE eEC = ER_FAIL;
-  //todo finish
+  //todo finish & test
+  vDEBUG_ASSERT("",false);
   return eEC;
 }
 
@@ -857,7 +975,8 @@ ERROR_CODE eOSAL_Semaphore_Wait(pOSAL_Semaphore_Handle pSemaphore_Handle)
 ERROR_CODE eOSAL_Semaphore_Wait_Timeout(pOSAL_Semaphore_Handle pSemaphore_Handle, uint32_t uiTimeout)
 {
   ERROR_CODE eEC = ER_FAIL;
-  //todo finish
+  //todo finish & test
+  vDEBUG_ASSERT("",false);
   return eEC;
 }
 
@@ -867,7 +986,8 @@ ERROR_CODE eOSAL_Semaphore_Wait_Timeout(pOSAL_Semaphore_Handle pSemaphore_Handle
 ERROR_CODE eOSAL_Semaphore_Post(pOSAL_Semaphore_Handle pSemaphore_Handle)
 {
   ERROR_CODE eEC = ER_FAIL;
-  //todo finish
+  //todo finish & test
+  vDEBUG_ASSERT("",false);
   return eEC;
 }
 
@@ -877,7 +997,8 @@ ERROR_CODE eOSAL_Semaphore_Post(pOSAL_Semaphore_Handle pSemaphore_Handle)
 ERROR_CODE eOSAL_Mutex_Create(pOSAL_Mutex_Parameters pParameters, pOSAL_Mutex_Handle *pMutex_Handle)
 {
   ERROR_CODE eEC = ER_FAIL;
-
+  //todo finish & test
+  vDEBUG_ASSERT("",false);
   xSemaphoreCreateMutex();
 
   return eEC;
@@ -906,35 +1027,102 @@ ERROR_CODE eOSAL_Mutex_Return(pOSAL_Mutex_Handle pHandle)
 /******************************************************************************
 * name: eOSAL_Data_Mutex_Create
 ******************************************************************************/
-ERROR_CODE eOSAL_Data_Mutex_Create(pOSAL_Data_Mutex_Parameters pParameters, pOSAL_Mutex_Handle *pMutex_Handle)
+ERROR_CODE eOSAL_Data_Mutex_Create(pOSAL_Data_Mutex_Parameters pParameters, OSAL_Data_Mutex_Handle_t ** pHandle)
 {
   ERROR_CODE eEC = ER_FAIL;
+  pOSAL_Data_Mutex_Descriptor pDesc;
 
-  vDEBUG_ASSERT("", false);
+  eEC = eOSAL_Register_Data_Mutex(&pDesc);
+
+  if(eEC == ER_OK)
+  {
+    pDesc->Data_Mutex_Handle_t.pHandle = xSemaphoreCreateMutex();
+
+    if(pDesc->Data_Mutex_Handle_t.pHandle != NULL)
+    {
+      pDesc->pMutex_Data = calloc(pParameters->uiObject_Size, sizeof(uint8_t));
+      if(pDesc->pMutex_Data != NULL)
+      {
+        pDesc->ui32Mutex_Data_Size = pParameters->uiObject_Size;
+        *pHandle = &pDesc->Data_Mutex_Handle_t;
+        eEC = ER_OK;
+      }
+      else
+      {
+        eEC = ER_NOMEM;
+      }
+    }
+    else
+    {
+      *pHandle = NULL;
+      eEC = ER_CREATE;
+    }
+  }
 
   return eEC;
 }
 
 /******************************************************************************
-* name: eOSAL_Data_Mutex_Create
+* name: eOSAL_Data_Mutex_Delete
 ******************************************************************************/
-ERROR_CODE eOSAL_Data_Mutex_Get(pOSAL_Mutex_Handle pHandle)
+ERROR_CODE eOSAL_Data_Mutex_Delete(pOSAL_Data_Mutex_Handle pHandle)
 {
   ERROR_CODE eEC = ER_FAIL;
-
   vDEBUG_ASSERT("", false);
+  eOSAL_Unregister_Data_Mutex(NULL);
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Data_Mutex_Get
+******************************************************************************/
+ERROR_CODE eOSAL_Data_Mutex_Get(pOSAL_Data_Mutex_Handle pHandle, void ** pData)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  bool bRC = false;
+  uint32_t ui32Timeout = 0;
+  pOSAL_Data_Mutex_Descriptor pDesc;
+
+  //determine if the mutex was created
+  eEC = eOSAL_Get_Mutex_Desc(pHandle, &pDesc);
+  if(eEC == ER_OK)
+  {
+    bRC = xSemaphoreTake(pHandle->pHandle, 0);//, QUEUE_WAIT_FOREVER); //todo: add wait time to mutex creation
+    if(bRC == true)
+    {
+      *pData = pDesc->pMutex_Data;
+    }
+    else
+    {
+      *pData = NULL;
+    }
+  }
+
+  //todo: test when max number of mutex's tanken
 
   return eEC;
 }
 
 /******************************************************************************
-* name: eOSAL_Data_Mutex_Create
+* name: eOSAL_Data_Mutex_Return
 ******************************************************************************/
-ERROR_CODE eOSAL_Data_Mutex_Return(pOSAL_Mutex_Handle pHandle)
+ERROR_CODE eOSAL_Data_Mutex_Return(pOSAL_Data_Mutex_Handle pHandle, void ** pData)
 {
   ERROR_CODE eEC = ER_FAIL;
+  bool bRC = false;
+  uint32_t ui32Timeout = 0;
+  pOSAL_Data_Mutex_Descriptor pDesc;
 
-  vDEBUG_ASSERT("", false);
+  //determine if the mutex was created
+  eEC = eOSAL_Get_Mutex_Desc(pHandle, &pDesc);
+  if(eEC == ER_OK)
+  {
+    bRC = xSemaphoreGive(pHandle->pHandle);
+    if(bRC == true)
+    {
+      *pData = NULL;
+    }
+  }
 
   return eEC;
 }
