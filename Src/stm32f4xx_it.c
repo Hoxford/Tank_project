@@ -192,6 +192,7 @@ void UART4_IRQHandler(void)
 #if(PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
   extern void vBluetooth_HC05_intf_isr_callback(void);
   vBluetooth_HC05_intf_isr_callback();
+
 #endif
   /* USER CODE END UART4_IRQn 1 */
 }

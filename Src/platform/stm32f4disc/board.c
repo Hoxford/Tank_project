@@ -116,6 +116,7 @@ typedef struct tBSP_Activity_State
   bool bIs_Camera_Intf_Init;
   bool bIs_Wifi_Intf_Init;
   bool bIs_Usb_Intf_Init;
+  bool bIs_BT_Intf_Receiving;
   void * pPointer;
   void (* vUART_ISR[5])(void);
 //  void (* vUART_ISR)(void);
@@ -127,6 +128,7 @@ tBSP_Activity_State tBSP_AS =
   .bIs_Camera_Intf_Init = false,
   .bIs_Wifi_Intf_Init   = false,
   .bIs_Usb_Intf_Init    = false,
+  .bIs_BT_Intf_Receiving = false,
   .pPointer             = NULL,
   .vUART_ISR[0] = NULL,
   .vUART_ISR[1] = NULL,
@@ -391,7 +393,7 @@ ERROR_CODE eBSP_BT_POWER_DISABLE(void)
   return eEC;
 }
 
-ERROR_CODE eBSP_BT_WAKE(void)
+ERROR_CODE eBSP_BT_CONFIG_MODE_ENABLE(void)
 {
   ERROR_CODE eEC = ER_FAIL;
 
@@ -401,11 +403,11 @@ ERROR_CODE eBSP_BT_WAKE(void)
   return eEC;
 }
 
-ERROR_CODE eBSP_BT_SLEEP(void)
+ERROR_CODE eBSP_BT_CONFIG_MODE_DISABLE(void)
 {
   ERROR_CODE eEC = ER_FAIL;
 
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_RESET);
   eEC = ER_OK;
 
   return eEC;
@@ -434,13 +436,53 @@ ERROR_CODE eBSP_BT_INTF_RCV(pBSP_BT_Rcv pParam)
   ERROR_CODE eEC = ER_FAIL;
   HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
 
-  eHAL_Status = HAL_UART_Receive_IT(&BT_UART_HANDLE, pParam->pBuff, pParam->uiLen);
-  if(eHAL_Status == HAL_OK)
-    eEC = ER_OK;
-  else if(eHAL_Status == HAL_BUSY)
-    eEC = ER_TIMEOUT;
+  if(tBSP_AS.bIs_BT_Intf_Receiving == false)
+  {
+    eHAL_Status = HAL_UART_Receive_IT(&BT_UART_HANDLE, pParam->pBuff, pParam->uiLen);
+    if(eHAL_Status == HAL_OK)
+    {
+      tBSP_AS.bIs_BT_Intf_Receiving = true;
+      eEC = ER_OK;
+    }
+    else if(eHAL_Status == HAL_BUSY)
+    {
+      eEC = ER_TIMEOUT;
+    }
+    else
+    {
+      eEC = ER_FAIL;
+    }
+  }
   else
+  {
+    eEC = ER_OK;
+  }
+
+  return eEC;
+}
+
+ERROR_CODE eBSP_BT_INTF_RCV_IT(pBSP_BT_Rcv pParam)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+
+  if(tBSP_AS.bIs_BT_Intf_Receiving == true)
+  {
+    eHAL_Status = HAL_UART_Receive_IT(&BT_UART_HANDLE, pParam->pBuff, pParam->uiLen);
+    if(eHAL_Status == HAL_OK)
+    {
+      tBSP_AS.bIs_BT_Intf_Receiving = true;
+      eEC = ER_OK;
+    }
+    else
+    {
+      vDEBUG_ASSERT("",false);
+    }
+  }
+  else
+  {
     eEC = ER_FAIL;
+  }
 
   return eEC;
 }
@@ -468,7 +510,12 @@ ERROR_CODE eBSP_BT_INTF_CONFIG(pUART_Config pParam)
     BT_UART_HANDLE.Init.HwFlowCtl  = uiGetUartFlowControl(pParam->eControl);
     BT_UART_HANDLE.Init.Mode       = uiGetUartMode       (pParam->eMode);
     BT_UART_HANDLE.Init.BaudRate   = pParam->uiBaud;
-    eHAL_Status = HAL_UART_Init(&BT_UART_HANDLE);
+
+//    eHAL_Status = HAL_UART_DeInit(&BT_UART_HANDLE);
+//    if(eHAL_Status == HAL_OK)
+      eHAL_Status = HAL_UART_Init(&BT_UART_HANDLE);
+//    else
+//      eEC_MX = ER_FAIL;
 
     if(eHAL_Status == HAL_OK)
       eEC_MX = ER_OK;
@@ -496,6 +543,8 @@ ERROR_CODE eBSP_BT_INTF_CONFIG(pUART_Config pParam)
      ((eEC_RCV_TO_CB == ER_NONE) |(eEC_RCV_TO_CB == ER_OK)) &
      ((eEC_SEND_TO_CB == ER_NONE)|(eEC_SEND_TO_CB == ER_OK)))
   {
+    //set the receiving control variable to false since the uart was reconfigured.
+    tBSP_AS.bIs_BT_Intf_Receiving = false;
     eEC = ER_OK;
   }
   else

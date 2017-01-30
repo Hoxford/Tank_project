@@ -96,7 +96,7 @@
 typedef struct OSAL_Task_Handle
 {
   void * pvTask_Handle;
-}OSAL_Task_Handle_t, *pOSAL_Task_Handle;
+}OSAL_Task_Handle_t, * pOSAL_Task_Handle;
 
 typedef struct OSAL_Mailbox_Handle_t
 {
@@ -121,7 +121,7 @@ typedef struct OSAL_Queue_Handle_t
   uint32_t uiHandle_Index;
 }OSAL_Queue_Handle_t, * pOSAL_Queue_Handle;
 
-typedef struct OSAL_Task_Parameters_t
+typedef struct OSAL_Task_Parameters
 {
     void (* pTaskFcn)(void * param);
     const char * pName;
@@ -173,34 +173,159 @@ typedef struct OSAL_Data_Mutex_Handle
 ******************************************************************************/
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name: eOSAL_Task_Param_Init
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* Name: eOSAL_Task_Param_Init
+* Description:
+*   Initializes the task parameters structure that can be used for
+*   eOSAL_Task_Create().
+*
+* Parameters:
+*   pOSAL_Task_Parameters pParam: pointer to a task parameters structure.
+*
+* Returns:
+*   (ERROR_CODE):
+*     = ER_OK: Parameters successfully initialized.
+*     = ER_PARAM: The parameters to initialize were invalid.
+*     = ER_FAIL: The parameters failed to be initialized.
+*
+* Example:
+* void foo(void)
+* {
+*   ERROR_CODE eEC;
+*   OSAL_Task_Parameters_t Task_Param_t;
+*
+*   //Initialize the task parameters
+*   eEC = eOSAL_Task_Param_Init(&Task_Param_t);
+*   ASSERT(eEC == ER_OK);
+*
+*   //remaining code
+*   ...
+*
+*   return;
+* }
 ******************************************************************************/
-ERROR_CODE eOSAL_Task_Param_Init         (OSAL_Task_Parameters_t *pParam);
+ERROR_CODE eOSAL_Task_Param_Init(pOSAL_Task_Parameters pParam);
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name: eOSAL_Task_Create
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* Name: eOSAL_Task_Create
+* Description:
+*   Creates a task using the passed in task parameters structure.
+*
+* Parameters:
+*   (pOSAL_Task_Parameters) pParam: pointer to the param structure
+*     ->void (* pTaskFcn)(void * param):
+*     ->(const char *)pName:
+*     ->(uint32_t)uiStack_Size:
+*     ->(void *)pParameters:
+*     ->(uint32_t)uiTask_Priority:
+*
+* Returns:
+*   (ERROR_CODE): description
+*     = ER_OK: Task created
+*     = ER_FAIL: Task failed to be created
+*     = ER_FULL: Task creation limit reached
+*
+* Example:
+* #define FOO_TASK_PRIORITY 1
+* char cTaskName[] = "foo_task";
+*
+* void foo_task(void * pvParam)
+* {
+*   //task startup code
+*   ...
+*
+*   while(1)
+*   {
+*     //task code
+*     ...
+*   }
+* }
+*
+* void foo(void)
+* {
+*   ERROR_CODE eEC;
+*   OSAL_Task_Parameters_t Task_Param_t;
+*
+*   //Initialize the task parameters
+*   ...
+*
+*   //Set the task parameters
+*   Task_Param_t.pTaskFcn        = &foo_task;
+*   Task_Param_t.pName           = cTaskName;
+*   Task_Param_t.uiStack_Size    = 1024;
+*   Task_Param_t.pParameters     = NULL;
+*   Task_Param_t.uiTask_Priority = FOO_TASK_PRIORITY;
+*   //Create the task
+*   eEC = eOSAL_Task_Create(&Task_Param_t);
+*   ASSERT(eEC == ER_OK);
+*
+*   //Remaining code
+*   ...
+*   return;
+* }
 ******************************************************************************/
-ERROR_CODE eOSAL_Task_Create             (OSAL_Task_Parameters_t *pParam);
+ERROR_CODE eOSAL_Task_Create(pOSAL_Task_Parameters pParam);
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name: eOSAL_Task_Delete
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* Name: eOSAL_Task_Delete
+* Description:
+*   Shuts down and deletes an existing task.
+*
+* Parameters:
+*   (pOSAL_Task_Handle) pHandle: pointer to the task handle to delete.
+*
+* Returns:
+*   (ERROR_CODE): description
+*     = ER_OK: value description
+*     = ER_FAIL:
+*
+* Example:
+* static bool bFoo_Task_Done = false;
+*
+* void foo_task(void * pvParam)
+* {
+*   //task startup code
+*   ...
+*
+*   while(1)
+*   {
+*     //task code
+*     ...
+*
+*     bFoo_Task_Done = true;
+*   }
+* }
+*
+* void foo(void)
+* {
+*   ERROR_CODE eEC;
+*   OSAL_Task_Parameters_t Task_Param_t;
+*
+*   //Initialize the task parameters
+*   ...
+*   //Set the task parameters
+*   ...
+*   //Create the task
+*   eEC = eOSAL_Task_Create(&Task_Param_t);
+*   ASSERT(eEC == ER_OK);
+*
+*   while(1)
+*   {
+*     if(bFoo_Task_Done == true)
+*       break;
+*     else
+*       eOSAL_delay(1, NULL);
+*   }
+*
+*   //delete task
+*   eEC = eOSAL_Task_Delete(pHandle);
+*   ASSERT(eEC == ER_OK);
+*
+*   //remaining code
+*   ...
+*   return;
+* }
 ******************************************************************************/
-ERROR_CODE eOSAL_Task_Delete             (OSAL_Task_Parameters_t *pParam);
+ERROR_CODE eOSAL_Task_Delete(pOSAL_Task_Handle pHandle);
 
 /******************************************************************************
 * name: eOSAL_OS_start
@@ -212,7 +337,7 @@ ERROR_CODE eOSAL_Task_Delete             (OSAL_Task_Parameters_t *pParam);
 *                                        their OS start function was called.
 *                                        Do not rely on this return value.
 ******************************************************************************/
-ERROR_CODE eOSAL_OS_start                (void);
+ERROR_CODE eOSAL_OS_start(void);
 
 /******************************************************************************
 * name: eOSAL_Is_OS_Running
@@ -221,7 +346,7 @@ ERROR_CODE eOSAL_OS_start                (void);
 * return value description: ERROR_CODE - ER_TRUE: OS is running
 *                                      - ER_FALSE: OS is not running
 ******************************************************************************/
-ERROR_CODE eOSAL_Is_OS_Running           (void);
+ERROR_CODE eOSAL_Is_OS_Running(void);
 
 /******************************************************************************
 * name: eOSAL_delay
@@ -690,8 +815,8 @@ ERROR_CODE eOSAL_Mutex_Get(pOSAL_Mutex_Handle pHandle);
 ERROR_CODE eOSAL_Mutex_Return(pOSAL_Mutex_Handle pHandle);
 
 /******************************************************************************
-*todo: Name: [put name here]
-*todo: Description:
+* Name: eOSAL_Data_Mutex_Create
+* Description:
 *   [put description here]
 *
 *todo: Parameters:

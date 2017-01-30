@@ -21,7 +21,7 @@
 //Project driver configuration defines BEGIN
   #define PROJ_CONFIG_USE_DRVR_NVRAM            0
   #define PROJ_CONFIG_USE_DRVR_WIFI             0
-  #define PROJ_CONFIG_USE_DRVR_BLUETOOTH        0
+  #define PROJ_CONFIG_USE_DRVR_BLUETOOTH        1
   #define PROJ_CONFIG_USE_DRVR_USB              0
   #define PROJ_CONFIG_USE_DRVR_IR_DETECTION     0
   #define PROJ_CONFIG_USE_DRVR_CAMERA           0
@@ -58,12 +58,13 @@
       #define PROJ_CONFIG_PLATFORM_WIFI PROJ_CONFIG_PLATFORM_WIFI_ESP8266
 
   //Bluetooth module
+#if(PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
     #define PROJ_CONFIG_PLATFORM_BT_NONE        0
     #define PROJ_CONFIG_PLATFORM_BT_WINC3400    1
     #define PROJ_CONFIG_PLATFORM_BT_HC05        2
     /*add more PROJ_CONFIG_PLATFORM_BT_... here*/
       #define PROJ_CONFIG_PLATFORM_BT PROJ_CONFIG_PLATFORM_BT_HC05
-
+#endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH
 
 //Project platform configuration defines END
 

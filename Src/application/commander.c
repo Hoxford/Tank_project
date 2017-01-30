@@ -251,6 +251,7 @@ void vCommander_Task(void * pvParameters)
         case COMMAND_MSG_PROVISION:
 #if (PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
           BT_Req_t.eRequestID = BLUETOOTH_REQUEST_PROVISION;
+          eBluetooth_Request(&BT_Req_t);
 #endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH
           break;
         case COMMAND_MSG_INTERFACE_CONNECT:

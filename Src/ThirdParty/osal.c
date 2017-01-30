@@ -381,7 +381,11 @@ static ERROR_CODE eOSAL_Get_Mutex_Desc(pOSAL_Data_Mutex_Handle pHandle, OSAL_Dat
 * description:
 * param description: type - value: value description (in order from left to right)
 *                    bool - true: do action when set to true
-* return value description: type - value: value description
+* return value description:
+*   (ERROR_CODE):
+*     = ER_OK: Task registered
+*     = ER_FAIL: Failed to register the task
+*     = ER_FULL: Cannot create any more tasks
 ******************************************************************************/
 static ERROR_CODE eOSAL_Register_Task(OSAL_Task_Parameters_t *pParam, OSAL_Task_Descriptor_t ** pOSAL_Reg_Desciptor)
 {
@@ -667,15 +671,27 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
 /******************************************************************************
 * name: eOSAL_Task_Param_Init
 ******************************************************************************/
-ERROR_CODE eOSAL_Task_Param_Init(OSAL_Task_Parameters_t *pParam)
+ERROR_CODE eOSAL_Task_Param_Init(pOSAL_Task_Parameters pParam)
 {
   ERROR_CODE eEC = ER_OK;
+  void * pReturn;
 
-  pParam->pTaskFcn = NULL;
-  pParam->pName = NULL;
-  pParam->uiStack_Size = 0;
-  pParam->pParameters = NULL;
-  pParam->uiTask_Priority = 0;
+  if(pParam == NULL)
+  {
+    eEC = ER_PARAM;
+  }
+  else
+  {
+    pReturn = memset(pParam, 0x00, sizeof(OSAL_Task_Parameters_t));
+    if(pReturn == pParam)
+    {
+      eEC = ER_OK;
+    }
+    else
+    {
+      eEC = ER_FAIL;
+    }
+  }
 
   return eEC;
 }
@@ -683,7 +699,7 @@ ERROR_CODE eOSAL_Task_Param_Init(OSAL_Task_Parameters_t *pParam)
 /******************************************************************************
 * name: eOSAL_Task_Create
 ******************************************************************************/
-ERROR_CODE eOSAL_Task_Create(OSAL_Task_Parameters_t *pParam)
+ERROR_CODE eOSAL_Task_Create(pOSAL_Task_Parameters pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
   uint32_t uiRC = 0;
@@ -708,6 +724,8 @@ ERROR_CODE eOSAL_Task_Create(OSAL_Task_Parameters_t *pParam)
     }
     else
     {
+      //todo: unregister task
+      //todo need to implement method to return task handle to caller
       eEC = ER_FAIL;
     }
   }
@@ -718,10 +736,11 @@ ERROR_CODE eOSAL_Task_Create(OSAL_Task_Parameters_t *pParam)
 /******************************************************************************
 * name: eOSAL_Task_Delete
 ******************************************************************************/
-ERROR_CODE eOSAL_Task_Delete(OSAL_Task_Parameters_t *pParam)
+ERROR_CODE eOSAL_Task_Delete(pOSAL_Task_Handle pHandle)
 {
   ERROR_CODE eEC = ER_FAIL;
   //todo finish & test
+  //todo need to implement task handle into task create
   vDEBUG_ASSERT("",false);
   eOSAL_Unregister_Task(NULL);
   return eEC;

@@ -196,6 +196,8 @@ ERROR_CODE eBluetooth_Request(pBluetooth_Request pRequest)
   {
     switch(pRequest->eRequestID)
     {
+      case BLUETOOTH_REQUEST_PROVISION:
+        break;
       default:
         break;
     }
