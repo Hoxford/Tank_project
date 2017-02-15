@@ -182,6 +182,7 @@ static ERROR_CODE eHC05_Data_Mode(void)
       eEC = eOSAL_delay(10, NULL);
       if(eEC == ER_OK)
       {
+        //todo what's missing here?
         if(eEC == ER_OK)
         {
           eBSP_BT_POWER_ENABLE();
