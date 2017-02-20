@@ -104,7 +104,7 @@ typedef struct BSP_BT_Send
 typedef struct BSP_BT_Rcv
 {
   uint32_t  uiLen;
-  uint8_t * pBuff;
+  volatile uint8_t * pBuff;
 }BSP_BT_Rcv_t, * pBSP_BT_Rcv;
 
 typedef struct UART_Config_t
@@ -121,7 +121,7 @@ typedef struct UART_Config_t
   void (* vUART_Send_Timeout_ISR)   (void);//ISR to call for data send timeout
 }UART_Config_t, *pUART_Config;
 
-typedef struct tBSP_tWifi_Transmit
+typedef struct BSP_Wifi_Transmit
 {
   uint8_t * pBuff;
   uint32_t uiBuff_Len;
@@ -164,6 +164,7 @@ ERROR_CODE eBSP_BT_POWER_DISABLE(void);
 ERROR_CODE eBSP_BT_CONFIG_MODE_ENABLE(void);
 ERROR_CODE eBSP_BT_CONFIG_MODE_DISABLE(void);
 ERROR_CODE eBSP_BT_INTF_SEND(pBSP_BT_Send pParam);
+void       vBSP_BT_INTF_SEND_IT_HANDLER(void);
 ERROR_CODE eBSP_BT_INTF_RCV(pBSP_BT_Rcv pParam);
 ERROR_CODE eBSP_BT_INTF_RCV_IT(pBSP_BT_Rcv pParam);
 ERROR_CODE eBSP_BT_INTF_CONFIG(pUART_Config pParam);

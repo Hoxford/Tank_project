@@ -48,6 +48,11 @@ typedef enum PUB_EXAMPLE_ENUM
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+typedef struct HC05_Register_Receive
+{
+  void(* vRcvByte)(volatile uint8_t * pBuff);
+}HC05_Register_Receive_t, * pHC05_Register_Receive;
+
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -81,6 +86,8 @@ void   vBluetooth_HC05_intf_isr_callback (void);
 * }
 ******************************************************************************/
 ERROR_CODE eBluetooth_HC05_setup(void);
+
+ERROR_CODE eBluetooth_HC05_Register_Receive(pHC05_Register_Receive pRegRcv);
 
 #endif //PROJ_CONFIG_PLATFORM_BT_HC05
 #endif //__BLUETOOTH_HC05_H__

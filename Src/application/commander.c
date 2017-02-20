@@ -41,6 +41,7 @@
 
 //Application includes
   #include "app_inc/commander.h"
+  #include "app_inc/packet_router.h"
   /* Application include files here */
 
 //Platform includes
@@ -82,6 +83,7 @@ typedef enum COMMAND_MSG_ID
   COMMAND_MSG_PROVISION,
   COMMAND_MSG_TEST_DATA_MUTEX,
   COMMAND_MSG_INTERFACE_CONNECT,
+  COMMAND_MSG_PARSE_PACKET,
   COMMAND_MSG_LIMIT,
 }COMMAND_MSG_ID, * pCOMMAND_MSG_ID;
 
@@ -120,6 +122,9 @@ Command_Activity_State_t Command_AS_t =
 typedef struct Commander_Message_Struct_t
 {
     COMMAND_MSG_ID eMSG;
+    uint8_t *      pBuff;
+    uint32_t       u32BuffLen;
+    bool           bBuffAllocated;
 }Commander_Message_Struct_t, *pCommander_Message_Struct;
 
 typedef struct Commander_Mutex_Data
@@ -137,14 +142,20 @@ typedef struct Commander_Mutex_Data
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eCommander_Cmnd_Parse(void);
-void       vCommander_Task(void * pvParameters);
+static void       vCommanderPacketReceive(uint8_t * pPacket, uint32_t u32Packet_Len);
+static ERROR_CODE eCommander_Cmnd_Parse(uint8_t * pBuff, uint32_t ui32Len);
+static void       vCommander_Task(void * pvParameters);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eCommander_Cmnd_Parse(void)
+static void vCommanderPacketReceive(uint8_t * pPacket, uint32_t u32Packet_Len)
+{
+  return;
+}
+
+static ERROR_CODE eCommander_Cmnd_Parse(uint8_t * pBuff, uint32_t ui32Len)
 {
   ERROR_CODE eEC = ER_FAIL;
 
@@ -157,7 +168,7 @@ ERROR_CODE eCommander_Cmnd_Parse(void)
 * param description: void - pwParameters: pointer to the task parameters
 * return value description: void: should never return
 ******************************************************************************/
-void vCommander_Task(void * pvParameters)
+static void vCommander_Task(void * pvParameters)
 {
   ERROR_CODE eEC = ER_FAIL;
   OSAL_Queue_Parameters_t tCommander_Queue_Param;
@@ -165,8 +176,6 @@ void vCommander_Task(void * pvParameters)
   OSAL_Data_Mutex_Parameters_t Commander_Data_Mutex_Param_t;
   pOSAL_Data_Mutex_Handle pCommander_Data_Mutex_Handle;
   Commander_Message_Struct_t Msg_t;
-//  pCommander_Mutex_Data pMutex_Data;
-//  pCommander_Mutex_Data pOther_Mutex_Data;
 #if (PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
   Bluetooth_Request_t BT_Req_t;
 #endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH
@@ -174,12 +183,15 @@ void vCommander_Task(void * pvParameters)
   Wifi_Request_t WifiReq_t;
 #endif //PROJ_CONFIG_USE_DRVR_WIFI
 
+  //create the commanders data mutex
+  //
   Commander_Data_Mutex_Param_t.uiObject_Size = sizeof(Commander_Mutex_Data_t);
   Commander_Data_Mutex_Param_t.uiTimeout = 1000;
   eEC = eOSAL_Data_Mutex_Create(&Commander_Data_Mutex_Param_t, &pCommander_Data_Mutex_Handle);
   vDEBUG_ASSERT("Commander data mutex create fail", eEC == ER_OK);
 
   //create the commanders message queue
+  //
   eEC = eOSAL_Queue_Params_Init(&tCommander_Queue_Param);
   vDEBUG_ASSERT("Commander Queue params init fail", eEC == ER_OK);
   tCommander_Queue_Param.uiNum_Of_Queue_Elements = 3;
@@ -194,6 +206,7 @@ void vCommander_Task(void * pvParameters)
   pCommand_Activity_State pActivity_State;
 
   //check nv ram for persistent settings
+  //
   eEC = eNvram_Request_Param_Init(&tNVReq);
   vDEBUG_ASSERT("eNvram_Request_Param_Init fail", eEC == ER_OK);
   tNVReq.eRequestID = NVRAM_REQUEST_IS_ID_REGISTERED;
@@ -216,7 +229,8 @@ void vCommander_Task(void * pvParameters)
   Command_AS_t.bAuto_Interface_Connect = true;
 #endif //PROJ_CONFIG_USE_DRVR_NVRAM
 
-  //check if auto connect is enabled
+  //check auto connect settings
+  //
   if(Command_AS_t.bIs_Command_Provisioned == true)
   {
     //
@@ -227,15 +241,16 @@ void vCommander_Task(void * pvParameters)
   else
   {
     //clear stored wifi info
-
     Msg_t.eMSG = COMMAND_MSG_PROVISION;
     eEC = eOSAL_Queue_Post_msg(pCommander_Queue_Handle, &Msg_t);
   }
 
-//  Msg_t.eMSG = COMMAND_MSG_TEST_DATA_MUTEX;
-//  eEC = eOSAL_Queue_Post_msg(pCommander_Queue_Handle, &Msg_t);
+  //Register with the packet router
+  //
+  ePacket_Client_Register(PKT_ID_CONFIG, &vCommanderPacketReceive);
 
   //just before the task loop mark commander task ready
+  //
   Command_AS_t.bIs_Command_Task_Ready = true;
 
   while(1)
@@ -262,6 +277,13 @@ void vCommander_Task(void * pvParameters)
           WifiReq_t.cAP_PW = Command_AS_t.cAP_PW;
           eWifi_Request(&WifiReq_t);
 #endif //PROJ_CONFIG_USE_DRVR_WIFI
+          break;
+        case COMMAND_MSG_PARSE_PACKET:
+          eCommander_Cmnd_Parse(Msg_t.pBuff, Msg_t.u32BuffLen);
+          if(Msg_t.bBuffAllocated == true)
+          {
+            free(Msg_t.pBuff);
+          }
           break;
         default:
           break;

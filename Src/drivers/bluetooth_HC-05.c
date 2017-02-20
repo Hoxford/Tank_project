@@ -64,6 +64,7 @@
 ******************************************************************************/
 
 static volatile uint8_t u8Rcv = 0;
+void(* vRcvByte)(volatile uint8_t * pBuff);
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +94,8 @@ typedef struct Bluetooth_HC05_Activity_State
   uint8_t *    pSetupRcvBuff;
   uint8_t *    pSetupSendBuff;
   uint32_t     uiSetupBuffIndex;
+  uint8_t      u8BtAddress[6];
+  char         cBtAddress[18];
 }Bluetooth_HC05_Activity_State_t, * pBluetooth_HC05_Activity_State;
 
 static Bluetooth_HC05_Activity_State_t HC05_AS_t =
@@ -102,6 +105,8 @@ static Bluetooth_HC05_Activity_State_t HC05_AS_t =
   .pSetupRcvBuff     = NULL,
   .pSetupSendBuff    = NULL,
   .uiSetupBuffIndex  = 0,
+  .u8BtAddress       = {0x00,0x00,0x00,0x00,0x00,0x00},
+  .cBtAddress        = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 };
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,6 +123,7 @@ static ERROR_CODE eHC05_Set_Default_Baud(void);
 static ERROR_CODE eHC05_Check_Settings(void);
 static ERROR_CODE eHC05_Set_Settings(void);
 static ERROR_CODE eHC05_Get_OK(void);
+static ERROR_CODE eHC05_Send(uint8_t * pBuff, uint32_t u32BuffLen);
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,12 +188,8 @@ static ERROR_CODE eHC05_Data_Mode(void)
       eEC = eOSAL_delay(10, NULL);
       if(eEC == ER_OK)
       {
-        //todo what's missing here?
-        if(eEC == ER_OK)
-        {
-          eBSP_BT_POWER_ENABLE();
-          eOSAL_delay(400, NULL);
-        }
+        eBSP_BT_POWER_ENABLE();
+        eOSAL_delay(400, NULL);
       }
     }
   }
@@ -217,7 +219,6 @@ static ERROR_CODE eHC05_Check_Set_Baud(void)
   BSP_BT_Send_t BT_Send_t;
   BSP_BT_Rcv_t  BT_Rcv_t;
   UART_Config_t BT_Config_t;
-  uint32_t      uiWait = 0;
   uint32_t      uiSupportedBauds[] = {HC05_BAUD_38K, HC05_BAUD_57K, HC05_BAUD_115K, HC05_BAUD_230K, HC05_BAUD_460K, HC05_BAUD_921K};
   uint8_t       uiNumSupportedBauds = sizeof(uiSupportedBauds)/sizeof(uint32_t);
   uint8_t       uiBaudIndex = 0;
@@ -244,9 +245,8 @@ static ERROR_CODE eHC05_Check_Set_Baud(void)
       memcpy(HC05_AS_t.pSetupSendBuff, AT_CMD_TEST, strlen(AT_CMD_TEST));
       BT_Send_t.pBuff = (uint8_t *)HC05_AS_t.pSetupSendBuff;
       BT_Send_t.uiLen = strlen((char *)HC05_AS_t.pSetupSendBuff);
-      uiWait = 0;
       //Send the AT test command.
-      eEC = eBSP_BT_INTF_SEND(&BT_Send_t);
+      eEC = eHC05_Send(BT_Send_t.pBuff, BT_Send_t.uiLen);
 
       //Get the AT test command response.
       eEC = eHC05_Get_OK();
@@ -321,8 +321,7 @@ static ERROR_CODE eHC05_Check_Set_Baud(void)
 //    BT_Send_t.pBuff = (uint8_t *)HC05_AS_t.pSetupSendBuff;
 //    BT_Send_t.uiLen = strlen((char *)HC05_AS_t.pSetupSendBuff);
 
-    uiWait = 0;
-    eEC = eBSP_BT_INTF_SEND(&BT_Send_t);
+    eEC = eHC05_Send(BT_Send_t.pBuff, BT_Send_t.uiLen);
 
     //Get the okay response from the module
     eEC = eHC05_Get_OK();
@@ -390,6 +389,18 @@ static ERROR_CODE eHC05_Check_Set_Baud(void)
 static ERROR_CODE eHC05_Set_Default_Baud(void)
 {
   ERROR_CODE eEC = ER_FAIL;
+  UART_Config_t BT_Config_t;
+
+  memset(&BT_Config_t, 0x00, sizeof(UART_Config_t));
+  BT_Config_t.eDataBits = DATA_BITS_8;
+  BT_Config_t.eParity   = PARITY_NONE;
+  BT_Config_t.eStopBits = STOP_BITS_1;
+  BT_Config_t.eControl  = FLOW_CONTROL_NONE;
+  BT_Config_t.eMode     = MODE_TX_RX;
+  BT_Config_t.uiBaud = HC05_BAUD_921K;
+  BT_Config_t.uiTimeout = 3000;
+  BT_Config_t.vUART_ISR = &vBluetooth_HC05_intf_isr_callback;
+  eEC = eBSP_BT_INTF_CONFIG(&BT_Config_t);
 
   return eEC;
 }
@@ -412,7 +423,56 @@ static ERROR_CODE eHC05_Set_Default_Baud(void)
 static ERROR_CODE eHC05_Check_Settings(void)
 {
   ERROR_CODE eEC = ER_FAIL;
-  //todo: determine settings to check
+  BSP_BT_Send_t BT_Send_t;
+  char * pChar;
+  int index = 0;
+
+  HC05_AS_t.pSetupRcvBuff = calloc(SETUP_RCV_BUFF_SIZE, sizeof(uint8_t));
+  HC05_AS_t.pSetupSendBuff = calloc(SETUP_SEND_BUFF_SIZE, sizeof(uint8_t));
+  HC05_AS_t.uiSetupBuffIndex = 0;
+
+//  AT_CMD_GET_ADDR
+  BT_Send_t.uiLen = strlen(AT_CMD_GET_ADDR);
+  BT_Send_t.pBuff = (uint8_t *)HC05_AS_t.pSetupSendBuff;
+  memcpy(BT_Send_t.pBuff, AT_CMD_GET_ADDR, BT_Send_t.uiLen);
+
+  eEC = eHC05_Send(BT_Send_t.pBuff, BT_Send_t.uiLen);
+  if(eEC == ER_OK)
+  {
+    eEC = eHC05_Get_OK();
+    if(eEC == ER_OK)
+    {
+      pChar = strchr((char *)HC05_AS_t.pSetupRcvBuff, ':');
+      pChar++;
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = ':';
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = ':';
+      pChar++;
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = ':';
+      pChar++;
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = ':';
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = ':';
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = *pChar++;
+      HC05_AS_t.cBtAddress[index++] = ':';
+    }
+  }
+
+
+  free(HC05_AS_t.pSetupRcvBuff);
+  HC05_AS_t.pSetupRcvBuff = NULL;
+  free(HC05_AS_t.pSetupSendBuff);
+  HC05_AS_t.pSetupSendBuff = NULL;
+
   return eEC;
 }
 
@@ -474,6 +534,31 @@ static ERROR_CODE eHC05_Get_OK(void)
   return eEC;
 }
 
+static ERROR_CODE eHC05_Send(uint8_t * pBuff, uint32_t u32BuffLen)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  BSP_BT_Send_t Send_t;
+
+  Send_t.pBuff = pBuff;
+  Send_t.uiLen = u32BuffLen;
+
+  while(1)
+  {
+    eEC =  eBSP_BT_INTF_SEND(&Send_t);
+
+    if(eEC == ER_BUSY)
+    {
+      eOSAL_delay(1, NULL);
+    }
+    else
+    {
+      break;
+    }
+  }
+
+  return eEC;
+}
+
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -505,7 +590,7 @@ void vBluetooth_HC05_intf_isr_callback(void)
   }
   else
   {
-    //ignore vDEBUG_ASSERT("vBluetooth_HC05_intf_isr_callback invalid state receive", false);
+    vRcvByte(&u8Rcv);
   }
 
   eBSP_BT_INTF_RCV_IT(&BT_Rcv_t);
@@ -531,28 +616,41 @@ ERROR_CODE eBluetooth_HC05_setup(void)
     HC05_AS_t.eState = HC05_STATE_SET_BAUD;
 
     eEC = eHC05_Check_Set_Baud();
-  }
 
-  if(eEC == ER_OK)
-  {
-    HC05_AS_t.eState = HC05_STATE_SETUP;
-
-    //Check settings
-    eEC = eHC05_Check_Settings();
-
-    if(eEC != ER_OK)
+    if(eEC == ER_OK)
     {
-      //set settings
-      eEC = eHC05_Set_Settings();
+      HC05_AS_t.eState = HC05_STATE_SETUP;
+
+      //Check settings
+      eEC = eHC05_Check_Settings();
+
+      if(eEC != ER_OK)
+      {
+        //set settings
+        eEC = eHC05_Set_Settings();
+        vDEBUG_ASSERT("eBluetooth_HC05_setup failed to set uart defaults", (eEC == ER_OK));
+      }
+
+      if(eEC == ER_OK)
+      {
+        eHC05_Set_Default_Baud();
+        //todo: set the baud rate to project settings before leaving setup
+        HC05_AS_t.eState = HC05_STATE_READY;
+        eHC05_Data_Mode();
+      }
     }
-
   }
 
-  if(eEC == ER_OK)
-  {
-    //todo: set the baud rate to project settings before leaving setup
+  return eEC;
+}
 
-  }
+ERROR_CODE eBluetooth_HC05_Register_Receive(pHC05_Register_Receive pRegRcv)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  vRcvByte = pRegRcv->vRcvByte;
+
+  eEC = ER_OK;
 
   return eEC;
 }

@@ -37,8 +37,17 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
+  #include <stdint.h>
+  #include <stdbool.h>
+  #include <string.h>
+  #include <stdlib.h>
+  #include <stdio.h>
+
+#include "utils_inc/error_codes.h"
 //Project specific includes
   #include "proj_inc/project_config.h"
+
+  #include "board.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/

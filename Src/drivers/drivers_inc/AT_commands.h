@@ -141,10 +141,11 @@
 
 #define AT_CMD_HC05_GET_UART_BAUD  "AT+UART?"
 
-
 //set echo
 #define AT_ECHO_OFF       "ATE0\r\n"
 #define AT_ECHO_ON     "ATE1\r\n"
+
+#define AT_CMD_GET_ADDR  "AT+ADDR?\r\n"
 
 //set factory defaults
 #define AT_FACTORY_DEFAULT  "AT&F0\r\n"

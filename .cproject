@@ -116,7 +116,7 @@
 							<inputType id="com.atollic.truestudio.gcc.input.1274347818" superClass="com.atollic.truestudio.gcc.input" />
 						</tool>
 					</fileInfo>
-					<sourceEntries>
+					<sourceEntries><entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="startup" />
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares" />
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers" />
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Inc" />
@@ -134,7 +134,7 @@
 	</storageModule>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration artifactName="Mini_Panzer" configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/Mini_Panzer" />
+			<resource resourceType="PROJECT" workspacePath="Mini_Panzer" />
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
