@@ -51,6 +51,7 @@ typedef enum PUB_EXAMPLE_ENUM
 typedef struct HC05_Register_Receive
 {
   void(* vRcvByte)(volatile uint8_t * pBuff);
+  void(* vRcvFrame)(volatile uint8_t * pBuff);
 }HC05_Register_Receive_t, * pHC05_Register_Receive;
 
 /******************************************************************************

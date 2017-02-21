@@ -65,6 +65,7 @@
 
 static volatile uint8_t u8Rcv = 0;
 void(* vRcvByte)(volatile uint8_t * pBuff);
+void(* vRcvFrame)(volatile uint8_t * pBuff);
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +80,7 @@ typedef enum HC05_STATE
   HC05_STATE_NONE,
   HC05_STATE_POWER_RESET,
   HC05_STATE_SET_BAUD,
-  HC05_STATE_SETUP,
+  HC05_STATE_CHECK_SETTINGS,
   HC05_STATE_READY,
   HC05_STATE_LIMIT,
 }HC05_STATE, * pHC05_STATE;
@@ -570,19 +571,25 @@ void vBluetooth_HC05_intf_isr_callback(void)
   {
     if(HC05_AS_t.pSetupRcvBuff != NULL)
     {
-      HC05_AS_t.pSetupRcvBuff[HC05_AS_t.uiSetupBuffIndex] = u8Rcv;
-      HC05_AS_t.uiSetupBuffIndex++;
+      if(u8Rcv != 0)
+      {
+        HC05_AS_t.pSetupRcvBuff[HC05_AS_t.uiSetupBuffIndex] = u8Rcv;
+        HC05_AS_t.uiSetupBuffIndex++;
+      }
     }
     u8Rcv = 0;
     BT_Rcv_t.uiLen = 1;
     BT_Rcv_t.pBuff = &u8Rcv;
   }
-  else if(HC05_AS_t.eState == HC05_STATE_SETUP)
+  else if(HC05_AS_t.eState == HC05_STATE_CHECK_SETTINGS)
   {
     if(HC05_AS_t.pSetupRcvBuff != NULL)
     {
-      HC05_AS_t.pSetupRcvBuff[HC05_AS_t.uiSetupBuffIndex] = u8Rcv;
-      HC05_AS_t.uiSetupBuffIndex++;
+      if(u8Rcv != 0)
+      {
+        HC05_AS_t.pSetupRcvBuff[HC05_AS_t.uiSetupBuffIndex] = u8Rcv;
+        HC05_AS_t.uiSetupBuffIndex++;
+      }
     }
     u8Rcv = 0;
     BT_Rcv_t.uiLen = 1;
@@ -619,7 +626,7 @@ ERROR_CODE eBluetooth_HC05_setup(void)
 
     if(eEC == ER_OK)
     {
-      HC05_AS_t.eState = HC05_STATE_SETUP;
+      HC05_AS_t.eState = HC05_STATE_CHECK_SETTINGS;
 
       //Check settings
       eEC = eHC05_Check_Settings();
