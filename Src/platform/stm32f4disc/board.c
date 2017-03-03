@@ -515,6 +515,32 @@ ERROR_CODE eBSP_BT_INTF_RCV_IT(pBSP_BT_Rcv pParam)
   return eEC;
 }
 
+ERROR_CODE eBSP_BT_INTF_RCV_CANCEL(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+
+  if(BSP_AS_t.bIs_BT_Intf_Receiving == true)
+  {
+    eHAL_Status = HAL_UART_Abort(&BT_UART_HANDLE);
+    if(eHAL_Status == HAL_OK)
+    {
+      BSP_AS_t.bIs_BT_Intf_Receiving = false;
+      eEC = ER_OK;
+    }
+    else
+    {
+//      vDEBUG_ASSERT("",false);
+    }
+  }
+  else
+  {
+    eEC = ER_OK;
+  }
+
+  return eEC;
+}
+
 ERROR_CODE eBSP_BT_INTF_CONFIG(pUART_Config pParam)
 {
   ERROR_CODE eEC = ER_FAIL;

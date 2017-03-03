@@ -52,8 +52,8 @@
 #define TASK_BT_PRIORITY       2
 #define TASK_BT_STACK_SIZE 4096/sizeof(uint32_t) //size in bytes divided by RTOS stack type, portSTACK_TYPE
 
-#define TASK_BT_RCV_BUFF_SIZE   512
-#define TASK_BT_SEND_BUFF_SIZE  512
+#define TASK_BT_RCV_BUFF_SIZE   64
+#define TASK_BT_SEND_BUFF_SIZE  64
 
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,21 +94,13 @@ typedef enum RECEVING_BT_TYPE
 //tExample_struct description
 typedef struct Bluetooth_Activity_State
 {
-  BLUETOOTH_STATE eState;
-  RECEVING_BT_TYPE eReceiving_State;
-  uint32_t        u32RcvIndex;
-  uint8_t *       pRcvBuff;
-  uint8_t *       pSendBuff;
+  BLUETOOTH_STATE       eState;
+  RECEVING_BT_TYPE      eReceiving_State;
+  uint32_t              u32RcvIndex;
+  uint8_t *             pRcvBuff;
+  uint8_t *             pSendBuff;
+  Bluetooth_App_API_t   api_t;
 }Bluetooth_Activity_State_t, * pBluetooth_Activity_State;
-
-Bluetooth_Activity_State_t BT_AS_t =
-{
-  .eState = BLUETOOTH_STATE_NONE,
-  .eReceiving_State = BT_RCV_IDLE,
-  .u32RcvIndex = 0,
-  .pRcvBuff = NULL,
-  .pSendBuff = NULL,
-};
 
 typedef struct Bluetooth_Message_Struct
 {
@@ -127,6 +119,8 @@ typedef struct Bluetooth_Receive
   uint32_t len;
 }Bluetooth_Receive_t, *pBluetooth_Receive;
 
+extern Bluetooth_Device_API_t BT_BSP_API_t;
+
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -135,28 +129,43 @@ typedef struct Bluetooth_Receive
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-static void vBluetoothReceiveByte(volatile uint8_t * pBuff);
-static void vBluetooth_Driver_Task(void * pvParameters);
+static ERROR_CODE eBluetoothReceiveFrame(uint8_t * pBuff, uint32_t u32BuffLen);
+static ERROR_CODE eBluetoothConnStatus(BLUETOOTH_CONN_STATE eState);
+static void       vBluetooth_Driver_Task(void * pvParameters);
+
+Bluetooth_Activity_State_t BT_AS_t =
+{
+  .eState = BLUETOOTH_STATE_NONE,
+  .eReceiving_State = BT_RCV_IDLE,
+  .u32RcvIndex = 0,
+  .pRcvBuff = NULL,
+  .pSendBuff = NULL,
+  .api_t.eBTAppRcvCallBack = &eBluetoothReceiveFrame,
+  .api_t.eBTAppConnStatusCallBack = &eBluetoothConnStatus,
+};
+
+Bluetooth_App_API_t App_API_t =
+{
+  .eBTAppRcvCallBack        = &eBluetoothReceiveFrame,
+  .eBTAppConnStatusCallBack = &eBluetoothConnStatus,
+};
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-static void vBluetoothReceiveByte(volatile uint8_t * pBuff)
+static ERROR_CODE eBluetoothReceiveFrame(uint8_t * pBuff, uint32_t u32BuffLen)
 {
-  if(BT_AS_t.eReceiving_State == BT_RCV_IDLE)
-  {
-    if(*pBuff == 0x10)
-    {
-      BT_AS_t.eReceiving_State = BT_RCV_CMD;
-    }
-    else if(*pBuff == 0x1F)
-    {
-      BT_AS_t.eReceiving_State = BT_RCV_DATA;
-    }
-    BT_AS_t.pRcvBuff[BT_AS_t.u32RcvIndex] = *pBuff;
-    BT_AS_t.u32RcvIndex++;
-  }
+  ERROR_CODE eEC = ER_FAIL;
+  vDEBUG_ASSERT("", false);
+  return eEC;
+}
+
+static ERROR_CODE eBluetoothConnStatus(BLUETOOTH_CONN_STATE eState)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  vDEBUG_ASSERT("", false);
+  return eEC;
 }
 
 static void vBluetooth_Driver_Task(void * pvParameters)
@@ -165,7 +174,6 @@ static void vBluetooth_Driver_Task(void * pvParameters)
   OSAL_Queue_Parameters_t Bluetooth_Queue_Param_t;
   pOSAL_Queue_Handle      pBluetooth_Queue_Handle;
   Bluetooth_Message_Struct_t Msg_t;
-  HC05_Register_Receive_t HC05Rcv_t;
 //  Bluetooth_Send_t    Send_t;
 //  Bluetooth_Receive_t Rcv_t;
 
@@ -178,16 +186,21 @@ static void vBluetooth_Driver_Task(void * pvParameters)
   eEC = eOSAL_Queue_Create(&Bluetooth_Queue_Param_t, &pBluetooth_Queue_Handle);
   vDEBUG_ASSERT("vBluetooth_Driver_Task queue create fail", eEC == ER_OK);
 
-  eEC = eBluetooth_HC05_setup();
+  eEC = BT_BSP_API_t.eBTDeviceSetup(&App_API_t);
+//  eEC = eBluetooth_HC05_setup();
   vDEBUG_ASSERT("Bluetooth setup failure", eEC == ER_OK);
 
   if(eEC == ER_OK)
   {
     //set up send and receive buffers
+    //
     BT_AS_t.pRcvBuff = calloc(TASK_BT_RCV_BUFF_SIZE, sizeof(uint8_t));
     BT_AS_t.pSendBuff = calloc(TASK_BT_SEND_BUFF_SIZE, sizeof(uint8_t));
-    HC05Rcv_t.vRcvByte = &vBluetoothReceiveByte;
-    eBluetooth_HC05_Register_Receive(&HC05Rcv_t);
+
+    //Kick off data reception from the bluetooth device
+    //
+    eEC = BT_BSP_API_t.eBTDeviceRcv(BT_AS_t.pRcvBuff, 8);
+    vDEBUG_ASSERT("Bluetooth receiving failure", eEC == ER_OK);
   }
 
   while(1)

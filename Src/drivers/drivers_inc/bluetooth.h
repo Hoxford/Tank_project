@@ -53,13 +53,35 @@ typedef enum BLUETOOTH_REQUEST_ID
   BLUETOOTH_REQUEST_LIMIT,
 }BLUETOOTH_REQUEST_ID, * pBLUETOOTH_REQUEST_ID;
 
+typedef enum BLUETOOTH_CONN_STATE
+{
+  BT_CONN_STATE_NONE,
+  BT_CONN_STATE_BONDED,
+  BT_CONN_STATE_PAIRED,
+}BLUETOOTH_CONN_STATE, * pBLUETOOTH_CONN_STATE;
+
 /******************************************************************************
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+typedef struct Bluetooth_App_API
+{
+  ERROR_CODE (* eBTAppRcvCallBack)(uint8_t * pBuff, uint32_t u32BuffLen);
+  ERROR_CODE (* eBTAppConnStatusCallBack)(BLUETOOTH_CONN_STATE eState);
+}Bluetooth_App_API_t, * pBluetooth_App_API;
+
+typedef struct Bluetooth_Device_API
+{
+  ERROR_CODE (* eBTDeviceSetup)(pBluetooth_App_API pApi);
+  ERROR_CODE (* eBTDeviceSend)(uint8_t * pBuff, uint32_t u32Len);
+  ERROR_CODE (* eBTDeviceRcv)(uint8_t * pBuff, uint32_t u32BuffLen);
+  ERROR_CODE (* eBTDeviceConnStatus)(void);
+}Bluetooth_Device_API_t, * pBluetooth_Device_API;
+
 //Bluetooth_Request structure
 typedef struct Bluetooth_Request
 {
-  BLUETOOTH_REQUEST_ID eRequestID;
+  BLUETOOTH_REQUEST_ID  eRequestID;
   pOSAL_Task_Parameters pBluetooth_Task_Param;
 }Bluetooth_Request_t, * pBluetooth_Request;
 

@@ -86,9 +86,7 @@ void   vBluetooth_HC05_intf_isr_callback (void);
 *   ASSERT(eEC == ER_OK);
 * }
 ******************************************************************************/
-ERROR_CODE eBluetooth_HC05_setup(void);
-
-ERROR_CODE eBluetooth_HC05_Register_Receive(pHC05_Register_Receive pRegRcv);
+ERROR_CODE eBluetooth_HC05_setup(pBluetooth_App_API pApi);
 
 #endif //PROJ_CONFIG_PLATFORM_BT_HC05
 #endif //__BLUETOOTH_HC05_H__

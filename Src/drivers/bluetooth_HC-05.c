@@ -33,6 +33,7 @@
 
 //Driver includes
   #include "drivers_inc/AT_commands.h"
+  #include "drivers_inc/bluetooth.h"
   #include "drivers_inc/bluetooth_HC-05.h"
   /* Driver include files here */
 
@@ -66,6 +67,8 @@
 static volatile uint8_t u8Rcv = 0;
 void(* vRcvByte)(volatile uint8_t * pBuff);
 void(* vRcvFrame)(volatile uint8_t * pBuff);
+ERROR_CODE (* eBTAppRcvCallBack)(uint8_t * pBuff, uint32_t u32BuffLen);
+ERROR_CODE (* eBTAppConnStatusCallBack)(BLUETOOTH_CONN_STATE eState);
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,6 +112,7 @@ static Bluetooth_HC05_Activity_State_t HC05_AS_t =
   .u8BtAddress       = {0x00,0x00,0x00,0x00,0x00,0x00},
   .cBtAddress        = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 };
+
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -125,7 +129,14 @@ static ERROR_CODE eHC05_Check_Settings(void);
 static ERROR_CODE eHC05_Set_Settings(void);
 static ERROR_CODE eHC05_Get_OK(void);
 static ERROR_CODE eHC05_Send(uint8_t * pBuff, uint32_t u32BuffLen);
+static ERROR_CODE eHC05_Receive(uint8_t * pBuff, uint32_t u32BuffLen);
 
+Bluetooth_Device_API_t BT_BSP_API_t =
+{
+  .eBTDeviceSetup = &eBluetooth_HC05_setup,
+  .eBTDeviceSend  = &eHC05_Send,
+  .eBTDeviceRcv   = &eHC05_Receive,
+};
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -157,7 +168,7 @@ static ERROR_CODE eHC05_Config_Mode(void)
         if(eEC == ER_OK)
         {
           eBSP_BT_POWER_ENABLE();
-          eOSAL_delay(400, NULL);
+          eOSAL_delay(500, NULL);
         }
       }
     }
@@ -426,6 +437,7 @@ static ERROR_CODE eHC05_Check_Settings(void)
   ERROR_CODE eEC = ER_FAIL;
   BSP_BT_Send_t BT_Send_t;
   char * pChar;
+  char * pCharNext;
   int index = 0;
 
   HC05_AS_t.pSetupRcvBuff = calloc(SETUP_RCV_BUFF_SIZE, sizeof(uint8_t));
@@ -443,19 +455,62 @@ static ERROR_CODE eHC05_Check_Settings(void)
     eEC = eHC05_Get_OK();
     if(eEC == ER_OK)
     {
+      //The HC-05 returns the MAC address in string format. It will also
+      //potentially omit characters if they are 0. IE a MAC address of
+      //20:16:05:31:19:46 will return as 2016:5:311946 omitting the 0 character
+      //in the 3rd address byte. Checks are done to make sure the 0 character
+      //is coppied into the string buffer.
+      //
       pChar = strchr((char *)HC05_AS_t.pSetupRcvBuff, ':');
       pChar++;
-      HC05_AS_t.cBtAddress[index++] = *pChar++;
-      HC05_AS_t.cBtAddress[index++] = *pChar++;
-      HC05_AS_t.cBtAddress[index++] = ':';
-      HC05_AS_t.cBtAddress[index++] = *pChar++;
-      HC05_AS_t.cBtAddress[index++] = *pChar++;
-      HC05_AS_t.cBtAddress[index++] = ':';
+      pCharNext = strchr(pChar, ':');
+      if((pCharNext - pChar) == 3)
+      {
+        HC05_AS_t.cBtAddress[index++] = '0';
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = ':';
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = ':';
+      }
+      else if((pCharNext - pChar) == 2)
+      {
+        HC05_AS_t.cBtAddress[index++] = '0';
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = ':';
+        HC05_AS_t.cBtAddress[index++] = '0';
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = ':';
+      }
+      else
+      {
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = ':';
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = ':';
+      }
+
+      pChar = strchr(pChar, ':');
       pChar++;
-      HC05_AS_t.cBtAddress[index++] = *pChar++;
-      HC05_AS_t.cBtAddress[index++] = *pChar++;
-      HC05_AS_t.cBtAddress[index++] = ':';
+      pCharNext = strchr(pChar, ':');
+      if((pCharNext - pChar) == 1)
+      {
+        HC05_AS_t.cBtAddress[index++] = '0';
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = ':';
+      }
+      else
+      {
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = *pChar++;
+        HC05_AS_t.cBtAddress[index++] = ':';
+      }
+
+      pChar = strchr(pChar, ':');
       pChar++;
+      pCharNext = strchr(pChar, ':');
       HC05_AS_t.cBtAddress[index++] = *pChar++;
       HC05_AS_t.cBtAddress[index++] = *pChar++;
       HC05_AS_t.cBtAddress[index++] = ':';
@@ -464,10 +519,23 @@ static ERROR_CODE eHC05_Check_Settings(void)
       HC05_AS_t.cBtAddress[index++] = ':';
       HC05_AS_t.cBtAddress[index++] = *pChar++;
       HC05_AS_t.cBtAddress[index++] = *pChar++;
-      HC05_AS_t.cBtAddress[index++] = ':';
+
+      //Convert the received mac address string to hexadecimal
+      //
+      index = 0;
+      HC05_AS_t.u8BtAddress[index++] = strtol(HC05_AS_t.cBtAddress,&pChar,16);
+      pChar++;
+      HC05_AS_t.u8BtAddress[index++] = strtol(pChar,&pChar,16);
+      pChar++;
+      HC05_AS_t.u8BtAddress[index++] = strtol(pChar,&pChar,16);
+      pChar++;
+      HC05_AS_t.u8BtAddress[index++] = strtol(pChar,&pChar,16);
+      pChar++;
+      HC05_AS_t.u8BtAddress[index++] = strtol(pChar,&pChar,16);
+      pChar++;
+      HC05_AS_t.u8BtAddress[index++] = strtol(pChar,NULL,16);
     }
   }
-
 
   free(HC05_AS_t.pSetupRcvBuff);
   HC05_AS_t.pSetupRcvBuff = NULL;
@@ -560,6 +628,19 @@ static ERROR_CODE eHC05_Send(uint8_t * pBuff, uint32_t u32BuffLen)
   return eEC;
 }
 
+static ERROR_CODE eHC05_Receive(uint8_t * pBuff, uint32_t u32BuffLen)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  BSP_BT_Rcv_t  BT_Rcv_t;
+
+  BT_Rcv_t.uiLen = u32BuffLen;
+  BT_Rcv_t.pBuff = pBuff;
+
+  eEC = eBSP_BT_INTF_RCV(&BT_Rcv_t);
+
+  return eEC;
+}
+
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -595,24 +676,26 @@ void vBluetooth_HC05_intf_isr_callback(void)
     BT_Rcv_t.uiLen = 1;
     BT_Rcv_t.pBuff = &u8Rcv;
   }
+  else if(HC05_AS_t.eState == HC05_STATE_READY)
+  {
+    eBTAppRcvCallBack(NULL, 8);
+  }
   else
   {
-    vRcvByte(&u8Rcv);
+    if(vRcvByte != NULL)
+    {
+      vRcvByte(&u8Rcv);
+    }
   }
 
   eBSP_BT_INTF_RCV_IT(&BT_Rcv_t);
   return;
 }
 
-ERROR_CODE eBluetooth_HC05_setup(void)
+ERROR_CODE eBluetooth_HC05_setup(pBluetooth_App_API pApi)
 {
   ERROR_CODE eEC = ER_FAIL;
-  BSP_BT_Send_t BT_Send_t;
   BSP_BT_Rcv_t  BT_Rcv_t;
-  static char at[] = "AT\r\n";
-//  static char at_reset[] = "AT+RESET\r\n";
-  UART_Config_t BT_Config_t;
-  uint32_t uiWait = 0;
 
   //kick off data reception from the bluetooth module
   BT_Rcv_t.uiLen = 1;
@@ -648,16 +731,19 @@ ERROR_CODE eBluetooth_HC05_setup(void)
     }
   }
 
-  return eEC;
-}
+  if(eEC == ER_OK)
+  {
+    if(pApi != NULL)
+    {
+      eBTAppRcvCallBack = pApi->eBTAppRcvCallBack;
+      eBTAppConnStatusCallBack = pApi->eBTAppConnStatusCallBack;
+    }
+  }
 
-ERROR_CODE eBluetooth_HC05_Register_Receive(pHC05_Register_Receive pRegRcv)
-{
-  ERROR_CODE eEC = ER_FAIL;
-
-  vRcvByte = pRegRcv->vRcvByte;
-
-  eEC = ER_OK;
+  //Abort receiving to allow the higher level driver to take over the receiving
+  //process
+  //
+  eEC = eBSP_BT_INTF_RCV_CANCEL();
 
   return eEC;
 }
