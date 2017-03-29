@@ -247,7 +247,8 @@ static void vCommander_Task(void * pvParameters)
 
   //Register with the packet router
   //
-  ePacket_Client_Register(PKT_ID_CONFIG, &vCommanderPacketReceive);
+  eEC = ePacket_Client_Register(PKT_ID_CONFIG, &vCommanderPacketReceive);
+  eEC = ePacket_Client_Register(PKT_ID_CONTROL, &vCommanderPacketReceive);
 
   //just before the task loop mark commander task ready
   //

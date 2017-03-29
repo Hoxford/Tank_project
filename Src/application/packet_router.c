@@ -21,6 +21,7 @@
 
 //Project specific includes
   #include "proj_inc/project_config.h"
+  #include "proj_inc/packet_router_config.h"
   /* Project specific include files here */
 
 //Utility includes
@@ -33,7 +34,6 @@
   /* Third party include files here */
 
 //Application includes
-  #include "app_inc/packet_router_config.h"
   #include "app_inc/packet_router.h"
   /* Application include files here */
 
@@ -44,6 +44,8 @@
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+uint8_t u8PacketIDTable[] = PKT_ID_TABLE;
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,16 +94,24 @@ ERROR_CODE ePacket_Client_Register(uint8_t u8PacketId, void (* vPacketClientRece
   {
     //The list has zero members, begin by allocating the first member of the list
     pPacketClientRouteList = calloc(sizeof(PacketRouteClient_t), sizeof(uint8_t));
-    pClient = pPacketClientRouteList;
-    pClient->u8PacketId = u8PacketId;
-    pClient->vPacketClientReceive = vPacketClientReceive;
+    if(pPacketClientRouteList != NULL)
+    {
+      pClient = pPacketClientRouteList;
+      pClient->u8PacketId = u8PacketId;
+      pClient->vPacketClientReceive = vPacketClientReceive;
+    }
+    else
+    {
+      eEC = ER_NOMEM;
+    }
+
   }
   else
   {
     //Walk the client register list to determine that the client doesn't already exist in the list else add it to the list
     while(1)
     {
-      //check if client & client parameters already exist in the first member of the client register list
+      //check if client & client parameters already exist in the client register list
       if((pClient->u8PacketId == u8PacketId) & (pClient->vPacketClientReceive == vPacketClientReceive))
       {
         //client & param already exists, break and return
@@ -115,10 +125,17 @@ ERROR_CODE ePacket_Client_Register(uint8_t u8PacketId, void (* vPacketClientRece
         {
           //the end of the list was found, allocate a new member of the list
           pClient->pNextClient = calloc(sizeof(PacketRouteClient_t), sizeof(uint8_t));
-          pClient = pClient->pNextClient;
+          if(pClient->pNextClient != NULL)
+          {
+            pClient = pClient->pNextClient;
+            pClient->u8PacketId = u8PacketId;
+            pClient->vPacketClientReceive = vPacketClientReceive;
+          }
+          else
+          {
+            eEC = ER_NOMEM;
+          }
 
-          pClient->u8PacketId = u8PacketId;
-          pClient->vPacketClientReceive = vPacketClientReceive;
           break;
         }
         else

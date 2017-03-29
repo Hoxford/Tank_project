@@ -2,12 +2,12 @@
  * packet_router_config.h
  *
  *  Created on: Feb 13, 2017
- *      Author: v-mabuon
+ *      Author: Matt Buonadonna
  */
 
 #ifndef __PACKET_ROUTER_CONFIG_H__
 #define __PACKET_ROUTER_CONFIG_H__
-
+#pragma once
 /******************************************************************************
 * includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -18,22 +18,28 @@
 //Add packet ID defines here //////////
 #define PKT_ID_MOVEMENT_CONTROL 0x01
 #define PKT_ID_CONFIG           0x10
+#define PKT_ID_CONTROL          0x11
+
+#define PKT_ID_DATA             0x1F
 
 #define PKT_ID_END              0xFF
+
+//Add packet ID's that will need to be routed here:
+#define PKT_ID_TABLE           {                           \
+                                 PKT_ID_MOVEMENT_CONTROL,  \
+                                 PKT_ID_CONFIG,            \
+                                 PKT_ID_CONTROL,           \
+                                 PKT_ID_DATA,              \
+                                                           \
+                                 /* End of packet ID's to route, do not exceed */ \
+                                 PKT_ID_END,               \
+                               }
 //End packet ID defines ///////////////
 
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-static uint8_t u8PacketIDTable[] =
-{
-  //Add packet ID's that will need to be routed here
-  PKT_ID_MOVEMENT_CONTROL,
-  PKT_ID_CONFIG,
 
-  //End packet ID's to route
-  PKT_ID_END,
-};
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/

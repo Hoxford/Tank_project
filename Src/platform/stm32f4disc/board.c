@@ -346,12 +346,7 @@ static uint32_t uiGetUartMode(UART_MODE eMode)
 ******************************************************************************/
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* name: eBSP_Camera_Intf_Send
 ******************************************************************************/
 ERROR_CODE eBSP_Camera_Intf_Send(pBSP_Camera_Send pParam)
 {
@@ -361,12 +356,7 @@ ERROR_CODE eBSP_Camera_Intf_Send(pBSP_Camera_Send pParam)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* todo: name:
 ******************************************************************************/
 ERROR_CODE eBSP_Camera_Intf_Receive(pBSP_Camera_Receive pParam)
 {
@@ -375,6 +365,9 @@ ERROR_CODE eBSP_Camera_Intf_Receive(pBSP_Camera_Receive pParam)
   return eEC;
 }
 
+/******************************************************************************
+* todo: name:
+******************************************************************************/
 ERROR_CODE eBSP_BT_POWER_ENABLE(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -385,6 +378,9 @@ ERROR_CODE eBSP_BT_POWER_ENABLE(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: name:
+******************************************************************************/
 ERROR_CODE eBSP_BT_POWER_DISABLE(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -395,6 +391,9 @@ ERROR_CODE eBSP_BT_POWER_DISABLE(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: name:
+******************************************************************************/
 ERROR_CODE eBSP_BT_CONFIG_MODE_ENABLE(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -405,6 +404,9 @@ ERROR_CODE eBSP_BT_CONFIG_MODE_ENABLE(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: name:
+******************************************************************************/
 ERROR_CODE eBSP_BT_CONFIG_MODE_DISABLE(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -415,6 +417,9 @@ ERROR_CODE eBSP_BT_CONFIG_MODE_DISABLE(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: name:
+******************************************************************************/
 ERROR_CODE eBSP_BT_INTF_SEND(pBSP_BT_Send pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -445,6 +450,9 @@ ERROR_CODE eBSP_BT_INTF_SEND(pBSP_BT_Send pParam)
   return eEC;
 }
 
+/******************************************************************************
+* todo: name:
+******************************************************************************/
 void vBSP_BT_INTF_SEND_IT_HANDLER(void)
 {
   if(BT_UART_HANDLE.hdmatx == NULL)
@@ -459,6 +467,9 @@ void vBSP_BT_INTF_SEND_IT_HANDLER(void)
   return;
 }
 
+/******************************************************************************
+* todo: name:
+******************************************************************************/
 ERROR_CODE eBSP_BT_INTF_RCV(pBSP_BT_Rcv pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -489,6 +500,9 @@ ERROR_CODE eBSP_BT_INTF_RCV(pBSP_BT_Rcv pParam)
   return eEC;
 }
 
+/******************************************************************************
+* name: eBSP_BT_INTF_RCV_IT
+******************************************************************************/
 ERROR_CODE eBSP_BT_INTF_RCV_IT(pBSP_BT_Rcv pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -515,6 +529,41 @@ ERROR_CODE eBSP_BT_INTF_RCV_IT(pBSP_BT_Rcv pParam)
   return eEC;
 }
 
+/******************************************************************************
+* name: eBSP_BT_INTF_DMA_RCV
+******************************************************************************/
+ERROR_CODE eBSP_BT_INTF_DMA_RCV(pBSP_BT_Rcv pParam)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
+
+  eHAL_Status = HAL_UART_Receive_DMA(&BT_UART_HANDLE, (uint8_t *)pParam->pBuff, pParam->uiLen);
+  if(eHAL_Status == HAL_OK)
+  {
+    BSP_AS_t.bIs_BT_Intf_Receiving = true;
+    eEC = ER_OK;
+  }
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: vBSP_BT_INTF_RECEIVE_DMA_IT_HANDLER
+******************************************************************************/
+void vBSP_BT_INTF_RECEIVE_DMA_IT_HANDLER()
+{
+//  BSP_BT_Rcv_t  BT_Rcv_t;
+//  BSP_AS_t.bIs_BT_Intf_Receiving = false;
+//  if(HC05_AS_t.eState == HC05_STATE_READY)
+//  {
+//    eBTAppRcvCallBack(NULL, 8);
+//  }
+  return;
+}
+
+/******************************************************************************
+* todo: name:
+******************************************************************************/
 ERROR_CODE eBSP_BT_INTF_RCV_CANCEL(void)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -541,6 +590,9 @@ ERROR_CODE eBSP_BT_INTF_RCV_CANCEL(void)
   return eEC;
 }
 
+/******************************************************************************
+* todo: name:
+******************************************************************************/
 ERROR_CODE eBSP_BT_INTF_CONFIG(pUART_Config pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
@@ -551,12 +603,13 @@ ERROR_CODE eBSP_BT_INTF_CONFIG(pUART_Config pParam)
   HAL_StatusTypeDef eHAL_Status = HAL_ERROR;
   extern UART_HandleTypeDef BT_UART_HANDLE;
 
-  if(((DATA_BITS_INVALID    < pParam->eDataBits)&(pParam->eDataBits < DATA_BITS_LIMIT   )) &
-     ((PARITY_INVALID       < pParam->eParity  )&(pParam->eParity   < PARITY_LIMIT      )) &
-     ((STOP_BITS_INVALID    < pParam->eStopBits)&(pParam->eStopBits < STOP_BITS_LIMIT   )) &
-     ((FLOW_CONTROL_INVALID < pParam->eControl )&(pParam->eControl  < FLOW_CONTROL_LIMIT)) &
-     ((MODE_NONE            < pParam->eMode    )&(pParam->eMode < MODE_LIMIT            )) &
-      (                   0 < pParam->uiBaud))
+  if(((DATA_BITS_INVALID    <  pParam->eDataBits    )&(pParam->eDataBits     < DATA_BITS_LIMIT   )) &
+     ((PARITY_INVALID       <  pParam->eParity      )&(pParam->eParity       < PARITY_LIMIT      )) &
+     ((STOP_BITS_INVALID    <  pParam->eStopBits    )&(pParam->eStopBits     < STOP_BITS_LIMIT   )) &
+     ((FLOW_CONTROL_INVALID <  pParam->eControl     )&(pParam->eControl      < FLOW_CONTROL_LIMIT)) &
+     ((MODE_NONE            <  pParam->eMode        )&(pParam->eMode         < MODE_LIMIT        )) &
+     ((HANDLING_NONE        <= pParam->eDataHandling)&(pParam->eDataHandling < HANDLING_LIMIT))     &
+      (                   0 <  pParam->uiBaud))
   {
     BT_UART_HANDLE.Init.WordLength = uiGetUartBits       (pParam->eDataBits);
     BT_UART_HANDLE.Init.Parity     = uiGetUartParity     (pParam->eParity);
@@ -617,6 +670,32 @@ ERROR_CODE eBSP_BT_INTF_CONFIG(pUART_Config pParam)
 }
 
 /******************************************************************************
+* todo: name:
+******************************************************************************/
+ERROR_CODE eBSP_BT_INTF_DMA_DISABLE(void)
+{
+  ERROR_CODE eEC = ER_OK;
+
+  HAL_NVIC_DisableIRQ(DMA1_Stream4_IRQn);
+
+  return eEC;
+}
+
+/******************************************************************************
+* todo: name:
+******************************************************************************/
+ERROR_CODE eBSP_BT_INTF_DMA_ENABLE(void)
+{
+  ERROR_CODE eEC = ER_OK;
+
+  /* DMA1_Stream4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
+
+  return eEC;
+}
+
+/******************************************************************************
 * todo: NAME, DESCRIPTION, PARAM, RETURN
 * name:
 * description:
@@ -668,12 +747,7 @@ ERROR_CODE eBSP_Wifi_En_Clr(void)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* todo: name:
 ******************************************************************************/
 ERROR_CODE eBSP_Wifi_En_Set(void)
 {
@@ -685,12 +759,7 @@ ERROR_CODE eBSP_Wifi_En_Set(void)
 }
 
 /******************************************************************************
-* todo: DESCRIPTION, PARAM, RETURN
-* name: eBSP_Wifi_Intf_Config
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* todo: name:
 ******************************************************************************/
 ERROR_CODE eBSP_Wifi_Intf_Config(pUART_Config pConfig)
 {
@@ -722,12 +791,7 @@ ERROR_CODE eBSP_Wifi_Intf_Config(pUART_Config pConfig)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* todo: name:
 ******************************************************************************/
 ERROR_CODE eBSP_Wifi_Intf_Send(pBSP_Wifi_Transmit pParam)
 {
@@ -901,12 +965,8 @@ ERROR_CODE eBSP_FLASH_ERASE(void)
 }
 
 /******************************************************************************
-* todo: DESCRIPTION
 * name: eBSP_SystemClock_Config
 * description:
-* param description: none
-* return value description: ERROR_CODE - ER_OK: System clock configured
-*                                      - ER_FAIL: System clock configuration process failed
 ******************************************************************************/
 ERROR_CODE eBSP_SystemClock_Config(void)
 {
@@ -968,12 +1028,7 @@ ERROR_CODE eBSP_SystemClock_Config(void)
 }
 
 /******************************************************************************
-* todo: NAME, DESCRIPTION, PARAM, RETURN
-* name:
-* description:
-* param description: type - value: value description (in order from left to right)
-*                    bool - true: do action when set to true
-* return value description: type - value: value description
+* todo: name:
 ******************************************************************************/
 ERROR_CODE eBSP_Inc_ms_count(void)
 {

@@ -145,7 +145,14 @@
 #define AT_ECHO_OFF       "ATE0\r\n"
 #define AT_ECHO_ON     "ATE1\r\n"
 
+//get device mac address
 #define AT_CMD_GET_ADDR  "AT+ADDR?\r\n"
+
+//get device name
+#define AT_CMD_GET_NAME  "AT+NAME?\r\n"
+
+//set device name
+#define AT_CMD_SET_NAME  "AT+NAME=%s\r\n"
 
 //set factory defaults
 #define AT_FACTORY_DEFAULT  "AT&F0\r\n"

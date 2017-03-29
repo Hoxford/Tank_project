@@ -1,96 +1,108 @@
 /******************************************************************************
 *
-* project_config.h - project configuration file
+* file_name.h - 1 sentence file description
 * Copyright (c) notice
 *
 ******************************************************************************/
-#ifndef __PROJECT_CONFIG_H__
-#define __PROJECT_CONFIG_H__
+#ifndef __FILE_NAME_H__
+#define __FILE_NAME_H__
 /******************************************************************************
 * includes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+#include "file.h"
 
 /******************************************************************************
 *public defines ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-
-//Project application configuration defines BEGIN
-  #define PROJ_CONFIG_USE_APP_COMMANDER         1
-//Project application configuration defines END
-
-//Project driver configuration defines BEGIN
-  #define PROJ_CONFIG_USE_DRVR_NVRAM            0
-  #define PROJ_CONFIG_USE_DRVR_WIFI             0
-  #define PROJ_CONFIG_USE_DRVR_BLUETOOTH        1
-  #define PROJ_CONFIG_USE_DRVR_USB              0
-  #define PROJ_CONFIG_USE_DRVR_IR_DETECTION     0
-  #define PROJ_CONFIG_USE_DRVR_CAMERA           1
-//Project driver configuration defines END
-
-
-//Project utility configuration defines BEGIN
-  #define PROJ_CONFIG_USE_UTIL_DEBUG            1
-  #define PROJ_CONFIG_USE_UTIL_OSAL             1
-
-  #define PROJ_CONFIG_OS_NONE                   0
-  #define PROJ_CONFIG_OS_TIRTOS                 1
-  #define PROJ_CONFIG_OS_FREERTOS               2
-  #define PROJ_CONFIG_OS_CHIBIOS                3
-  #define PROJ_CONFIG_OS_THREADX                4
-  /*add more PROJ_CONFIG_OS_... here*/
-    #define PROJ_CONFIG_OS     PROJ_CONFIG_OS_FREERTOS
-//Project utility configuration defines END
-
-
-//Project platform configuration defines BEGIN
-  //PCB platform
-    #define PROJ_CONFIG_PLATFORM_STM32F4DISC    1
-    #define PROJ_CONFIG_PLATFORM_NUCLEOF401RE   2
-    #define PROJ_CONFIG_PLATFORM_NUCLEOF412ZG   3
-    /*add more PROJ_CONFG_PLAFTORM_... here*/
-      #define PROJ_CONFIG_PLATFORM  PROJ_CONFIG_PLATFORM_STM32F4DISC
-
-  //Wifi module
-    #define PROJ_CONFIG_PLATFORM_WIFI_NONE      0
-    #define PROJ_CONFIG_PLATFORM_WIFI_WINC3400  1
-    #define PROJ_CONFIG_PLATFORM_WIFI_ESP8266   2
-    /*add more PROJ_CONFIG_PLATFORM_WIFI_... here*/
-      #define PROJ_CONFIG_PLATFORM_WIFI PROJ_CONFIG_PLATFORM_WIFI_ESP8266
-
-  //Bluetooth module
-#if(PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
-    #define PROJ_CONFIG_PLATFORM_BT_NONE        0
-    #define PROJ_CONFIG_PLATFORM_BT_WINC3400    1
-    #define PROJ_CONFIG_PLATFORM_BT_HC05        2
-    /*add more PROJ_CONFIG_PLATFORM_BT_... here*/
-      #define PROJ_CONFIG_PLATFORM_BT PROJ_CONFIG_PLATFORM_BT_HC05
-#endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH
-
-//Project platform configuration defines END
+#def EXAMPLE_DEF  value  //def description
 
 /******************************************************************************
 *public variables /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+int iExample_var;  //variable description
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+extern int iExample_extern_var;  //external variable description
 
 /******************************************************************************
 *public enums /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+//PUB_EXAMPLE_ENUM description
+typedef enum PUB_EXAMPLE_ENUM
+{
+    PUB_ENUM_A,
+    PUB_ENUM_B,
+    PUB_ENUM_C,
+}PUB_EXAMPLE_ENUM, * pPUB_EXAMPLE_ENUM;
 
 /******************************************************************************
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+//Pub_Example_Struct_t description
+typedef struct Pub_Example_Struct_t
+{
+  int              iVar1;
+  int *            pVar2;
+  bool             bVar3;
+  PUB_EXAMPLE_ENUM eENUM;
+  void (* pCallback_Fcn)(void * param);
+}Pub_Example_Struct_t, * pPub_Example_Struct;
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+extern int external_example_function(int param); //short external function description
 
 /******************************************************************************
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+/******************************************************************************
+*todo: Name: [put name here]
+*todo: Description:
+*   [put description here]
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+int iFilename_or_abreviation_funciton(bool bVar, pPub_Example_Struct pParam);  //breif function description
 
-#endif //__PROJECT_CONFIG_H__
+#endif //__FILE_NAME_H__

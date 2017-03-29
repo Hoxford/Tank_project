@@ -27,7 +27,7 @@
 // enums
 //*****************************************************************************
 //return error codes
-typedef enum
+typedef enum _ERROR_CODE
 {
     ER_OK,
     ER_FAIL,

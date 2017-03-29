@@ -156,19 +156,23 @@ static ERROR_CODE eHC05_Config_Mode(void)
 {
   ERROR_CODE eEC = ER_FAIL;
 
-  eEC = eBSP_BT_POWER_DISABLE();
+  eEC = ER_OK;//eBSP_BT_INTF_DMA_DISABLE();
   if(eEC == ER_OK)
   {
-    eEC = eBSP_BT_CONFIG_MODE_ENABLE();
+    eEC = eBSP_BT_POWER_DISABLE();
     if(eEC == ER_OK)
     {
-      eEC = eOSAL_delay(10, NULL);
+      eEC = eBSP_BT_CONFIG_MODE_ENABLE();
       if(eEC == ER_OK)
       {
+        eEC = eOSAL_delay(10, NULL);
         if(eEC == ER_OK)
         {
-          eBSP_BT_POWER_ENABLE();
-          eOSAL_delay(500, NULL);
+          if(eEC == ER_OK)
+          {
+            eBSP_BT_POWER_ENABLE();
+            eOSAL_delay(500, NULL);
+          }
         }
       }
     }
@@ -191,17 +195,21 @@ static ERROR_CODE eHC05_Data_Mode(void)
 {
   ERROR_CODE eEC = ER_FAIL;
 
-  eEC = eBSP_BT_POWER_DISABLE();
+  eEC = ER_OK;//eBSP_BT_INTF_DMA_ENABLE();
   if(eEC == ER_OK)
   {
-    eEC = eBSP_BT_CONFIG_MODE_DISABLE();
+    eEC = eBSP_BT_POWER_DISABLE();
     if(eEC == ER_OK)
     {
-      eEC = eOSAL_delay(10, NULL);
+      eEC = eBSP_BT_CONFIG_MODE_DISABLE();
       if(eEC == ER_OK)
       {
-        eBSP_BT_POWER_ENABLE();
-        eOSAL_delay(400, NULL);
+        eEC = eOSAL_delay(10, NULL);
+        if(eEC == ER_OK)
+        {
+          eBSP_BT_POWER_ENABLE();
+          eOSAL_delay(400, NULL);
+        }
       }
     }
   }
@@ -245,7 +253,7 @@ static ERROR_CODE eHC05_Check_Set_Baud(void)
   vDEBUG_ASSERT("eBluetooth_HC05_setup setup buff calloc fail", (HC05_AS_t.pSetupSendBuff != NULL)&(HC05_AS_t.pSetupRcvBuff != NULL));
 
   //Set module to configuration mode
-  eEC = eHC05_Config_Mode();
+  eEC = ER_OK;//eHC05_Config_Mode();
 
   if(eEC == ER_OK)
   {
@@ -404,14 +412,15 @@ static ERROR_CODE eHC05_Set_Default_Baud(void)
   UART_Config_t BT_Config_t;
 
   memset(&BT_Config_t, 0x00, sizeof(UART_Config_t));
-  BT_Config_t.eDataBits = DATA_BITS_8;
-  BT_Config_t.eParity   = PARITY_NONE;
-  BT_Config_t.eStopBits = STOP_BITS_1;
-  BT_Config_t.eControl  = FLOW_CONTROL_NONE;
-  BT_Config_t.eMode     = MODE_TX_RX;
-  BT_Config_t.uiBaud = HC05_BAUD_921K;
-  BT_Config_t.uiTimeout = 3000;
-  BT_Config_t.vUART_ISR = &vBluetooth_HC05_intf_isr_callback;
+  BT_Config_t.eDataBits     = DATA_BITS_8;
+  BT_Config_t.eParity       = PARITY_NONE;
+  BT_Config_t.eStopBits     = STOP_BITS_1;
+  BT_Config_t.eControl      = FLOW_CONTROL_NONE;
+  BT_Config_t.eMode         = MODE_TX_RX;
+  BT_Config_t.eDataHandling = HANDLING_DMA;
+  BT_Config_t.uiBaud        = HC05_BAUD_921K;
+  BT_Config_t.uiTimeout     = 3000;
+  BT_Config_t.vUART_ISR     = &vBluetooth_HC05_intf_isr_callback;
   eEC = eBSP_BT_INTF_CONFIG(&BT_Config_t);
 
   return eEC;
@@ -439,12 +448,14 @@ static ERROR_CODE eHC05_Check_Settings(void)
   char * pChar;
   char * pCharNext;
   int index = 0;
+  int iCompare = 0;
 
   HC05_AS_t.pSetupRcvBuff = calloc(SETUP_RCV_BUFF_SIZE, sizeof(uint8_t));
   HC05_AS_t.pSetupSendBuff = calloc(SETUP_SEND_BUFF_SIZE, sizeof(uint8_t));
   HC05_AS_t.uiSetupBuffIndex = 0;
 
-//  AT_CMD_GET_ADDR
+  //AT_CMD_GET_ADDR
+  //
   BT_Send_t.uiLen = strlen(AT_CMD_GET_ADDR);
   BT_Send_t.pBuff = (uint8_t *)HC05_AS_t.pSetupSendBuff;
   memcpy(BT_Send_t.pBuff, AT_CMD_GET_ADDR, BT_Send_t.uiLen);
@@ -534,6 +545,31 @@ static ERROR_CODE eHC05_Check_Settings(void)
       HC05_AS_t.u8BtAddress[index++] = strtol(pChar,&pChar,16);
       pChar++;
       HC05_AS_t.u8BtAddress[index++] = strtol(pChar,NULL,16);
+    }
+  }
+
+  //  AT_CMD_GET_NAME
+  //
+  memset(HC05_AS_t.pSetupRcvBuff, 0x00, SETUP_RCV_BUFF_SIZE);
+  memset(HC05_AS_t.pSetupSendBuff, 0x00, SETUP_SEND_BUFF_SIZE);
+  HC05_AS_t.uiSetupBuffIndex = 0;
+  BT_Send_t.uiLen = strlen(AT_CMD_GET_NAME);
+  BT_Send_t.pBuff = (uint8_t *)HC05_AS_t.pSetupSendBuff;
+  memcpy(BT_Send_t.pBuff, AT_CMD_GET_NAME, BT_Send_t.uiLen);
+
+  eEC = eHC05_Send(BT_Send_t.pBuff, BT_Send_t.uiLen);
+  if(eEC == ER_OK)
+  {
+    eEC = eHC05_Get_OK();
+    if(eEC == ER_OK)
+    {
+      pChar = strchr((char *)HC05_AS_t.pSetupRcvBuff, ':');
+      pChar++;
+      iCompare = strcmp(pChar, "TANK");
+      if(iCompare > 0)
+      {
+//todo set control variable to set name
+      }
     }
   }
 
@@ -636,7 +672,14 @@ static ERROR_CODE eHC05_Receive(uint8_t * pBuff, uint32_t u32BuffLen)
   BT_Rcv_t.uiLen = u32BuffLen;
   BT_Rcv_t.pBuff = pBuff;
 
-  eEC = eBSP_BT_INTF_RCV(&BT_Rcv_t);
+  if(HC05_AS_t.eState == HC05_STATE_READY)
+  {
+    eEC = eBSP_BT_INTF_DMA_RCV(&BT_Rcv_t);
+  }
+  else
+  {
+    eEC = eBSP_BT_INTF_RCV(&BT_Rcv_t);
+  }
 
   return eEC;
 }
@@ -661,6 +704,7 @@ void vBluetooth_HC05_intf_isr_callback(void)
     u8Rcv = 0;
     BT_Rcv_t.uiLen = 1;
     BT_Rcv_t.pBuff = &u8Rcv;
+    eBSP_BT_INTF_RCV_IT(&BT_Rcv_t);
   }
   else if(HC05_AS_t.eState == HC05_STATE_CHECK_SETTINGS)
   {
@@ -675,10 +719,11 @@ void vBluetooth_HC05_intf_isr_callback(void)
     u8Rcv = 0;
     BT_Rcv_t.uiLen = 1;
     BT_Rcv_t.pBuff = &u8Rcv;
+    eBSP_BT_INTF_RCV_IT(&BT_Rcv_t);
   }
   else if(HC05_AS_t.eState == HC05_STATE_READY)
   {
-    eBTAppRcvCallBack(NULL, 8);
+//    eBTAppRcvCallBack(NULL, 8);
   }
   else
   {
@@ -688,7 +733,24 @@ void vBluetooth_HC05_intf_isr_callback(void)
     }
   }
 
-  eBSP_BT_INTF_RCV_IT(&BT_Rcv_t);
+  return;
+}
+
+void vBluetooth_HC05_intf_DMA_isr_callback(void)
+{
+//  BSP_BT_Rcv_t  BT_Rcv_t;
+  if((HC05_AS_t.eState  == HC05_STATE_READY) &
+     (eBTAppRcvCallBack != NULL))
+  {
+    eBTAppRcvCallBack(NULL, 8);
+
+//    eBSP_BT_INTF_DMA_RCV(&BT_Rcv_t);
+  }
+  else
+  {
+    vDEBUG_ASSERT("", false);
+  }
+
   return;
 }
 
@@ -696,6 +758,9 @@ ERROR_CODE eBluetooth_HC05_setup(pBluetooth_App_API pApi)
 {
   ERROR_CODE eEC = ER_FAIL;
   BSP_BT_Rcv_t  BT_Rcv_t;
+
+  //Set module to configuration mode
+  eEC = eHC05_Config_Mode();
 
   //kick off data reception from the bluetooth module
   BT_Rcv_t.uiLen = 1;

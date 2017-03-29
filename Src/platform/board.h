@@ -79,6 +79,14 @@ typedef enum UART_MODE
   MODE_TX_RX,
   MODE_LIMIT,
 }UART_MODE, * pUART_MODE;
+
+typedef enum UART_DATA_HANDLING
+{
+  HANDLING_NONE,
+  HANDLING_DMA,
+  HANDLING_LIMIT,
+}UART_DATA_HANDLING, * pUART_DATA_HANDLING;
+
 /******************************************************************************
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -114,6 +122,7 @@ typedef struct UART_Config_t
   UART_STOP_BITS                    eStopBits;//
   UART_FLOW_CONTROL                 eControl;//
   UART_MODE                         eMode;
+  UART_DATA_HANDLING                eDataHandling; //Handling of the data, DMA or not
   uint32_t                          uiBaud;
   uint32_t                          uiTimeout;
   void (* vUART_ISR)                (void);//ISR to call for UART isr
@@ -167,8 +176,12 @@ ERROR_CODE eBSP_BT_INTF_SEND(pBSP_BT_Send pParam);
 void       vBSP_BT_INTF_SEND_IT_HANDLER(void);
 ERROR_CODE eBSP_BT_INTF_RCV(pBSP_BT_Rcv pParam);
 ERROR_CODE eBSP_BT_INTF_RCV_IT(pBSP_BT_Rcv pParam);
+ERROR_CODE eBSP_BT_INTF_DMA_RCV(pBSP_BT_Rcv pParam);
+void       vBSP_BT_INTF_RECEIVE_DMA_IT_HANDLER();
 ERROR_CODE eBSP_BT_INTF_RCV_CANCEL(void);
 ERROR_CODE eBSP_BT_INTF_CONFIG(pUART_Config pParam);
+ERROR_CODE eBSP_BT_INTF_DMA_DISABLE(void);
+ERROR_CODE eBSP_BT_INTF_DMA_ENABLE(void);
 ERROR_CODE eBSP_Wifi_Rst_Clr(void);
 ERROR_CODE eBSP_Wifi_Rst_Set(void);
 ERROR_CODE eBSP_Wifi_Rst(void);

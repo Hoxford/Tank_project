@@ -52,6 +52,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_uart4_tx;
+extern DMA_HandleTypeDef hdma_uart4_rx;
 extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart2;
 
@@ -170,6 +171,22 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f4xx.s).                    */
 /******************************************************************************/
+
+/**
+* @brief This function handles DMA1 stream2 global interrupt.
+*/
+void DMA1_Stream2_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream2_IRQn 0 */
+
+  /* USER CODE END DMA1_Stream2_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_uart4_rx);
+  /* USER CODE BEGIN DMA1_Stream2_IRQn 1 */
+//  vBSP_BT_INTF_RECEIVE_DMA_IT_HANDLER();
+  extern void vBluetooth_HC05_intf_DMA_isr_callback(void);
+  vBluetooth_HC05_intf_DMA_isr_callback();
+  /* USER CODE END DMA1_Stream2_IRQn 1 */
+}
 
 /**
 * @brief This function handles DMA1 stream4 global interrupt.

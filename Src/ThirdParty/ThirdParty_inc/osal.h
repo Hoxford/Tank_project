@@ -401,6 +401,52 @@ ERROR_CODE eOSAL_Queue_Get_msg           (OSAL_Queue_Handle_t * ptQueue_handle, 
 ERROR_CODE eOSAL_Queue_Post_msg          (OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg);
 
 /******************************************************************************
+* Name: eOSAL_Queue_Post_msg_ISR
+* Description:
+*   Post a message to a queue from an ISR routine.
+*
+*todo: Parameters:
+*   (type) name: description (in order from left to right)
+*     = value(optional): description if value set
+*     -or-
+*     ->(type) name: description if member of struct
+*       = value(optional): description if member of struct value set
+*   example:
+*   (bool) bVar: do action option
+*     = false: do action when set to false
+*     = true: do other action when set to true
+*   (pPub_Example_Struct) pParam: pointer to the param structure
+*     ->(int)iVar1: description
+*     ->(int *)pVar2: description
+*     ->(bool)bVar3: description
+*     ->(PUB_EXAMPLE_ENUM)eENUM: description
+*       = PUB_ENUM_A: do action when set to _A
+*       = PUB_ENUM_B: do action when set to _B
+*       = PUB_ENUM_C: do action when set to _C
+*     ->void (* pCallback_Fcn)(void * param): Function pointer for callback.
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eOSAL_Queue_Post_msg_ISR(OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg);
+
+/******************************************************************************
 *todo: Name: [put name here]
 *todo: Description:
 *   [put description here]

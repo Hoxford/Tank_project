@@ -930,11 +930,43 @@ ERROR_CODE eOSAL_Queue_Post_msg(OSAL_Queue_Handle_t * ptQueue_handle, void * pMs
   ERROR_CODE eEC = ER_FAIL;
   uint32_t uiRC = 0;
 
-  uiRC = xQueueSendToFront(
-                           ptQueue_handle->pHandle,
-                           pMsg,
-                           tOSAL_Queue_Desc[ptQueue_handle->uiHandle_Index].tQueue_Param.iTimeout
-                           );
+  uiRC = xQueueSendToBack(
+                          ptQueue_handle->pHandle,
+                          pMsg,
+                          tOSAL_Queue_Desc[ptQueue_handle->uiHandle_Index].tQueue_Param.iTimeout
+                          );
+
+  if(uiRC == pdPASS)
+  {
+    eEC = ER_OK;
+  }
+
+  return eEC;
+}
+
+/******************************************************************************
+* name: eOSAL_Queue_Post_msg_ISR
+******************************************************************************/
+ERROR_CODE eOSAL_Queue_Post_msg_ISR(OSAL_Queue_Handle_t * ptQueue_handle, void * pMsg)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  uint32_t uiRC = 0;
+  BaseType_t xHigherPriorityTaskWoken;
+
+    // We have not woken a task at the start of the ISR.
+    xHigherPriorityTaskWoken = pdFALSE;
+
+  uiRC = xQueueSendToBackFromISR(
+                          ptQueue_handle->pHandle,
+                          pMsg,
+                          &xHigherPriorityTaskWoken
+                          );
+
+  // Now the buffer is empty we can switch context if necessary.
+  if( xHigherPriorityTaskWoken )
+  {
+    taskYIELD ();
+  }
 
   if(uiRC == pdPASS)
   {
@@ -1099,7 +1131,7 @@ ERROR_CODE eOSAL_Data_Mutex_Get(pOSAL_Data_Mutex_Handle pHandle, void ** pData)
 {
   ERROR_CODE eEC = ER_FAIL;
   bool bRC = false;
-  uint32_t ui32Timeout = 0;
+//  uint32_t ui32Timeout = 0;
   pOSAL_Data_Mutex_Descriptor pDesc;
 
   //determine if the mutex was created
@@ -1129,7 +1161,7 @@ ERROR_CODE eOSAL_Data_Mutex_Return(pOSAL_Data_Mutex_Handle pHandle, void ** pDat
 {
   ERROR_CODE eEC = ER_FAIL;
   bool bRC = false;
-  uint32_t ui32Timeout = 0;
+//  uint32_t ui32Timeout = 0;
   pOSAL_Data_Mutex_Descriptor pDesc;
 
   //determine if the mutex was created

@@ -27,6 +27,8 @@
   #include "utils_inc/error_codes.h"
   #include "utils_inc/util_debug.h"
   #include "utils_inc/clock.h"
+  #include "utils_inc/ring_buffer.h"
+  /* Utility include files here */
 
 //Third party includes
   #include "ThirdParty_inc/osal.h"
@@ -51,11 +53,18 @@
 
 #define vCamera_GPIO_EXTI_Callback  HAL_GPIO_EXTI_Callback
 
+#define CAMERA_PIC_WIDTH             174
+#define CAMERA_PIC_HEIGHT            144
+#define CAMERA_PIC_BYTES_PER_PIXEL   2
+#define CAMERA_PIC_BUFF_SIZE         (CAMERA_PIC_WIDTH * CAMERA_PIC_HEIGHT * CAMERA_PIC_BYTES_PER_PIXEL)
+#define CAMERA_PIC_NUM_BUFFERS       2
+
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-char cCamera_Task_Name[] = "CAMERA";
+const  char        cCamera_Task_Name[] = "CAMERA";
+static RB_HANDLE   hRingBuffPic = 0;
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,22 +85,27 @@ typedef enum CAMERA_MSG_ID
 ******************************************************************************/
 
 //Camera activity state struct
-typedef struct tCamera_Activity_State
+typedef struct Camera_Activity_State
 {
-  bool bIs_Camera_Ready;
-  bool bIs_Camera_In_Continuouis_Mode;
-}tCamera_Activity_State;
+  bool      bIs_Camera_Ready;
+  bool      bIs_Camera_In_Continuouis_Mode;
+  uint8_t * pPicBuff;
+}Camera_Activity_State_t, * pCamera_Activity_State;
 
-tCamera_Activity_State tCamera_AS =
+Camera_Activity_State_t Camera_AS_t =
 {
-  false, //bool bIs_Camera_Ready;
-
+  .bIs_Camera_Ready               = false,
+  .bIs_Camera_In_Continuouis_Mode = false,
+  .pPicBuff                       = NULL,
 };
 
-typedef struct tCamera_Message_Struct
+typedef struct Camera_Message_Struct
 {
   CAMERA_MSG_ID eMSG;
-}tCamera_Message_Struct;
+}Camera_Message_Struct_t, * pCamera_Message_Struct;
+
+extern Camera_Device_API_t Cam_Dev_API_t;
+
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -99,24 +113,50 @@ typedef struct tCamera_Message_Struct
 /******************************************************************************
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-ERROR_CODE eCamera_Setup(void);
-void vCamera_Task(void * pvParameters);
+
+static ERROR_CODE eCamera_Receive_CB(uint8_t * pBuff, uint32_t u32BuffLen);
+static ERROR_CODE eCamera_Picture_Receive_CB(uint8_t * pBuff, uint32_t u32BuffLen);
+static ERROR_CODE eCamera_Stream_Receive_CB(uint8_t * pBuff, uint32_t u32BuffLen);
+static ERROR_CODE eCamera_App_Dev_Status_CB(CAMERA_DEV_STATUS eStatus);
+static void vCamera_Task(void * pvParameters);
+
+Camera_App_API_t Cam_App_API_t =
+{
+  .eCamAppRcvCallBack        = &eCamera_Receive_CB,
+  .eCamAppRcvPictureCallback = &eCamera_Picture_Receive_CB,
+  .eCamAppRcvStreamCallback  = &eCamera_Stream_Receive_CB,
+  .eCamAppDevStatusCallBack  = &eCamera_App_Dev_Status_CB,
+};
 
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-/******************************************************************************
-* todo: DESCRIPTION
-* name: eCamera_Setup
-* description:
-* param description: none
-* return value description: ERROR_CODE - ER_OK: Camera properly setup and ready to take pictures
-*                                        ER_FAIL: Camera setup failure
-******************************************************************************/
-ERROR_CODE eCamera_Setup(void)
+
+static ERROR_CODE eCamera_Receive_CB(uint8_t * pBuff, uint32_t u32BuffLen)
 {
   ERROR_CODE eEC = ER_FAIL;
+  vDEBUG_ASSERT("", eEC = ER_OK);
+  return eEC;
+}
 
+static ERROR_CODE eCamera_Picture_Receive_CB(uint8_t * pBuff, uint32_t u32BuffLen)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  vDEBUG_ASSERT("", eEC = ER_OK);
+  return eEC;
+}
+
+static ERROR_CODE eCamera_Stream_Receive_CB(uint8_t * pBuff, uint32_t u32BuffLen)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  vDEBUG_ASSERT("", eEC = ER_OK);
+  return eEC;
+}
+
+static ERROR_CODE eCamera_App_Dev_Status_CB(CAMERA_DEV_STATUS eStatus)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  vDEBUG_ASSERT("", eEC = ER_OK);
   return eEC;
 }
 
@@ -133,27 +173,44 @@ void vCamera_Task(void * pvParameters)
   ERROR_CODE eEC = ER_FAIL;
   OSAL_Queue_Parameters_t  Camera_Queue_Param_t;
   pOSAL_Queue_Handle       pCamera_Queue_Handle;
-  tCamera_Message_Struct  tMsg;
+  Camera_Message_Struct_t  Msg_t;
 
   eOSAL_Queue_Params_Init(&Camera_Queue_Param_t);
   Camera_Queue_Param_t.uiNum_Of_Queue_Elements = 3;
-  Camera_Queue_Param_t.uiSize_Of_Queue_Element = sizeof(tCamera_Message_Struct);
-  Camera_Queue_Param_t.pMsgBuff                = &tMsg;
+  Camera_Queue_Param_t.uiSize_Of_Queue_Element = sizeof(Camera_Message_Struct_t);
+  Camera_Queue_Param_t.pMsgBuff                = &Msg_t;
   Camera_Queue_Param_t.iTimeout                = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
 
   eEC = eOSAL_Queue_Create(&Camera_Queue_Param_t, &pCamera_Queue_Handle);
   vDEBUG_ASSERT("vCamera_Task queue create fail", eEC == ER_OK);
 
-  tCamera_AS.bIs_Camera_Ready = true;
+  if(eEC == ER_OK)
+  {
+    //Perform camera device setup
+    //
+    eEC = Cam_Dev_API_t.eCamDeviceSetup(&Cam_App_API_t);
+    vDEBUG_ASSERT("vCamera_Task camera setup fail", eEC == ER_OK);
+  }
+
+  if(eEC == ER_OK)
+  {
+    //set up the camera image ring buffer
+    //
+    eEC = eRingBuff_App_Create(&hRingBuffPic, CAMERA_PIC_NUM_BUFFERS, CAMERA_PIC_BUFF_SIZE);
+    vDEBUG_ASSERT("Cam pic ring buff create fail", eEC == ER_OK);
+    eRingBuff_App_Get_Buff(hRingBuffPic, &Camera_AS_t.pPicBuff);
+  }
+
+  Camera_AS_t.bIs_Camera_Ready = true;
 
   while(1)
   {
-    if(eOSAL_Queue_Get_msg(pCamera_Queue_Handle, &tMsg) == ER_OK)
+    if(eOSAL_Queue_Get_msg(pCamera_Queue_Handle, &Msg_t) == ER_OK)
     {
-      switch(tMsg.eMSG)
+      switch(Msg_t.eMSG)
       {
         default:
-          vDEBUG_ASSERT("vCamera_Task invalid msg ID", tMsg.eMSG < CAMERA_MSG_LIMIT);
+          vDEBUG_ASSERT("vCamera_Task invalid msg ID", Msg_t.eMSG < CAMERA_MSG_LIMIT);
       }
     }
   }
