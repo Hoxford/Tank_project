@@ -166,6 +166,10 @@ typedef struct BSP_Flash_Write_t
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+ERROR_CODE eBSP_CAMERA_POWER_ENABLE(void);
+ERROR_CODE eBSP_CAMERA_POWER_DISABLE(void);
+ERROR_CODE eBSP_CAMERA_RESET_SET(void);
+ERROR_CODE eBSP_CAMERA_RESET_CLEAR(void);
 ERROR_CODE eBSP_Camera_Intf_Send(pBSP_Camera_Send pParam);
 ERROR_CODE eBSP_Camera_Intf_Receive(pBSP_Camera_Receive pParam);
 ERROR_CODE eBSP_BT_POWER_ENABLE(void);

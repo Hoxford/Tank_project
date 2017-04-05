@@ -37,6 +37,8 @@
 
 //Driver includes
   #include "drivers_inc/camera.h"
+  #include "drivers_inc/camera_OV7670.h"
+  #include "drivers_inc/camera_OV7670_reg.h"
   /* Driver include files here */
 
 //Platform includes

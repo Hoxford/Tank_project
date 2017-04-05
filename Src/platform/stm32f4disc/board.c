@@ -346,12 +346,52 @@ static uint32_t uiGetUartMode(UART_MODE eMode)
 ******************************************************************************/
 
 /******************************************************************************
+* name: eBSP_CAMERA_POWER_ENABLE
+******************************************************************************/
+ERROR_CODE eBSP_CAMERA_POWER_ENABLE(void)
+{
+  ERROR_CODE eEC = ER_OK;
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET);
+  return eEC;
+}
+
+/******************************************************************************
+* name: eBSP_CAMERA_POWER_DISABLE
+******************************************************************************/
+ERROR_CODE eBSP_CAMERA_POWER_DISABLE(void)
+{
+  ERROR_CODE eEC = ER_OK;
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);
+  return eEC;
+}
+
+/******************************************************************************
+* name: eBSP_CAMERA_RESET_SET
+******************************************************************************/
+ERROR_CODE eBSP_CAMERA_RESET_SET(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  vDEBUG_ASSERT("", false);
+  return eEC;
+}
+
+/******************************************************************************
+* name: eBSP_CAMERA_RESET_CLEAR
+******************************************************************************/
+ERROR_CODE eBSP_CAMERA_RESET_CLEAR(void)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  vDEBUG_ASSERT("", false);
+  return eEC;
+}
+
+/******************************************************************************
 * name: eBSP_Camera_Intf_Send
 ******************************************************************************/
 ERROR_CODE eBSP_Camera_Intf_Send(pBSP_Camera_Send pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
-
+  vDEBUG_ASSERT("", false);
   return eEC;
 }
 
@@ -361,7 +401,7 @@ ERROR_CODE eBSP_Camera_Intf_Send(pBSP_Camera_Send pParam)
 ERROR_CODE eBSP_Camera_Intf_Receive(pBSP_Camera_Receive pParam)
 {
   ERROR_CODE eEC = ER_FAIL;
-
+  vDEBUG_ASSERT("", false);
   return eEC;
 }
 
