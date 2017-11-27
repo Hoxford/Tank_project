@@ -15,30 +15,61 @@
 /******************************************************************************
 *public defines ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
-//Add packet ID defines here //////////
-#define PKT_ID_MOVEMENT_CONTROL 0x01
-#define PKT_ID_CONFIG           0x10
-#define PKT_ID_CONTROL          0x11
+//Add Packet structure defines here ///////////////////////////////////////////
 
-#define PKT_ID_DATA             0x1F
-
+//Packet IDs //////////////////////////
+#define PKT_ID_CONFIG           0x11
+#define PKT_ID_GENERAL_CONTROL  0x22
+#define PKT_ID_MOVEMENT_CONTROL 0x33
+#define PKT_ID_VIDEO_CONTROL    0x44
+#define PKT_ID_DATA             0x55
+#define PKT_ID_SENSOR_CONTROL   0x66
 #define PKT_ID_END              0xFF
 
-//Add packet ID's that will need to be routed here:
-#define PKT_ID_TABLE           {                           \
-                                 PKT_ID_MOVEMENT_CONTROL,  \
-                                 PKT_ID_CONFIG,            \
-                                 PKT_ID_CONTROL,           \
-                                 PKT_ID_DATA,              \
-                                                           \
+//Packet ID table//////////////////////
+#define PKT_ID_TABLE           {                            \
+                                 PKT_ID_CONFIG,             \
+                                 PKT_ID_GENERAL_CONTROL,    \
+                                 PKT_ID_MOVEMENT_CONTROL,   \
+                                 PKT_ID_VIDEO_CONTROL,      \
+                                 PKT_ID_DATA,               \
+                                 PKT_ID_SENSOR_CONTROL,     \
+                                                            \
                                  /* End of packet ID's to route, do not exceed */ \
-                                 PKT_ID_END,               \
+                                 PKT_ID_END,                \
                                }
-//End packet ID defines ///////////////
+
+//Packet commands//////////////////////
+//config commands
+#define PKT_CMD_DEVICE_NAME     0x01
+  #define PKT_SUB_CMD_GET_NAME       0x02
+  #define PKT_SUB_CMD_SET_NAME       0x03
+  #define PKT_SUB_CMD_CLEAR_NAME     0x04
+  #define PKT_SUB_CMD_FACTORY_NAME   0x05
+
+#define PKT_CMD_DEVICE_TIME     0x02
+
+#define PKT_CMD_DEVICE_SOFTWARE 0x03
+
+//END packet struct defines////////////
+
 
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
+
+//Add packet structure here
+typedef struct Packet_Struct
+{
+    uint8_t id;
+    uint8_t command;
+    uint8_t sub_command;
+    uint16_t index;
+    uint8_t payload[58];
+    uint8_t crc;
+}Packet_Struct_t, Packet_t, *pPacket;
+
+//END packet structure
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -48,6 +48,7 @@ typedef enum CMND_REQUEST_ID
 {
   CMND_REQUEST_NONE = 0,
   CMND_REQUEST_TASK_PARAMETERS,
+  CMND_REQUEST_SEND,
   CMND_REQUEST_LIMIT,
 }CMND_REQUEST_ID;
 
@@ -55,11 +56,13 @@ typedef enum CMND_REQUEST_ID
 *public structures ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 //tCommand_Request struct used in requesting functions
-typedef struct tCommand_Request
+typedef struct Command_Request
 {
   CMND_REQUEST_ID eRequestID;
   OSAL_Task_Parameters_t * pCommander_Task_Param;
-}tCommand_Request;
+  uint8_t * pBuff;
+  uint32_t ui32Len;
+}Command_Request_t, * pCommand_Request, * pCmnd_Req;
 
 /******************************************************************************
 * external functions //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,8 +72,8 @@ typedef struct tCommand_Request
 * public functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
-ERROR_CODE eCommand_Param_Init(tCommand_Request * pRequest);
-ERROR_CODE eCommand_Request(tCommand_Request * pRequest);
+ERROR_CODE eCommand_Param_Init(pCmnd_Req pRequest);
+ERROR_CODE eCommand_Request(pCmnd_Req pRequest);
 
 #endif //PROJ_CONFIG_USE_APP_COMMANDER
 #endif //__COMMANDER_H__

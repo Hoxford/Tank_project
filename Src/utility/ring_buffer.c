@@ -157,7 +157,7 @@ ERROR_CODE eRingBuff_Destroy(RB_HANDLE Handle)
   return eEC;
 }
 
-ERROR_CODE eRingBuff_Fill_Next_Free(RB_HANDLE Handle, uint8_t * pBuffer, uint32_t ui32Len)
+ERROR_CODE eRingBuff_Push(RB_HANDLE Handle, uint8_t * pBuffer, uint32_t ui32Len)
 {
   ERROR_CODE eEC = ER_FAIL;
   pRB_Desc   pDesc;
@@ -224,7 +224,7 @@ ERROR_CODE eRingBuff_Fill_Next_Free(RB_HANDLE Handle, uint8_t * pBuffer, uint32_
   return eEC;
 }
 
-ERROR_CODE eRingBuff_Get_Next_Full(RB_HANDLE Handle, uint8_t * pBuffer)
+ERROR_CODE eRingBuff_Pop(RB_HANDLE Handle, uint8_t * pBuffer)
 {
   ERROR_CODE eEC = ER_FAIL;
   pRB_Desc   pDesc;
@@ -260,14 +260,23 @@ ERROR_CODE eRingBuff_Get_Next_Full(RB_HANDLE Handle, uint8_t * pBuffer)
       pDesc->ui32NumBuffersFilled--;
 
       if(pDesc->pTail == pDesc->pLastBuffer)
+      {
         pDesc->pTail = pDesc->pFirstBuffer;
+      }
       else
+      {
         pDesc->pTail += pDesc->ui32BuffSize;
+      }
 
       eEC = ER_OK;
     }
   }
   return eEC;
+}
+
+ERROR_CODE eRingBuff_Peek(RB_HANDLE Handle, uint8_t * pBuffer)
+{
+  return ER_NOT_ENABLED;
 }
 
 ERROR_CODE eRingBuff_App_Create(RB_HANDLE * pHandle, uint32_t ui32NumOfBuffers, uint32_t ui32BuffSize)
@@ -382,6 +391,9 @@ ERROR_CODE eRingBuff_App_Read_Buff(RB_HANDLE Handle, uint8_t * pBuffer)
       eEC = ER_INVALID;
     else if(pDesc->ui32NumBuffersFilled == 0)
       eEC = ER_NO_BUFF;
+    else if(pDesc->pHead == pDesc->pTail)
+      //app has not released the buffer yet to be read
+      eEC = ER_BUSY;
     else
     {
       memcpy(pBuffer, pDesc->pTail, pDesc->ui32BuffSize);

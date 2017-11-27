@@ -50,6 +50,7 @@ typedef enum BLUETOOTH_REQUEST_ID
   BLUETOOTH_REQUEST_TASK_PARAMETERS,
   BLUETOOTH_REQUEST_PROVISION,
   BLUETOOTH_REQUEST_CONNECT,
+  BLUETOOTH_REQUEST_SEND,
   BLUETOOTH_REQUEST_LIMIT,
 }BLUETOOTH_REQUEST_ID, * pBLUETOOTH_REQUEST_ID;
 
@@ -83,6 +84,8 @@ typedef struct Bluetooth_Request
 {
   BLUETOOTH_REQUEST_ID  eRequestID;
   pOSAL_Task_Parameters pBluetooth_Task_Param;
+  uint8_t *             pBuff;
+  uint32_t              ui32Len;
 }Bluetooth_Request_t, * pBluetooth_Request;
 
 /******************************************************************************
@@ -94,6 +97,7 @@ typedef struct Bluetooth_Request
 ******************************************************************************/
 
 ERROR_CODE eBluetooth_Request_Param_Init(pBluetooth_Request pParam);
+
 ERROR_CODE eBluetooth_Request(pBluetooth_Request pRequest);
 
 #endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH

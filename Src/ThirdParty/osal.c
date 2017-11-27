@@ -972,6 +972,10 @@ ERROR_CODE eOSAL_Queue_Post_msg_ISR(OSAL_Queue_Handle_t * ptQueue_handle, void *
   {
     eEC = ER_OK;
   }
+  else
+  {
+    eEC = ER_FAIL;
+  }
 
   return eEC;
 }

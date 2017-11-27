@@ -45,7 +45,11 @@
 * Description:
 *   Creates a ring buffer based upon the function parameters. This function
 *   will return an error code depending if it was able to complete the
-*   creation of the ring buffer system or not.
+*   creation of the ring buffer system or not. For this type of ring buffer the
+*   data management is handled entirely by the utility. Writing to the
+*   individual buffers is handled by the utility. Getting a buffer from the
+*   ring will copy it into the callers local buffer and free the buffer in the
+*   ring for next use.
 *
 * Parameters:
 *   (RB_HANDLE *) pHandle: Pointer to the applications local type RB_HANDLE
@@ -120,12 +124,12 @@ ERROR_CODE eRingBuff_Reset_All(RB_HANDLE Handle);
 ERROR_CODE eRingBuff_Destroy(RB_HANDLE Handle);
 
 /******************************************************************************
-* Name: eRingBuff_Fill_Next_Free
+* Name: eRingBuff_Push
 * Description:
 *   Fills the next available buffer with the data provided via the parameters.
 *
 * Parameters:
-*   (RB_HANDLE) Handle: Handle of the ring buffer to
+*   (RB_HANDLE) Handle: Handle of the ring buffer to fill
 *   (uint8_t *) pBuffer: pointer to the buffer containing the data to be copied
 *     into the ring buffer.
 *
@@ -146,13 +150,11 @@ ERROR_CODE eRingBuff_Destroy(RB_HANDLE Handle);
 *   iFilename_or_abreviation_funciton()
 * }
 ******************************************************************************/
-ERROR_CODE eRingBuff_Fill_Next_Free(RB_HANDLE Handle, uint8_t * pBuffer, uint32_t ui32Len);
+ERROR_CODE eRingBuff_Push(RB_HANDLE Handle, uint8_t * pBuffer, uint32_t ui32Len);
 
 /******************************************************************************
-* Name: eRingBuff_Get_Next_Full
-* Description:
-*   Fills the provided buffer pointer with the contents of the 'oldest' ring
-*   buffer.
+* Name: eRingBuff_Pop
+* todo:Description:
 *
 * Parameters:
 *   (RB_HANDLE) Handle: The ring buffer handle
@@ -174,12 +176,43 @@ ERROR_CODE eRingBuff_Fill_Next_Free(RB_HANDLE Handle, uint8_t * pBuffer, uint32_
 *   iFilename_or_abreviation_funciton()
 * }
 ******************************************************************************/
-ERROR_CODE eRingBuff_Get_Next_Full(RB_HANDLE Handle, uint8_t * pBuffer);
+ERROR_CODE eRingBuff_Pop(RB_HANDLE Handle, uint8_t * pBuffer);
 
 /******************************************************************************
-*todo: Name: [put name here]
-*todo: Description:
-*   [put description here]
+* Name: eRingBuff_Peek
+* todo:Description:
+*
+* Parameters:
+*   (RB_HANDLE) Handle: The ring buffer handle
+*   (uint8_t *) pBuffer: Pointer to buffer to fill from the ring buffer.
+*
+* Returns:
+*   (ERROR_CODE):
+*     = ER_OK:
+*     = ER_FAIL:
+*     = ER_NO_BUFF: No buffer to get, ring buffer is empty
+*     = ER_PARAM: The ring buffer handle is not valid
+*     = ER_BUFF: The pointer to the buffer to fill is invalid.
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eRingBuff_Peek(RB_HANDLE Handle, uint8_t * pBuffer);
+
+/******************************************************************************
+* Name: eRingBuff_App_Create
+* Description:
+*   Creates an application reliant ring buffer based upon the function
+*   parameters. This function will return an error code depending if it was
+*   able to complete the creation of the ring buffer system or not. For an
+*   app dependent ring buffer, the data write/read/free of the buffer is
+*   handled by the app that created it. This is so the app can have full
+*   control of the contents of each individual buffer but the utility still
+*   handles buffer creation/cycling/reset/destruction.
 *
 *todo: Parameters:
 *   (type) name: description (in order from left to right)
@@ -226,10 +259,13 @@ ERROR_CODE eRingBuff_App_Create(RB_HANDLE * pHandle, uint32_t ui32NumOfBuffers, 
 * Name: eRingBuff_App_Get_Buff
 * Description:
 *   Returns the address to the next available buffer in the pointer to a
-*   pointer parameter. If no buffer is available or otherwise the pointer
-*   pointer is set to null and a corresponding error code is returned.
+*   pointer parameter. If no buffer is available or otherwise, the pointer
+*   pointer is set to null and a corresponding error code is returned. Each
+*   time this function is called the ring will cycle to the next free ring
+*   buffer. The contents of the returned buffer address are managed by the
+*   calling app.
 *
-*todo: Parameters:
+* Parameters:
 *   (RB_HANDLE) Handle:
 *   (uint8_t **) ppBuffer
 *
@@ -277,5 +313,39 @@ ERROR_CODE eRingBuff_App_Get_Buff(RB_HANDLE Handle, uint8_t ** ppBuffer);
 * }
 ******************************************************************************/
 ERROR_CODE eRingBuff_App_Read_Buff(RB_HANDLE Handle, uint8_t * pBuffer);
+
+/******************************************************************************
+* Name: eRingBuff_App_Peek_Buff
+* Description:
+*   Returns the address to the next full buffer in the pointer to a pointer
+*   parameter. If no buffer is available or otherwise, the pointer pointer is
+*   set to null and a corresponding error code is returned. This function is
+*   will not cause the ring buffer to cycle. The contents of the returned
+*   buffer address are managed by the calling app.
+*
+* Parameters:
+*   (RB_HANDLE) Handle:
+*   (uint8_t **) ppBuffer
+*
+*todo: Returns:
+*   (type): description
+*     = value (optional): value description
+*   examples:
+*   (bool):
+*     = true: did function action and result is true
+*     = false: did function action and result is false
+*   (int): integer value description after function action
+*   (pPub_Example_Struct):
+*     = (uint32_t *): address of the created object
+*     =             - NULL: created object fail
+*
+* todo:Example:
+* void foo(void)
+* {
+*   //Function usage
+*   iFilename_or_abreviation_funciton()
+* }
+******************************************************************************/
+ERROR_CODE eRingBuff_App_Peek_Buff(RB_HANDLE Handle, uint8_t ** ppBuffer);
 
 #endif //__RING_BUFFER_H__

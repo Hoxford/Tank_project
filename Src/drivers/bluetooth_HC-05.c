@@ -98,6 +98,7 @@ typedef struct Bluetooth_HC05_Activity_State
   uint8_t *    pSetupRcvBuff;
   uint8_t *    pSetupSendBuff;
   uint32_t     uiSetupBuffIndex;
+  uint32_t     u32RcvBuffSize;
   uint8_t      u8BtAddress[6];
   char         cBtAddress[18];
 }Bluetooth_HC05_Activity_State_t, * pBluetooth_HC05_Activity_State;
@@ -109,6 +110,7 @@ static Bluetooth_HC05_Activity_State_t HC05_AS_t =
   .pSetupRcvBuff     = NULL,
   .pSetupSendBuff    = NULL,
   .uiSetupBuffIndex  = 0,
+  .u32RcvBuffSize    = 0,
   .u8BtAddress       = {0x00,0x00,0x00,0x00,0x00,0x00},
   .cBtAddress        = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 };
@@ -136,6 +138,7 @@ Bluetooth_Device_API_t BT_BSP_API_t =
   .eBTDeviceSetup = &eBluetooth_HC05_setup,
   .eBTDeviceSend  = &eHC05_Send,
   .eBTDeviceRcv   = &eHC05_Receive,
+  .eBTDeviceConnStatus = NULL,
 };
 /******************************************************************************
 * private functions ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -669,6 +672,8 @@ static ERROR_CODE eHC05_Receive(uint8_t * pBuff, uint32_t u32BuffLen)
   ERROR_CODE eEC = ER_FAIL;
   BSP_BT_Rcv_t  BT_Rcv_t;
 
+  HC05_AS_t.u32RcvBuffSize = u32BuffLen;
+
   BT_Rcv_t.uiLen = u32BuffLen;
   BT_Rcv_t.pBuff = pBuff;
 
@@ -691,47 +696,91 @@ static ERROR_CODE eHC05_Receive(uint8_t * pBuff, uint32_t u32BuffLen)
 void vBluetooth_HC05_intf_isr_callback(void)
 {
   BSP_BT_Rcv_t  BT_Rcv_t;
-  if(HC05_AS_t.eState == HC05_STATE_SET_BAUD)
+  switch(HC05_AS_t.eState)
   {
-    if(HC05_AS_t.pSetupRcvBuff != NULL)
-    {
-      if(u8Rcv != 0)
+    case HC05_STATE_POWER_RESET:
+      break;
+    case HC05_STATE_SET_BAUD:
+      if(HC05_AS_t.pSetupRcvBuff != NULL)
       {
-        HC05_AS_t.pSetupRcvBuff[HC05_AS_t.uiSetupBuffIndex] = u8Rcv;
-        HC05_AS_t.uiSetupBuffIndex++;
+        if(u8Rcv != 0)
+        {
+          HC05_AS_t.pSetupRcvBuff[HC05_AS_t.uiSetupBuffIndex] = u8Rcv;
+          HC05_AS_t.uiSetupBuffIndex++;
+        }
       }
-    }
-    u8Rcv = 0;
-    BT_Rcv_t.uiLen = 1;
-    BT_Rcv_t.pBuff = &u8Rcv;
-    eBSP_BT_INTF_RCV_IT(&BT_Rcv_t);
-  }
-  else if(HC05_AS_t.eState == HC05_STATE_CHECK_SETTINGS)
-  {
-    if(HC05_AS_t.pSetupRcvBuff != NULL)
-    {
-      if(u8Rcv != 0)
+      u8Rcv = 0;
+      BT_Rcv_t.uiLen = 1;
+      BT_Rcv_t.pBuff = &u8Rcv;
+      eBSP_BT_INTF_RCV_IT(&BT_Rcv_t);
+      break;
+    case HC05_STATE_CHECK_SETTINGS:
+      if(HC05_AS_t.pSetupRcvBuff != NULL)
       {
-        HC05_AS_t.pSetupRcvBuff[HC05_AS_t.uiSetupBuffIndex] = u8Rcv;
-        HC05_AS_t.uiSetupBuffIndex++;
+        if(u8Rcv != 0)
+        {
+          HC05_AS_t.pSetupRcvBuff[HC05_AS_t.uiSetupBuffIndex] = u8Rcv;
+          HC05_AS_t.uiSetupBuffIndex++;
+        }
       }
-    }
-    u8Rcv = 0;
-    BT_Rcv_t.uiLen = 1;
-    BT_Rcv_t.pBuff = &u8Rcv;
-    eBSP_BT_INTF_RCV_IT(&BT_Rcv_t);
+      u8Rcv = 0;
+      BT_Rcv_t.uiLen = 1;
+      BT_Rcv_t.pBuff = &u8Rcv;
+      eBSP_BT_INTF_RCV_IT(&BT_Rcv_t);
+      break;
+    case HC05_STATE_READY:
+      if(eBTAppRcvCallBack != NULL)
+        eBTAppRcvCallBack(NULL, HC05_AS_t.u32RcvBuffSize);
+      break;
+    default:
+      if(vRcvByte != NULL)
+      {
+        vRcvByte(&u8Rcv);
+      }
+      break;
   }
-  else if(HC05_AS_t.eState == HC05_STATE_READY)
-  {
+//  if(HC05_AS_t.eState == HC05_STATE_SET_BAUD)
+//  {
+//    if(HC05_AS_t.pSetupRcvBuff != NULL)
+//    {
+//      if(u8Rcv != 0)
+//      {
+//        HC05_AS_t.pSetupRcvBuff[HC05_AS_t.uiSetupBuffIndex] = u8Rcv;
+//        HC05_AS_t.uiSetupBuffIndex++;
+//      }
+//    }
+//    u8Rcv = 0;
+//    BT_Rcv_t.uiLen = 1;
+//    BT_Rcv_t.pBuff = &u8Rcv;
+//    eBSP_BT_INTF_RCV_IT(&BT_Rcv_t);
+//  }
+//  else if(HC05_AS_t.eState == HC05_STATE_CHECK_SETTINGS)
+//  {
+//    if(HC05_AS_t.pSetupRcvBuff != NULL)
+//    {
+//      if(u8Rcv != 0)
+//      {
+//        HC05_AS_t.pSetupRcvBuff[HC05_AS_t.uiSetupBuffIndex] = u8Rcv;
+//        HC05_AS_t.uiSetupBuffIndex++;
+//      }
+//    }
+//    u8Rcv = 0;
+//    BT_Rcv_t.uiLen = 1;
+//    BT_Rcv_t.pBuff = &u8Rcv;
+//    eBSP_BT_INTF_RCV_IT(&BT_Rcv_t);
+//  }
+//  else if(HC05_AS_t.eState == HC05_STATE_READY)
+//  {
+//
 //    eBTAppRcvCallBack(NULL, 8);
-  }
-  else
-  {
-    if(vRcvByte != NULL)
-    {
-      vRcvByte(&u8Rcv);
-    }
-  }
+//  }
+//  else
+//  {
+//    if(vRcvByte != NULL)
+//    {
+//      vRcvByte(&u8Rcv);
+//    }
+//  }
 
   return;
 }
@@ -742,7 +791,7 @@ void vBluetooth_HC05_intf_DMA_isr_callback(void)
   if((HC05_AS_t.eState  == HC05_STATE_READY) &
      (eBTAppRcvCallBack != NULL))
   {
-    eBTAppRcvCallBack(NULL, 8);
+    eBTAppRcvCallBack(NULL, 64);
 
 //    eBSP_BT_INTF_DMA_RCV(&BT_Rcv_t);
   }

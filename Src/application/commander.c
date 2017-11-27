@@ -60,6 +60,10 @@
   #define CMNDR_PERSISTANT_SETTINGS_ID  0x122D2C15
 //End module persistent settings
 
+//dev defines
+  #define ECHO_PKT
+//End dev defines
+
 /******************************************************************************
 * variables ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
@@ -84,6 +88,7 @@ typedef enum COMMAND_MSG_ID
   COMMAND_MSG_TEST_DATA_MUTEX,
   COMMAND_MSG_INTERFACE_CONNECT,
   COMMAND_MSG_PARSE_PACKET,
+  COMMAND_MSG_INTERFACE_SEND,
   COMMAND_MSG_LIMIT,
 }COMMAND_MSG_ID, * pCOMMAND_MSG_ID;
 
@@ -99,6 +104,7 @@ typedef struct Command_Activity_State_t
   char cAP_ID[128];
   char cAP_PW[64];
   uint32_t uiCommaner_NVID;
+  pQ_Handle hQ_Cmdr;
 }Command_Activity_State_t, * pCommand_Activity_State;
 
 Command_Activity_State_t Command_AS_t =
@@ -116,6 +122,7 @@ Command_Activity_State_t Command_AS_t =
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
               0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
             },
+  .hQ_Cmdr = NULL,
   .uiCommaner_NVID = CMNDR_PERSISTANT_SETTINGS_ID,
 };
 
@@ -143,7 +150,13 @@ typedef struct Commander_Mutex_Data
 ******************************************************************************/
 
 static void       vCommanderPacketReceive(uint8_t * pPacket, uint32_t u32Packet_Len);
-static ERROR_CODE eCommander_Cmnd_Parse(uint8_t * pBuff, uint32_t ui32Len);
+static ERROR_CODE eCommander_Pkt_Parse(uint8_t * pBuff, uint32_t ui32Len);
+static ERROR_CODE eProcess_Config_Pkt(pPacket pPkt);
+static ERROR_CODE eProcess_GC_Pkt(pPacket pPkt);
+static ERROR_CODE eProcess_Movement_Pkt(pPacket pPkt);
+static ERROR_CODE eProcess_Vid_Pkt(pPacket pPkt);
+static ERROR_CODE eProcess_Data_Pkt(pPacket pPkt);
+static ERROR_CODE eProcess_Sen_Pkt(pPacket pPkt);
 static void       vCommander_Task(void * pvParameters);
 
 /******************************************************************************
@@ -152,15 +165,120 @@ static void       vCommander_Task(void * pvParameters);
 
 static void vCommanderPacketReceive(uint8_t * pPacket, uint32_t u32Packet_Len)
 {
+  Commander_Message_Struct_t Msg_t;
+  Msg_t.eMSG = COMMAND_MSG_PARSE_PACKET;
+  Msg_t.u32BuffLen = u32Packet_Len;
+  Msg_t.pBuff = calloc(u32Packet_Len, sizeof(uint8_t));
+  memcpy(Msg_t.pBuff, pPacket, u32Packet_Len);
+  Msg_t.bBuffAllocated = true;
+  eOSAL_Queue_Post_msg(Command_AS_t.hQ_Cmdr, &Msg_t);
   return;
 }
 
-static ERROR_CODE eCommander_Cmnd_Parse(uint8_t * pBuff, uint32_t ui32Len)
+static ERROR_CODE eCommander_Pkt_Parse(uint8_t * pBuff, uint32_t ui32Len)
 {
   ERROR_CODE eEC = ER_FAIL;
+//  pCmnd_Req pReq;
+
+  if(sizeof(Packet_t) != ui32Len)
+    eEC = ER_LEN;
+  else if(NULL == pBuff)
+    eEC = ER_NO_BUFF;
+  else
+  {
+#if defined(ECHO_PKT)
+    Bluetooth_Request_t Bt_Req_t;
+    Bt_Req_t.eRequestID = BLUETOOTH_REQUEST_SEND;
+    Bt_Req_t.pBuff = pBuff;
+    Bt_Req_t.ui32Len = ui32Len;
+    eEC = eBluetooth_Request(&Bt_Req_t);
+#else
+    pPacket pPkt;
+    pPkt = (pPacket)pBuff;
+    switch(pPkt->id)
+    {
+      case PKT_ID_CONFIG:
+        eProcess_Config_Pkt(pPkt);
+        break;
+      case PKT_ID_GENERAL_CONTROL:
+        eProcess_GC_Pkt(pPkt);
+        break;
+      case PKT_ID_MOVEMENT_CONTROL:
+        eProcess_Movement_Pkt(pPkt);
+        break;
+      case PKT_ID_VIDEO_CONTROL:
+        eProcess_Vid_Pkt(pPkt);
+        break;
+      case PKT_ID_DATA:
+        eProcess_Data_Pkt(pPkt);
+        break;
+      case PKT_ID_SENSOR_CONTROL:
+        eProcess_Sen_Pkt(pPkt);
+        break;
+      default:
+        break;
+    }
+#endif
+  }
 
   return eEC;
 }
+
+static ERROR_CODE eProcess_Config_Pkt(pPacket pPkt)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  switch(pPkt->command)
+  {
+    case PKT_CMD_DEVICE_NAME:
+      break;
+    case PKT_CMD_DEVICE_TIME:
+      break;
+    case PKT_CMD_DEVICE_SOFTWARE:
+      switch(pPkt->sub_command)
+      {
+        case 2:
+        case 3:
+        case 4:
+        default:
+          break;
+      }
+      break;
+    default:
+      break;
+  }
+  return eEC;
+}
+
+static ERROR_CODE eProcess_GC_Pkt(pPacket pPkt)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  return eEC;
+}
+
+static ERROR_CODE eProcess_Movement_Pkt(pPacket pPkt)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  return eEC;
+}
+
+static ERROR_CODE eProcess_Vid_Pkt(pPacket pPkt)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  return eEC;
+}
+
+static ERROR_CODE eProcess_Data_Pkt(pPacket pPkt)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  return eEC;
+}
+
+static ERROR_CODE eProcess_Sen_Pkt(pPacket pPkt)
+{
+  ERROR_CODE eEC = ER_FAIL;
+  return eEC;
+}
+
 
 /******************************************************************************
 * name: vCommander_Task
@@ -200,6 +318,7 @@ static void vCommander_Task(void * pvParameters)
   tCommander_Queue_Param.iTimeout = OSAL_QUEUE_TIMEOUT_WAITFOREVER;
   eEC = eOSAL_Queue_Create(&tCommander_Queue_Param, &pCommander_Queue_Handle);
   vDEBUG_ASSERT("vCommander_Task queue create fail", eEC == ER_OK);
+  Command_AS_t.hQ_Cmdr = pCommander_Queue_Handle;
 
 #if (PROJ_CONFIG_USE_DRVR_NVRAM >= 1)
   tNvram_Request tNVReq;
@@ -248,7 +367,7 @@ static void vCommander_Task(void * pvParameters)
   //Register with the packet router
   //
   eEC = ePacket_Client_Register(PKT_ID_CONFIG, &vCommanderPacketReceive);
-  eEC = ePacket_Client_Register(PKT_ID_CONTROL, &vCommanderPacketReceive);
+  eEC = ePacket_Client_Register(PKT_ID_GENERAL_CONTROL, &vCommanderPacketReceive);
 
   //just before the task loop mark commander task ready
   //
@@ -280,11 +399,17 @@ static void vCommander_Task(void * pvParameters)
 #endif //PROJ_CONFIG_USE_DRVR_WIFI
           break;
         case COMMAND_MSG_PARSE_PACKET:
-          eCommander_Cmnd_Parse(Msg_t.pBuff, Msg_t.u32BuffLen);
+          eCommander_Pkt_Parse(Msg_t.pBuff, Msg_t.u32BuffLen);
           if(Msg_t.bBuffAllocated == true)
           {
             free(Msg_t.pBuff);
           }
+          break;
+        case COMMAND_MSG_INTERFACE_SEND:
+#if (PROJ_CONFIG_USE_DRVR_BLUETOOTH >= 1)
+          BT_Req_t.eRequestID = BLUETOOTH_REQUEST_SEND;
+          eBluetooth_Request(&BT_Req_t);
+#endif //PROJ_CONFIG_USE_DRVR_BLUETOOTH
           break;
         default:
           break;
@@ -305,7 +430,7 @@ static void vCommander_Task(void * pvParameters)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eCommand_Param_Init(tCommand_Request * pRequest)
+ERROR_CODE eCommand_Param_Init(pCmnd_Req pRequest)
 {
   ERROR_CODE eEC = ER_FAIL;
   if(pRequest == NULL)
@@ -335,7 +460,7 @@ ERROR_CODE eCommand_Param_Init(tCommand_Request * pRequest)
 *                    bool - true: do action when set to true
 * return value description: type - value: value description
 ******************************************************************************/
-ERROR_CODE eCommand_Request(tCommand_Request * pRequest)
+ERROR_CODE eCommand_Request(pCmnd_Req pRequest)
 {
   ERROR_CODE eEC = ER_OK;
 
@@ -349,8 +474,12 @@ ERROR_CODE eCommand_Request(tCommand_Request * pRequest)
       pRequest->pCommander_Task_Param->uiTask_Priority = TASK_COMMANDER_PRIORITY;
       eEC = ER_OK;
       break;
+    case CMND_REQUEST_SEND:
+      eEC = ER_OK;
+      break;
     default:
       eEC = ER_FAIL;
+      break;
   }
 
     return eEC;

@@ -119,7 +119,7 @@ typedef struct OSAL_Queue_Handle_t
 {
   void * pHandle;
   uint32_t uiHandle_Index;
-}OSAL_Queue_Handle_t, * pOSAL_Queue_Handle;
+}OSAL_Queue_Handle_t, * pOSAL_Queue_Handle, * pQ_Handle;
 
 typedef struct OSAL_Task_Parameters
 {

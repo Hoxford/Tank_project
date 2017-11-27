@@ -153,14 +153,14 @@ ERROR_CODE ePacket_Client_Register(uint8_t u8PacketId, void (* vPacketClientRece
 
 ERROR_CODE ePacket_Route(uint8_t * pPacket, uint32_t u32Packet_Len)
 {
-  ERROR_CODE         eEC = ER_FAIL;
-  uint16_t           u16RouteTableSize;
+  ERROR_CODE         eEC = ER_OK;
+  uint16_t           u16RouteTableSize = 0;
   uint16_t           u16Index = 0;
   uint8_t            u8PacketID = pPacket[0];
   pPacketRouteClient pClient = pPacketClientRouteList;
 
   //check if any clients are currently registered with the packet router
-  if(pPacketClientRouteList != NULL)
+  if(NULL != pPacketClientRouteList)
   {
     u16RouteTableSize = sizeof(u8PacketIDTable);
 
@@ -178,7 +178,7 @@ ERROR_CODE ePacket_Route(uint8_t * pPacket, uint32_t u32Packet_Len)
           }
 
           //check if there is another client in the list
-          if(pClient->pNextClient != NULL)
+          if(NULL != pClient->pNextClient)
           {
             pClient = pClient->pNextClient;
           }

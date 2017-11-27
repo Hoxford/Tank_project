@@ -132,7 +132,7 @@ void proj_main(void)
 #endif //#if (PROJ_CONFIG_USE_DRVR_PERSISTENT_SETTINGS >= 1)
 
 #if (PROJ_CONFIG_USE_APP_COMMANDER >= 1)
-  tCommand_Request      tCmnd_Req;
+  Command_Request_t      tCmnd_Req;
 
   //Instantiate the command task
   //

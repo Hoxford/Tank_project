@@ -63,9 +63,8 @@
 
 const  char                 cBluetooth_Task_Name[] = "Bluetooth";
 static pOSAL_Queue_Handle   pBluetooth_Queue = NULL;
-static RB_HANDLE            hRingBuffCmndRcv = 0;
-static RB_HANDLE            hRingBuffDataRcv = 0;
-static RB_HANDLE            hRingBuffDataSend = 0;
+static RB_HANDLE            hRingFrameRcv = 0;
+static RB_HANDLE            hRingFrameSend = 0;
 
 /******************************************************************************
 * external variables //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,9 +77,8 @@ static RB_HANDLE            hRingBuffDataSend = 0;
 typedef enum _BLUETOOTH_MSG_ID
 {
   BLUETOOTH_MSG_NONE,
-  BLUETOOTH_RECEIVE_COMMAND_FRAME,
-  BLUETOOTH_RECEIVE_DATA_FRAME,
-  BLUETOOTH_SEND_DATA_FRAME,
+  BLUETOOTH_RECEIVE_FRAME,
+  BLUETOOTH_SEND_FRAME,
   BLUETOOTH_MSG_LIMIT,
 }BLUETOOTH_MSG_ID, * pBLUETOOTH_MSG_ID;
 
@@ -148,6 +146,7 @@ extern Bluetooth_Device_API_t BT_BSP_API_t;
 * private function declarations ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ******************************************************************************/
 
+static ERROR_CODE eBluetooth_Send_Frame(uint8_t * pBuff, uint32_t u32BuffLen);
 static ERROR_CODE eBluetooth_Receive_Frame_CB(uint8_t * pBuff, uint32_t u32BuffLen);
 static ERROR_CODE eBluetooth_Conn_Status_CB(BLUETOOTH_CONN_STATE eState);
 static void       vBluetooth_Driver_Task(void * pvParameters);
@@ -174,6 +173,16 @@ Bluetooth_App_API_t App_API_t =
 ******************************************************************************/
 
 /******************************************************************************
+* name: eBluetooth_Send_Frame
+******************************************************************************/
+static ERROR_CODE eBluetooth_Send_Frame(uint8_t * pBuff, uint32_t u32BuffLen)
+{
+  ERROR_CODE eEC = ER_FAIL;
+
+  return eEC;
+}
+
+/******************************************************************************
 * name: eBluetooth_Receive_Frame_CB
 ******************************************************************************/
 static ERROR_CODE eBluetooth_Receive_Frame_CB(uint8_t * pBuff, uint32_t u32BuffLen)
@@ -182,20 +191,14 @@ static ERROR_CODE eBluetooth_Receive_Frame_CB(uint8_t * pBuff, uint32_t u32BuffL
 //  pBT_Cmd_Pkt pPkt;
   BT_msg_t Msg_t;
 
-  if(BT_AS_t.pRcvBuff[0] == 0x10) //todo: need to add a command protocol file
-  {
-    eEC = eRingBuff_App_Get_Buff(hRingBuffCmndRcv, &BT_AS_t.pRcvBuff);
-    vDEBUG_ASSERT("Ring buff fail", eEC == ER_OK);
-    eEC = BT_BSP_API_t.eBTDeviceRcv(BT_AS_t.pRcvBuff, 8);
+//  eEC = eRingBuff_App_Get_Buff(hRingFrameRcv, &BT_AS_t.pRcvBuff);
+//  vDEBUG_ASSERT("Ring buff fail", ER_OK == eEC);
+//  eEC = BT_BSP_API_t.eBTDeviceRcv(BT_AS_t.pRcvBuff, TASK_BT_RCV_BUFF_SIZE);
+//  vDEBUG_ASSERT("bt rcv fail", ER_OK == eEC);
 
-    Msg_t.eMSG = BLUETOOTH_RECEIVE_COMMAND_FRAME;
-    eOSAL_Queue_Post_msg_ISR(pBluetooth_Queue, &Msg_t);
-  }
-  else if(BT_AS_t.pRcvBuff[0] == 0x1F)
-  {
-    eEC = eRingBuff_Fill_Next_Free(hRingBuffCmndRcv, pBuff, 64);
-    vDEBUG_ASSERT("Ring buff fail", eEC == ER_OK);
-  }
+  Msg_t.eMSG = BLUETOOTH_RECEIVE_FRAME;
+  eEC = eOSAL_Queue_Post_msg_ISR(pBluetooth_Queue, &Msg_t);
+  vDEBUG_ASSERT("post isr fail", ER_OK == eEC);
 
   return eEC;
 }
@@ -219,7 +222,7 @@ static void vBluetooth_Driver_Task(void * pvParameters)
   OSAL_Queue_Parameters_t Bluetooth_Queue_Param_t;
   BT_msg_t Msg_t;
 //  uint8_t * pBuff;
-  uint8_t u8CommandBuff[8];
+  uint8_t u8Frame[TASK_BT_RCV_BUFF_SIZE];
 //  Bluetooth_Send_t    Send_t;
 //  Bluetooth_Receive_t Rcv_t;
 
@@ -240,28 +243,25 @@ static void vBluetooth_Driver_Task(void * pvParameters)
 
   if(eEC == ER_OK)
   {
-    //set up the bluetooth command receive ring buffer
+    //set up the bluetooth frame receive ring buffer
     //
-    eEC = eRingBuff_App_Create(&hRingBuffCmndRcv, 8, 8);
+    eEC = eRingBuff_App_Create(&hRingFrameRcv, 8, TASK_BT_RCV_BUFF_SIZE);
     vDEBUG_ASSERT("BT rcv cmnd ring buff create fail", eEC == ER_OK);
-    eRingBuff_App_Get_Buff(hRingBuffCmndRcv, &BT_AS_t.pRcvBuff);
 
-    //set up the bluetooth data receive ring buffer
+    //set up the bluetooth send frame ring buffer
     //
-    eEC = eRingBuff_App_Create(&hRingBuffDataRcv, 4, 64);
-    vDEBUG_ASSERT("BT rcv data ring buff create fail", eEC == ER_OK);
-
-    //set up the bluetooth send ring buffer
-    //
-    eEC = eRingBuff_Create(&hRingBuffDataSend, 8, 64);
+    eEC = eRingBuff_Create(&hRingFrameSend, 8, TASK_BT_SEND_BUFF_SIZE);
     vDEBUG_ASSERT("BT send data ring buff create fail", eEC == ER_OK);
   }
 
   if(eEC == ER_OK)
   {
+    //Get a buffer to fill from the ring buffer
+    eEC = eRingBuff_App_Get_Buff(hRingFrameRcv, &BT_AS_t.pRcvBuff);
+    vDEBUG_ASSERT("Ring buff fail", eEC == ER_OK);
     //Kick off data reception from the bluetooth device
     //
-    eEC = BT_BSP_API_t.eBTDeviceRcv(BT_AS_t.pRcvBuff, 8);
+    eEC = BT_BSP_API_t.eBTDeviceRcv(BT_AS_t.pRcvBuff, 64);
     vDEBUG_ASSERT("Bluetooth receiving failure", eEC == ER_OK);
   }
 
@@ -279,20 +279,20 @@ static void vBluetooth_Driver_Task(void * pvParameters)
       {
         switch(Msg_t.eMSG)
         {
-          case BLUETOOTH_RECEIVE_COMMAND_FRAME:
+          case BLUETOOTH_RECEIVE_FRAME:
           {
-            while(eRingBuff_App_Read_Buff(hRingBuffCmndRcv, u8CommandBuff) == ER_OK)
+            while(ER_OK == eRingBuff_App_Read_Buff(hRingFrameRcv, u8Frame))
             {
-              ePacket_Route(u8CommandBuff, 8);
+              ePacket_Route(u8Frame, TASK_BT_RCV_BUFF_SIZE);
             }
             break;
           }
-          case BLUETOOTH_RECEIVE_DATA_FRAME:
+          case BLUETOOTH_SEND_FRAME:
           {
-            break;
-          }
-          case BLUETOOTH_SEND_DATA_FRAME:
-          {
+            while(ER_OK == eRingBuff_Pop(hRingFrameSend, u8Frame))
+            {
+              BT_BSP_API_t.eBTDeviceSend(u8Frame, TASK_BT_RCV_BUFF_SIZE);
+            }
             break;
           }
           default:
@@ -325,6 +325,7 @@ ERROR_CODE eBluetooth_Request_Param_Init(pBluetooth_Request pParam)
 ERROR_CODE eBluetooth_Request(pBluetooth_Request pRequest)
 {
   ERROR_CODE eEC = ER_FAIL;
+  BT_msg_t Msg_t;
 
   vDEBUG_ASSERT("BT request out of limit", ((pRequest->eRequestID > BLUETOOTH_REQUEST_NONE)|
                                             (pRequest->eRequestID < BLUETOOTH_REQUEST_LIMIT)));
@@ -344,6 +345,14 @@ ERROR_CODE eBluetooth_Request(pBluetooth_Request pRequest)
     switch(pRequest->eRequestID)
     {
       case BLUETOOTH_REQUEST_PROVISION:
+        break;
+      case BLUETOOTH_REQUEST_SEND:
+        eEC = eRingBuff_Push(hRingFrameSend, pRequest->pBuff, pRequest->ui32Len);
+        if(eEC == ER_OK)
+        {
+          Msg_t.eMSG = BLUETOOTH_SEND_FRAME;
+          eEC = eOSAL_Queue_Post_msg(pBluetooth_Queue, &Msg_t);
+        }
         break;
       default:
         break;
